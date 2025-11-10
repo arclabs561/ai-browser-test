@@ -6,7 +6,7 @@ Thank you for your interest in contributing!
 
 ```bash
 # Clone the repository
-git clone https://github.com/henrywallace/ai-browser-test.git
+git clone https://github.com/arclabs561/ai-browser-test.git
 cd ai-browser-test
 
 # Install dependencies (if any)

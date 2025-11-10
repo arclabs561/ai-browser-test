@@ -10,7 +10,7 @@ All notable changes to ai-browser-test will be documented in this file.
 - Added persona-based experience testing with human-interpreted time scales
 - Updated keywords to better reflect capabilities
 - Renamed directory to match npm package name (`ai-browser-test`)
-- Updated git remote to `henrywallace/ai-browser-test`
+- Updated git remote to `arclabs561/ai-browser-test`
 - Fixed all temporal test edge cases (null safety)
 
 ### Added
