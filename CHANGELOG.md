@@ -9,11 +9,15 @@ All notable changes to ai-browser-test will be documented in this file.
 - Updated description to reflect browser/Playwright integration and multi-modal validation
 - Added persona-based experience testing with human-interpreted time scales
 - Updated keywords to better reflect capabilities
+- Renamed directory to match npm package name (`ai-browser-test`)
+- Updated git remote to `henrywallace/ai-browser-test`
+- Fixed all temporal test edge cases (null safety)
 
 ### Added
 - `experiencePageAsPersona()` - Test page experience from persona perspective
 - `experiencePageWithPersonas()` - Test page experience with multiple personas
 - Human-interpreted time scales (reading time, interaction time) vs mechanical fps
+- Comprehensive test suite (81 tests passing)
 
 ## [0.1.0] - 2025-01-27
 

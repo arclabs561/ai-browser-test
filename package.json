@@ -2,7 +2,7 @@
   "name": "ai-browser-test",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arclabs561/ai-browser-test.git"
+    "url": "git+https://github.com/henrywallace/ai-browser-test.git"
   },
   "version": "0.1.1",
   "description": "Browser testing utilities using Vision Language Models (VLLM) for multi-modal validation with Playwright. Supports persona-based experience testing, human-interpreted time scales, and built-in prompt templates.",
@@ -46,7 +46,7 @@
     "accessibility",
     "e2e-testing"
   ],
-  "author": "arclabs561 <femtobop@gmail.com>",
+  "author": "henrywallace <henry@henrywallace.io>",
   "license": "MIT",
   "dependencies": {},
   "peerDependencies": {
