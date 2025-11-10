@@ -24,14 +24,11 @@ VLLM Testing provides a comprehensive solution for visual regression testing usi
 ## Installation
 
 ```bash
-# From GitHub
-npm install git+https://github.com/henrywallace/vllm-testing.git
-
-# Or as a local package
-npm install file:../vllm-testing
-
-# Or from npm (if published)
+# From npm (recommended)
 npm install @vllm-testing/core
+
+# Or from GitHub
+npm install git+https://github.com/henrywallace/vllm-testing.git
 ```
 
 ## Quick Start

@@ -34,7 +34,7 @@ const config = createConfig({
 test.describe('Visual Testing Examples', () => {
   
   test('basic screenshot validation', async ({ page }) => {
-    await page.goto('https://queeraoke.fyi');
+    await page.goto('https://example.com');
     await page.waitForLoadState('networkidle');
     
     // Capture screenshot
