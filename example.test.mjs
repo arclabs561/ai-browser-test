@@ -99,9 +99,9 @@ test.describe('Visual Testing Examples', () => {
     
     // Assertions
     expect(evaluations.length).toBeGreaterThan(0);
-    evaluations.forEach(eval => {
-      expect(eval.persona).toBeDefined();
-      expect(eval.evaluation).toBeDefined();
+    evaluations.forEach(evaluation => {
+      expect(evaluation.persona).toBeDefined();
+      expect(evaluation.evaluation).toBeDefined();
     });
     
     console.log(`Evaluations: ${evaluations.length} perspectives`);
