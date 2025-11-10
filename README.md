@@ -1,9 +1,9 @@
-# VLLM Testing
+# @visual-ai/validate
 
 Visual testing utilities using Vision Language Models (VLLM) for screenshot validation with Playwright.
 
 [![GitHub](https://img.shields.io/github/license/henrywallace/vllm-testing)](https://github.com/henrywallace/vllm-testing)
-[![Node.js](https://img.shields.io/node/v/@vllm-testing/core)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/node/v/@visual-ai/validate)](https://nodejs.org/)
 
 **A standalone, general-purpose package for visual testing with AI-powered validation.**
 
