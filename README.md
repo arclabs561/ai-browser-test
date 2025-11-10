@@ -1,40 +1,45 @@
-# @queeraoke/vllm-testing
+# VLLM Testing
 
 Visual testing utilities using Vision Language Models (VLLM) for screenshot validation with Playwright.
 
 [![GitHub](https://img.shields.io/github/license/henrywallace/vllm-testing)](https://github.com/henrywallace/vllm-testing)
-[![Node.js](https://img.shields.io/node/v/@queeraoke/vllm-testing)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/node/v/@vllm-testing/core)](https://nodejs.org/)
 
-**Language: JavaScript (ES Modules)** - Aligned with Playwright ecosystem and existing codebase.
+**A standalone, general-purpose package for visual testing with AI-powered validation.**
 
-## Why JavaScript (ES Modules)?
+## Overview
 
-Based on research and ecosystem analysis:
+VLLM Testing provides a comprehensive solution for visual regression testing using Vision Language Models (VLLM). It was initially motivated by the need for semantic screenshot validation in web applications, but is designed as a general-purpose tool for any project requiring AI-powered visual testing.
 
-1. **Playwright Native Support**: JavaScript/TypeScript are the primary languages for Playwright, with best API coverage
-2. **Zero Compilation**: Direct execution with `.mjs` files, faster iteration
-3. **Ecosystem Alignment**: Matches Node.js/npm/Vercel ecosystem perfectly
-4. **Existing Codebase**: All test files already use `.mjs` (112 files in codebase)
-5. **Industry Standard**: Most Playwright packages use JavaScript/TypeScript
-6. **TypeScript Optional**: Can add `.d.ts` files later for type safety without compilation
+### Features
+
+- **Multi-Provider Support**: Works with Gemini, OpenAI, and Claude
+- **Cost-Effective**: Auto-selects cheapest provider, includes caching
+- **Multi-Modal Validation**: Screenshots + rendered code + context
+- **Temporal Analysis**: Time-series validation for animations
+- **Multi-Perspective**: Multiple personas evaluate same state
+- **Serverless API**: Deploy as Vercel function for remote validation
+- **Zero Dependencies**: Pure ES Modules, no build step
 
 ## Installation
 
 ```bash
-npm install /Users/arc/Documents/dev/vllm-testing
-```
+# From GitHub
+npm install git+https://github.com/henrywallace/vllm-testing.git
 
-Or use as a local package:
+# Or as a local package
+npm install file:../vllm-testing
 
-```bash
-# In your project root
-npm install ../../dev/vllm-testing
+# Or from npm (if published)
+npm install @vllm-testing/core
 ```
 
 ## Quick Start
 
+### As a Library
+
 ```javascript
-import { validateScreenshot, createConfig } from '@queeraoke/vllm-testing';
+import { validateScreenshot, createConfig } from '@vllm-testing/core';
 
 // Configure (optional - auto-detects from env vars)
 const config = createConfig({
@@ -53,8 +58,32 @@ const result = await validateScreenshot(
   }
 );
 
-console.log(`Score: ${result.score}/10`);
-console.log(`Issues: ${result.issues.join(', ')}`);
+console.log('Score:', result.score);
+console.log('Issues:', result.issues);
+```
+
+### As a Vercel API
+
+Deploy to Vercel to get a serverless validation API:
+
+```bash
+vercel
+```
+
+Then use the API:
+
+```javascript
+const response = await fetch('https://your-site.vercel.app/api/validate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    image: base64Image,
+    prompt: 'Evaluate this screenshot...',
+    context: { testType: 'payment-screen' }
+  })
+});
+
+const result = await response.json();
 ```
 
 ## API
@@ -110,37 +139,13 @@ Creates configuration for VLLM judge.
 
 Extracts rendered HTML/CSS from Playwright page.
 
-**Parameters:**
-- `page` (Page): Playwright page object
-
-**Returns:**
-- `Promise<Object>`: Rendered code structure
-
 #### `captureTemporalScreenshots(page, fps, duration)`
 
 Captures temporal screenshots for animation validation.
 
-**Parameters:**
-- `page` (Page): Playwright page object
-- `fps` (number): Frames per second (default: 2)
-- `duration` (number): Duration in ms (default: 2000)
-
-**Returns:**
-- `Promise<Array>`: Array of screenshot paths
-
 #### `multiPerspectiveEvaluation(validateFn, screenshotPath, renderedCode, gameState, personas)`
 
 Evaluates screenshot from multiple perspectives.
-
-**Parameters:**
-- `validateFn` (Function): Validation function
-- `screenshotPath` (string): Path to screenshot
-- `renderedCode` (Object): Rendered code structure
-- `gameState` (Object): Game state (optional)
-- `personas` (Array): Array of persona objects (optional)
-
-**Returns:**
-- `Promise<Array>`: Array of evaluations
 
 ### Temporal Aggregation
 
@@ -148,25 +153,9 @@ Evaluates screenshot from multiple perspectives.
 
 Aggregates notes temporally with coherence checking.
 
-**Parameters:**
-- `notes` (Array): Array of note objects
-- `options` (Object):
-  - `windowSize` (number): Window size in ms (default: 10000)
-  - `decayFactor` (number): Decay factor (default: 0.9)
-  - `coherenceThreshold` (number): Coherence threshold (default: 0.7)
-
-**Returns:**
-- `Object`: Aggregated notes with coherence analysis
-
 #### `formatNotesForPrompt(aggregated)`
 
 Formats aggregated notes for VLLM prompt.
-
-**Parameters:**
-- `aggregated` (Object): Aggregated notes object
-
-**Returns:**
-- `string`: Formatted prompt text
 
 ### Cache
 
@@ -204,60 +193,7 @@ Get cache statistics.
 
 ## Examples
 
-### Basic Usage
-
-```javascript
-import { validateScreenshot } from '@queeraoke/vllm-testing';
-
-const result = await validateScreenshot(
-  'screenshot.png',
-  'Evaluate this screenshot for quality.',
-  { testType: 'payment-screen' }
-);
-```
-
-### With Multi-Modal Validation
-
-```javascript
-import { 
-  validateScreenshot, 
-  extractRenderedCode,
-  multiPerspectiveEvaluation 
-} from '@queeraoke/vllm-testing';
-import { test } from '@playwright/test';
-
-test('payment screen', async ({ page }) => {
-  await page.goto('https://example.com');
-  await page.screenshot({ path: 'screenshot.png' });
-  
-  const renderedCode = await extractRenderedCode(page);
-  const validateFn = (path, prompt, context) => 
-    validateScreenshot(path, prompt, context);
-  
-  const evaluations = await multiPerspectiveEvaluation(
-    validateFn,
-    'screenshot.png',
-    renderedCode
-  );
-});
-```
-
-### With Temporal Aggregation
-
-```javascript
-import { 
-  aggregateTemporalNotes, 
-  formatNotesForPrompt 
-} from '@queeraoke/vllm-testing';
-
-const notes = [
-  { timestamp: Date.now(), score: 8, observation: 'Good' },
-  { timestamp: Date.now() + 5000, score: 9, observation: 'Better' }
-];
-
-const aggregated = aggregateTemporalNotes(notes);
-const prompt = formatNotesForPrompt(aggregated);
-```
+See `example.test.mjs` for complete examples.
 
 ## Cost Management
 
@@ -267,7 +203,27 @@ The package includes cost tracking and caching to minimize API costs:
 - **Cost Estimation**: Each result includes cost estimate
 - **Provider Selection**: Auto-selects cheapest available provider
 
+## Deployment
+
+### As Vercel Function
+
+1. Deploy to Vercel: `vercel`
+2. Set environment variables in Vercel dashboard
+3. Access API at `https://your-site.vercel.app/api/validate`
+
+### As Local Package
+
+1. Install: `npm install file:../vllm-testing`
+2. Use in your tests: `import { validateScreenshot } from '@vllm-testing/core'`
+
 ## License
 
 MIT
 
+## Contributing
+
+See `CONTRIBUTING.md` for guidelines.
+
+## History
+
+This package was initially motivated by the need for semantic screenshot validation in a web application, but has been designed from the ground up as a standalone, general-purpose tool for visual testing with AI-powered validation.
