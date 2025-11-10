@@ -1,5 +1,5 @@
 {
-  "name": "vllm-testing-core",
+  "name": "@visual-ai/validate",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/henrywallace/vllm-testing.git"

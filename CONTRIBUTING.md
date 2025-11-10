@@ -1,4 +1,4 @@
-# Contributing to @vllm-testing/core
+# Contributing to @visual-ai/validate
 
 Thank you for your interest in contributing!
 

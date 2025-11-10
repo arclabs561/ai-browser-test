@@ -36,7 +36,7 @@ npm install git+https://github.com/henrywallace/vllm-testing.git
 ### As a Library
 
 ```javascript
-import { validateScreenshot, createConfig } from 'vllm-testing-core';
+import { validateScreenshot, createConfig } from '@visual-ai/validate';
 
 // Configure (optional - auto-detects from env vars)
 const config = createConfig({

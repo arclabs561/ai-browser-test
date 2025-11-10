@@ -1,5 +1,5 @@
 /**
- * @vllm-testing/core
+ * @visual-ai/validate
  * 
  * Visual testing utilities using Vision Language Models (VLLM) for screenshot validation.
  * 
