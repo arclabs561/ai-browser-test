@@ -189,7 +189,9 @@ function detectConflicts(windows) {
   
   // Check for score inconsistencies
   for (let i = 1; i < windows.length; i++) {
-    if (windows[i].avgScore < windows[i - 1].avgScore) {
+    if (windows[i] && windows[i - 1] && 
+        windows[i].avgScore !== undefined && windows[i - 1].avgScore !== undefined &&
+        windows[i].avgScore < windows[i - 1].avgScore) {
       conflicts.push({
         window: windows[i].window,
         type: 'score_decrease',
