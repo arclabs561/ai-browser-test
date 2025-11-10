@@ -211,7 +211,7 @@ The package includes cost tracking and caching to minimize API costs:
 ### As Local Package
 
 1. Install: `npm install file:../vllm-testing`
-2. Use in your tests: `import { validateScreenshot } from 'vllm-testing-core'`
+2. Use in your tests: `import { validateScreenshot } from '@visual-ai/validate'`
 
 ## License
 
