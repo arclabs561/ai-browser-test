@@ -14,7 +14,7 @@ import {
   aggregateTemporalNotes,
   formatNotesForPrompt,
   createConfig
-} from '@vllm-testing/core';
+} from '@visual-ai/validate';
 
 // Configure VLLM (optional - auto-detects from env vars)
 const config = createConfig({
