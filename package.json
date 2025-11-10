@@ -1,0 +1,51 @@
+{
+  "name": "@queeraoke/vllm-testing",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/queeraoke/vllm-testing.git"
+  },
+  "version": "0.1.0",
+  "description": "Visual testing utilities using Vision Language Models (VLLM) for screenshot validation with Playwright",
+  "type": "module",
+  "main": "src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./judge": "./src/judge.mjs",
+    "./multi-modal": "./src/multi-modal.mjs",
+    "./temporal": "./src/temporal.mjs",
+    "./cache": "./src/cache.mjs",
+    "./config": "./src/config.mjs"
+  },
+  "files": [
+    "src/**/*.mjs",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "visual-testing",
+    "vllm",
+    "vision-language-model",
+    "screenshot-validation",
+    "playwright",
+    "testing",
+    "brutalist-design",
+    "accessibility"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "peerDependencies": {
+    "@playwright/test": "^1.56.0"
+  },
+  "peerDependenciesMeta": {
+    "@playwright/test": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
