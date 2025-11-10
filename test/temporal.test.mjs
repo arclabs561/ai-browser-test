@@ -56,14 +56,15 @@ test('aggregateTemporalNotes - multiple notes', () => {
 test('aggregateTemporalNotes - custom window size', () => {
   const now = Date.now();
   const notes = [
-    { timestamp: now, elapsed: 0, score: 8, step: 'gameplay_note_start' },
-    { timestamp: now + 20000, elapsed: 20000, score: 9, step: 'gameplay_note_end' }
+    { timestamp: now, elapsed: 0, score: 8, observation: 'Start', step: 'gameplay_note_start' },
+    { timestamp: now + 20000, elapsed: 20000, score: 9, observation: 'End', step: 'gameplay_note_end' }
   ];
   
   const result = aggregateTemporalNotes(notes, { windowSize: 5000 });
   
   assert.ok(result);
   assert.ok(result.windows.length > 0);
+  assert.ok(result.coherence >= 0 && result.coherence <= 1);
 });
 
 test('formatNotesForPrompt - formats aggregated notes', () => {
