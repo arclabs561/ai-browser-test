@@ -4,7 +4,7 @@
     "type": "git",
     "url": "git+https://github.com/arclabs561/vllm-testing.git"
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Browser testing utilities using Vision Language Models (VLLM) for multi-modal validation with Playwright. Supports persona-based experience testing, human-interpreted time scales, and built-in prompt templates.",
   "type": "module",
   "main": "src/index.mjs",
@@ -59,4 +59,3 @@
     "node": ">=18.0.0"
   }
 }
-
