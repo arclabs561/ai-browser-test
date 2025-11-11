@@ -10,6 +10,10 @@
  */
 
 import { createConfig } from './config.mjs';
+// Use shared LLM utility library for text-only calls
+// Note: This module uses Claude Sonnet (advanced tier) for data extraction
+// which requires higher quality than simple validation tasks
+import { callLLM as callLLMUtil, extractJSON } from '@arclabs561/llm-utils';
 
 /**
  * Extract structured data from text using multiple strategies
@@ -91,13 +95,10 @@ ${text}
 Return ONLY the JSON object, no other text.`;
 
   try {
-    const response = await callLLM(prompt, config);
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
-      if (validateSchema(parsed, schema)) {
-        return parsed;
-      }
+    const response = await callLLMForExtraction(prompt, config);
+    const parsed = extractJSON(response);
+    if (parsed && validateSchema(parsed, schema)) {
+      return parsed;
     }
   } catch (error) {
     console.warn(`[DataExtractor] LLM extraction error: ${error.message}`);
@@ -108,70 +109,18 @@ Return ONLY the JSON object, no other text.`;
 
 /**
  * Call LLM API (text-only, no vision)
+ * Uses shared utility with advanced tier for better extraction quality
  */
-async function callLLM(prompt, config) {
+async function callLLMForExtraction(prompt, config) {
   const apiKey = config.apiKey;
   const provider = config.provider || 'gemini';
   
-  switch (provider) {
-    case 'gemini': {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 1000
-          }
-        })
-      });
-      const data = await response.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    }
-    
-    case 'openai': {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.1,
-          max_tokens: 1000
-        })
-      });
-      const data = await response.json();
-      return data.choices?.[0]?.message?.content || '';
-    }
-    
-    case 'claude': {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-      const data = await response.json();
-      return data.content?.[0]?.text || '';
-    }
-    
-    default:
-      throw new Error(`Unsupported provider: ${provider}`);
-  }
+  // Use advanced tier for data extraction (needs higher quality)
+  return callLLMUtil(prompt, provider, apiKey, {
+    tier: 'advanced', // Data extraction benefits from better models
+    temperature: 0.1,
+    maxTokens: 1000,
+  });
 }
 
 /**

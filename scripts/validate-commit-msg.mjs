@@ -6,6 +6,9 @@
  * Can be used standalone or as a git hook.
  */
 
+// Use shared LLM utility library
+import { detectProvider, callLLM, extractJSON } from '@arclabs561/llm-utils';
+
 const CONVENTIONAL_TYPES = [
   'feat',      // New feature
   'fix',       // Bug fix
@@ -87,106 +90,9 @@ function validateCommitMessage(message) {
 }
 
 /**
- * Detect LLM provider from environment
- */
-function detectLLMProvider() {
-  const explicitProvider = process.env.VLM_PROVIDER?.trim().toLowerCase();
-  if (explicitProvider && ['gemini', 'openai', 'claude'].includes(explicitProvider)) {
-    const apiKey = process.env[`${explicitProvider.toUpperCase()}_API_KEY`] || process.env.API_KEY;
-    if (apiKey) {
-      return { provider: explicitProvider, apiKey };
-    }
-  }
-  
-  if (process.env.GEMINI_API_KEY) {
-    return { provider: 'gemini', apiKey: process.env.GEMINI_API_KEY };
-  }
-  if (process.env.OPENAI_API_KEY) {
-    return { provider: 'openai', apiKey: process.env.OPENAI_API_KEY };
-  }
-  if (process.env.ANTHROPIC_API_KEY) {
-    return { provider: 'claude', apiKey: process.env.ANTHROPIC_API_KEY };
-  }
-  if (process.env.API_KEY) {
-    return { provider: 'gemini', apiKey: process.env.API_KEY };
-  }
-  
-  return null;
-}
-
-/**
- * Call LLM API for text analysis
- */
-async function callLLM(prompt, provider, apiKey) {
-  switch (provider) {
-    case 'gemini': {
-      const response = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.1,
-              maxOutputTokens: 1000
-            }
-          })
-        }
-      );
-      const data = await response.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    }
-    
-    case 'openai': {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.1,
-          max_tokens: 1000
-        })
-      });
-      const data = await response.json();
-      return data.choices?.[0]?.message?.content || '';
-    }
-    
-    case 'claude': {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-3-5-haiku-20241022',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-      const data = await response.json();
-      return data.content?.[0]?.text || '';
-    }
-    
-    default:
-      throw new Error(`Unsupported provider: ${provider}`);
-  }
-}
-
-/**
  * Use LLM to analyze commit message quality
  */
-async function analyzeCommitMessageWithLLM(message, stagedFiles) {
-  const llmConfig = detectLLMProvider();
+async function analyzeCommitMessageWithLLM(message, stagedFiles, llmConfig) {
   if (!llmConfig) {
     return null;
   }
@@ -223,17 +129,17 @@ Return a JSON object:
 Return ONLY valid JSON, no other text.`;
 
   try {
-    const response = await callLLM(prompt, llmConfig.provider, llmConfig.apiKey);
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
+    const response = await callLLM(
+      prompt, 
+      llmConfig.provider, 
+      llmConfig.apiKey,
+      { tier: 'simple', maxTokens: 1000 }
+    );
+    return extractJSON(response);
   } catch (error) {
     // Silently fail - LLM analysis is optional
     return null;
   }
-
-  return null;
 }
 
 /**
@@ -292,11 +198,11 @@ async function main() {
   }
   
   // Optional LLM analysis if available
-  const llmConfig = detectLLMProvider();
+  const llmConfig = detectProvider();
   if (llmConfig) {
     try {
       const stagedFiles = await getStagedFiles();
-      const llmAnalysis = await analyzeCommitMessageWithLLM(message, stagedFiles);
+      const llmAnalysis = await analyzeCommitMessageWithLLM(message, stagedFiles, llmConfig);
       
       if (llmAnalysis) {
         if (llmAnalysis.score !== undefined) {
