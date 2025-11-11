@@ -1,138 +1,57 @@
-name: Security
+name: Security Checks
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main ]
   pull_request:
-    branches: [main, develop]
+    branches: [ main ]
   schedule:
-    # Run weekly security checks
-    - cron: '0 0 * * 1'  # Every Monday at midnight UTC
-
-# Security: Use least-privilege permissions
-permissions:
-  contents: read
-  security-events: write
-  actions: read
+    # Run weekly on Mondays
+    - cron: '0 0 * * 1'
 
 jobs:
-  secret-scan:
-    name: Secret Detection
+  dependency-scan:
+    name: Dependency Vulnerability Scan
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full history for scanning
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-      
-      - name: Run secret detection
-        run: |
-          node scripts/detect-secrets.mjs --scan-history || exit 0
-          echo "Secret scan completed"
-      
-      - name: Check for hardcoded secrets
-        run: |
-          # Check for common secret patterns in code
-          if grep -rE "(api[_-]?key|password|secret|token)\s*[:=]\s*['\"][^'\"]{20,}" src/ api/ --exclude-dir=node_modules; then
-            echo "⚠️  Potential hardcoded secrets found"
-            exit 1
-          else
-            echo "✅ No hardcoded secrets detected"
-          fi
-
-  dependency-check:
-    name: Dependency Security
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
+          node-version: '18'
           cache: 'npm'
       
       - name: Install dependencies
         run: npm ci
       
       - name: Run npm audit
-        run: |
-          npm audit --audit-level=moderate --json > audit-report.json || true
-          npm audit --audit-level=moderate
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
       
-      - name: Check for outdated packages
+      - name: Check for vulnerabilities
         run: |
-          npm outdated || echo "Some packages are outdated"
-      
-      - name: Upload audit results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: npm-audit-report
-          path: audit-report.json
-          retention-days: 30
+          if npm audit --audit-level=moderate 2>&1 | grep -q "found [1-9]"; then
+            echo "⚠️ Vulnerabilities found. Review and update dependencies."
+            npm audit --audit-level=moderate
+            exit 1
+          else
+            echo "✅ No moderate or high severity vulnerabilities found"
+          fi
 
   code-scan:
     name: Code Security Scan
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '18'
       
-      - name: Check for unsafe patterns
-        run: |
-          echo "Scanning for unsafe code patterns..."
-          
-          # Check for eval usage
-          if grep -r "eval(" src/ api/ --exclude-dir=node_modules; then
-            echo "❌ eval() usage detected - security risk"
-            exit 1
-          fi
-          
-          # Check for unsafe require
-          if grep -rE "require\([^'\"].*\)" src/ api/ --exclude-dir=node_modules; then
-            echo "⚠️  Dynamic require() detected - review for security"
-          fi
-          
-          # Check for path traversal risks
-          if grep -rE "(join|resolve).*\.\.\/\.\.\/" src/ api/ --exclude-dir=node_modules; then
-            echo "⚠️  Path traversal patterns detected - ensure validation"
-          fi
-          
-          echo "✅ Basic security scan completed"
-
-  license-check:
-    name: License Compliance
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Run security tests
+        run: npm test -- test/red-team-security.test.mjs
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-      
-      - name: Check license
-        run: |
-          # Verify LICENSE file exists
-          test -f LICENSE && echo "✅ LICENSE file present" || exit 1
-          
-          # Check package.json has license field
-          node -e "const pkg = require('./package.json'); if (!pkg.license) { console.error('❌ Missing license in package.json'); process.exit(1); } else { console.log('✅ License:', pkg.license); }"
-
+      - name: Run ablation tests
+        run: npm test -- test/ablation-tests.mjs

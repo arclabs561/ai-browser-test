@@ -158,7 +158,7 @@ VLM_PROVIDER=gemini  # or 'openai', 'claude'
 
 This package implements research-backed practices:
 
-- **Explicit rubrics** - Improves reliability by 10-20%
+- **Explicit rubrics** - Research shows 10-20% reliability improvement (not yet validated in our codebase)
 - **Bias detection** - Detects position bias, verbosity bias
 - **Ensemble judging** - Multiple providers for consensus
 - **Temporal aggregation** - Coherence checking over time

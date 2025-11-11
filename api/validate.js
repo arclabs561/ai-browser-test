@@ -40,7 +40,9 @@ const rateLimitStore = new Map(); // In-memory store (use Redis in production)
 
 // Authentication configuration
 const API_KEY = process.env.API_KEY || process.env.VLLM_API_KEY || null;
-const REQUIRE_AUTH = process.env.REQUIRE_AUTH === 'true' || API_KEY !== null;
+// Default to requiring auth if API key is set (more secure)
+// Set REQUIRE_AUTH=false explicitly to disable
+const REQUIRE_AUTH = process.env.REQUIRE_AUTH !== 'false' && API_KEY !== null;
 
 /**
  * Simple rate limiter (in-memory)
@@ -210,9 +212,10 @@ export default async function handler(req, res) {
     console.error('[VLLM API] Error:', error);
     
     // Return sanitized error to client (don't leak internal details)
+    // Never expose: file paths, API keys, internal structure, stack traces
     const sanitizedError = error instanceof Error 
-      ? 'Validation failed' 
-      : String(error);
+      ? 'Validation failed. Please check your input and try again.' 
+      : 'Validation failed';
     
     return res.status(500).json({
       error: sanitizedError
