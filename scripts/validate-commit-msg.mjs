@@ -6,6 +6,9 @@
  * Can be used standalone or as a git hook.
  */
 
+// Load environment variables before importing LLM utils
+import { loadEnv } from '../src/load-env.mjs';
+loadEnv();
 // Use shared LLM utility library
 import { detectProvider, callLLM, extractJSON } from '@arclabs561/llm-utils';
 
@@ -103,27 +106,47 @@ async function analyzeCommitMessageWithLLM(message, stagedFiles, llmConfig) {
     ? [...new Set(stagedFiles.map(f => f.split('.').pop() || 'unknown'))].join(', ')
     : 'unknown';
 
-  const prompt = `Analyze this git commit message and provide feedback:
+  // Get more context for better analysis
+  const recentCommits = await getRecentCommitHistory(5);
+  const branchName = await getCurrentBranch();
+  
+  const prompt = `You are an expert code reviewer analyzing a git commit message. Provide intelligent, context-aware feedback.
 
-Commit Message:
+COMMIT MESSAGE:
 ${message}
 
-Files Changed: ${filesChanged}
-File Types: ${fileTypes}
+CONTEXT:
+- Files Changed: ${filesChanged} (${fileTypes})
+- Current Branch: ${branchName || 'unknown'}
+- Recent Commits: ${recentCommits.length > 0 ? recentCommits.map(c => `"${c}"`).join(', ') : 'none'}
 
-Evaluate:
-1. Does the message accurately describe the changes?
-2. Is the message clear and concise?
-3. Does it follow conventional commits format?
-4. Are there any improvements you'd suggest?
+EVALUATION CRITERIA:
+1. **Accuracy**: Does the message accurately describe what changed?
+2. **Clarity**: Is it clear and concise? Would a teammate understand it?
+3. **Convention**: Does it follow Conventional Commits (type(scope): subject)?
+4. **Completeness**: Is important context included (breaking changes, scope)?
+5. **Consistency**: Does it match the style of recent commits?
 
-Return a JSON object:
+CONVENTIONAL COMMITS FORMAT:
+- Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+- Format: type(scope): subject
+- Body (optional): Detailed explanation
+- Footer (optional): Breaking changes, issue references
+
+EXAMPLES OF GOOD COMMITS:
+- "feat(judge): add bias detection to scoring"
+- "fix(cache): handle race condition in concurrent requests"
+- "docs: update README with installation steps"
+- "refactor(extractor): simplify JSON parsing logic"
+
+Return ONLY valid JSON:
 {
   "valid": true/false,
   "score": 0-10,
-  "issues": ["issue1", "issue2"],
-  "suggestions": ["suggestion1", "suggestion2"],
-  "improved_message": "suggested improved message if needed"
+  "issues": ["specific issue 1", "specific issue 2"],
+  "suggestions": ["actionable suggestion 1", "actionable suggestion 2"],
+  "improved_message": "complete improved message if needed",
+  "reasoning": "brief explanation of score and issues"
 }
 
 Return ONLY valid JSON, no other text.`;
@@ -156,14 +179,62 @@ async function getStagedFiles() {
 }
 
 /**
+ * Get recent commit history for context
+ */
+async function getRecentCommitHistory(limit = 5) {
+  try {
+    const { execSync } = await import('child_process');
+    const output = execSync(`git log --oneline -n ${limit} --format="%s"`, { encoding: 'utf-8' });
+    return output.trim().split('\n').filter(Boolean);
+  } catch (error) {
+    return [];
+  }
+}
+
+/**
+ * Get current branch name
+ */
+async function getCurrentBranch() {
+  try {
+    const { execSync } = await import('child_process');
+    const output = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8' });
+    return output.trim();
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Validate repository state before processing
+ */
+async function validateRepositoryState() {
+  try {
+    const { execSync } = await import('child_process');
+    // Check if we're in a git repository
+    execSync('git rev-parse --git-dir', { stdio: 'ignore' });
+    return true;
+  } catch (error) {
+    // Not in git repo - that's okay for standalone testing
+    return false;
+  }
+}
+
+/**
  * Main function
  */
 async function main() {
+  // Validate repository state first (for context gathering)
+  const isGitRepo = await validateRepositoryState();
+  
   const commitMsgFile = process.argv[2] || process.env.GIT_PARAMS;
   
   let message;
   if (commitMsgFile) {
     const fs = await import('fs');
+    if (!fs.existsSync(commitMsgFile)) {
+      console.error(`❌ Commit message file not found: ${commitMsgFile}`);
+      process.exit(1);
+    }
     message = fs.readFileSync(commitMsgFile, 'utf-8');
   } else {
     // Read from stdin if no file provided
@@ -197,9 +268,9 @@ async function main() {
     });
   }
   
-  // Optional LLM analysis if available
+  // Optional LLM analysis if available (only if in git repo for context)
   const llmConfig = detectProvider();
-  if (llmConfig) {
+  if (llmConfig && isGitRepo) {
     try {
       const stagedFiles = await getStagedFiles();
       const llmAnalysis = await analyzeCommitMessageWithLLM(message, stagedFiles, llmConfig);
@@ -223,14 +294,19 @@ async function main() {
           });
         }
         
-        if (llmAnalysis.improved_message && llmAnalysis.improved_message !== message.trim()) {
-          console.error(`\n   Suggested improved message:\n   ${llmAnalysis.improved_message}`);
-        }
-        
-        // Don't fail on LLM feedback, just warn
-        if (llmAnalysis.score !== undefined && llmAnalysis.score < 5) {
-          console.error('\n⚠️  LLM suggests significant improvements to commit message');
-        }
+               if (llmAnalysis.improved_message && llmAnalysis.improved_message !== message.trim()) {
+                 console.error(`\n   💡 Suggested improved message:\n   ${llmAnalysis.improved_message}`);
+               }
+               
+               if (llmAnalysis.reasoning) {
+                 console.error(`\n   📝 Reasoning: ${llmAnalysis.reasoning}`);
+               }
+               
+               // Don't fail on LLM feedback, just warn
+               if (llmAnalysis.score !== undefined && llmAnalysis.score < 5) {
+                 console.error('\n⚠️  LLM suggests significant improvements to commit message');
+                 console.error('💡 Tip: Use the suggested message above or address the issues listed');
+               }
       }
     } catch (error) {
       // Silently fail - LLM is optional

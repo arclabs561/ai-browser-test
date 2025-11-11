@@ -10,7 +10,10 @@
  */
 
 import { createConfig } from './config.mjs';
-// Use shared LLM utility library for text-only calls
+import { loadEnv } from './load-env.mjs';
+// Load env before LLM utils
+loadEnv();
+// Use shared LLM utility library for text-only calls (optional dependency)
 // Note: This module uses Claude Sonnet (advanced tier) for data extraction
 // which requires higher quality than simple validation tasks
 import { callLLM as callLLMUtil, extractJSON } from '@arclabs561/llm-utils';
@@ -96,7 +99,20 @@ Return ONLY the JSON object, no other text.`;
 
   try {
     const response = await callLLMForExtraction(prompt, config);
-    const parsed = extractJSON(response);
+    // Try to extract JSON from response
+    let parsed;
+    try {
+      const llmUtils = await import('@arclabs561/llm-utils');
+      parsed = llmUtils.extractJSON(response);
+    } catch (error) {
+      // Fallback: try to parse as JSON directly
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('Could not extract JSON from response');
+      }
+    }
     if (parsed && validateSchema(parsed, schema)) {
       return parsed;
     }
@@ -115,12 +131,20 @@ async function callLLMForExtraction(prompt, config) {
   const apiKey = config.apiKey;
   const provider = config.provider || 'gemini';
   
-  // Use advanced tier for data extraction (needs higher quality)
-  return callLLMUtil(prompt, provider, apiKey, {
-    tier: 'advanced', // Data extraction benefits from better models
-    temperature: 0.1,
-    maxTokens: 1000,
-  });
+  // Try to use optional llm-utils library if available
+  try {
+    const llmUtils = await import('@arclabs561/llm-utils');
+    const callLLMUtil = llmUtils.callLLM;
+    // Use advanced tier for data extraction (needs higher quality)
+    return await callLLMUtil(prompt, provider, apiKey, {
+      tier: 'advanced', // Data extraction benefits from better models
+      temperature: 0.1,
+      maxTokens: 1000,
+    });
+  } catch (error) {
+    // Fallback: use local implementation or throw
+    throw new Error(`LLM extraction requires @arclabs561/llm-utils package: ${error.message}`);
+  }
 }
 
 /**

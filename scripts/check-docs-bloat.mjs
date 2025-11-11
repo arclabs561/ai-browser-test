@@ -16,6 +16,9 @@ import { readdirSync, statSync, readFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
+// Load environment variables before importing LLM utils
+import { loadEnv } from '../src/load-env.mjs';
+loadEnv();
 // Use shared LLM utility library
 import { detectProvider, callLLM, extractJSON } from '@arclabs561/llm-utils';
 
@@ -393,25 +396,52 @@ async function checkRedundancyWithLLM(files, llmConfig) {
     return null; // Need at least 2 files to check redundancy
   }
 
-  const prompt = `Analyze these documentation files for redundancy and bloat. Identify:
-1. Files with overlapping/duplicate content
-2. Files that could be consolidated
-3. Files that are temporary/analysis documents that should be archived
+  // Get more context for better analysis
+  const rootFiles = getRootMarkdownFiles();
+  const archiveInfo = getArchivedFiles().length > 0 
+    ? `\nNote: ${getArchivedFiles().length} similar files have been archived previously.`
+    : '';
+  
+  const prompt = `You are an expert technical writer analyzing documentation files for redundancy and bloat. Provide intelligent, context-aware recommendations.
 
-Files to analyze:
-${fileContents.map((f, i) => `\n${i + 1}. ${f.name}:\n${f.content}`).join('\n\n---\n')}
+DOCUMENTATION FILES TO ANALYZE:
+${fileContents.map((f, i) => `\n${i + 1}. ${f.name}:\n${f.content.substring(0, 1500)}${f.content.length > 1500 ? '... [truncated]' : ''}`).join('\n\n---\n')}
 
-Return a JSON object with this structure:
+CONTEXT:
+- Total root markdown files: ${rootFiles.length}${archiveInfo}
+- These files are in the repository root (should be minimal)
+
+EVALUATION CRITERIA:
+1. **Redundancy**: Do files cover the same topic? Can they be consolidated?
+2. **Temporality**: Are these temporary analysis/planning documents that should be archived?
+3. **Completeness**: Do files serve a clear, ongoing purpose?
+4. **Organization**: Should files be in docs/ or archive/ instead of root?
+5. **Value**: Is the content still relevant and useful?
+
+ARCHIVE PATTERNS (learn from history):
+- Files with prefixes: FINAL_, COMPLETE_, SESSION_, ANALYSIS_, CRITICAL_, DEEP_
+- Files with suffixes: _REVIEW.md, _ANALYSIS.md, _PLAN.md, _SUMMARY.md, _RECOMMENDATIONS.md
+- Files that are snapshots of work-in-progress thinking
+
+GOOD DOCUMENTATION PRACTICES:
+- Root should have: README.md, CHANGELOG.md, CONTRIBUTING.md, LICENSE, SECURITY.md
+- Detailed docs should be in docs/ directory
+- Historical/archived docs should be in archive/
+- Each file should have a clear, ongoing purpose
+
+Return ONLY valid JSON:
 {
   "redundant_groups": [
     {
       "files": ["file1.md", "file2.md"],
-      "reason": "brief explanation",
-      "recommendation": "consolidate or archive"
+      "reason": "specific explanation of why redundant",
+      "recommendation": "consolidate into single file or archive",
+      "confidence": "high|medium|low"
     }
   ],
   "should_archive": ["file1.md", "file2.md"],
-  "summary": "brief summary of findings"
+  "summary": "brief summary of findings and recommendations",
+  "reasoning": "explanation of why these recommendations were made"
 }
 
 Return ONLY valid JSON, no other text.`;
@@ -431,14 +461,30 @@ Return ONLY valid JSON, no other text.`;
 }
 
 /**
+ * Validate repository state before processing
+ */
+function validateRepositoryState() {
+  try {
+    execSync('git rev-parse --git-dir', { stdio: 'ignore' });
+    return true;
+  } catch (error) {
+    console.error('⚠️  Warning: Not in a git repository, some checks may be limited');
+    return false;
+  }
+}
+
+/**
  * Analyze documentation bloat
  */
 async function analyzeDocBloat() {
+  // Validate repository state first
+  const isGitRepo = validateRepositoryState();
+  
   const issues = [];
   const warnings = [];
   
   const rootMdFiles = getRootMarkdownFiles();
-  const stagedMdFiles = getStagedMarkdownFiles();
+  const stagedMdFiles = isGitRepo ? getStagedMarkdownFiles() : [];
   
   // Analyze archive to learn patterns
   const archivedFiles = getArchivedFiles();
@@ -635,7 +681,16 @@ async function analyzeDocBloat() {
             message: `LLM recommends archiving ${llmAnalysis.should_archive.length} file(s)`,
             files: llmAnalysis.should_archive,
             summary: llmAnalysis.summary,
+            reasoning: llmAnalysis.reasoning,
             suggestion: 'Archive these files to archive/analysis-docs/',
+          });
+        }
+        
+        if (llmAnalysis.reasoning) {
+          warnings.push({
+            type: 'llm_analysis_insight',
+            message: 'LLM analysis insights',
+            reasoning: llmAnalysis.reasoning,
           });
         }
       }

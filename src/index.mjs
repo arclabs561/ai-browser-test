@@ -96,6 +96,45 @@ export {
   detectPositionBias
 } from './bias-detector.mjs';
 export {
+  comparePair,
+  rankBatch
+} from './pair-comparison.mjs';
+export {
+  applyBiasMitigation,
+  mitigateBias,
+  mitigatePositionBias
+} from './bias-mitigation.mjs';
+export {
+  aggregateMultiScale,
+  SequentialDecisionContext,
+  humanPerceptionTime
+} from './temporal-decision.mjs';
+export {
+  TIME_SCALES,
+  MULTI_SCALE_WINDOWS,
+  READING_SPEEDS,
+  ATTENTION_MULTIPLIERS,
+  COMPLEXITY_MULTIPLIERS,
+  CONFIDENCE_THRESHOLDS,
+  TIME_BOUNDS,
+  CONTENT_THRESHOLDS
+} from './temporal-constants.mjs';
+export {
+  TemporalError,
+  PerceptionTimeError,
+  SequentialContextError,
+  MultiScaleError,
+  TemporalBatchError
+} from './temporal-errors.mjs';
+export {
+  createTemporalContext,
+  mergeTemporalContext,
+  extractTemporalContext
+} from './temporal-context.mjs';
+export {
+  TemporalBatchOptimizer
+} from './temporal-batch-optimizer.mjs';
+export {
   EnsembleJudge,
   createEnsembleJudge
 } from './ensemble-judge.mjs';

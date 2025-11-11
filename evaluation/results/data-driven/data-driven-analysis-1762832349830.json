@@ -1,0 +1,151 @@
+{
+  "timestamp": "2025-11-11T03:39:09.828Z",
+  "hypotheses": {
+    "sequentialConsistency": {
+      "hypothesis": "Sequential context improves consistency",
+      "isolated": {
+        "scores": [
+          7.2,
+          8.1,
+          6.9,
+          7.8,
+          8.3,
+          7.1,
+          8,
+          7.5
+        ],
+        "variance": 0.23109375000000007,
+        "mean": 7.612500000000001
+      },
+      "sequential": {
+        "scores": [
+          7.2,
+          8.181,
+          6.7620000000000005,
+          7.878,
+          8.383000000000001,
+          6.957999999999999,
+          8.08,
+          7.35
+        ],
+        "variance": 0.3244042500000001,
+        "mean": 7.599
+      },
+      "improvement": -40.37776876267749,
+      "conclusion": "NOT SUPPORTED"
+    },
+    "multiScalePatterns": {
+      "hypothesis": "Multi-scale aggregation captures different patterns",
+      "scaleAnalysis": {
+        "immediate": {
+          "windowCount": 121,
+          "coherence": 0.6,
+          "scoreRange": {
+            "min": null,
+            "max": null,
+            "mean": 0.33884297520661155
+          },
+          "variance": 2.576768172250348
+        },
+        "short": {
+          "windowCount": 13,
+          "coherence": 0.5,
+          "scoreRange": {
+            "min": null,
+            "max": null,
+            "mean": 2.58007317682971
+          },
+          "variance": 10.493603026088492
+        },
+        "medium": {
+          "windowCount": 2,
+          "coherence": 0.39870642396919076,
+          "scoreRange": {
+            "min": 8.031459363505212,
+            "max": 9,
+            "mean": 8.515729681752607
+          },
+          "variance": 0.23451774113543244
+        },
+        "long": {
+          "windowCount": 1,
+          "coherence": 1,
+          "scoreRange": {
+            "min": 8.229649079918257,
+            "max": 8.229649079918257,
+            "mean": 8.229649079918257
+          },
+          "variance": 0
+        }
+      },
+      "varianceDifference": 2.576768172250348,
+      "conclusion": "SUPPORTED"
+    },
+    "humanPerceptionTime": {
+      "hypothesis": "Human perception time aligns with research",
+      "results": [
+        {
+          "action": "visual-appeal",
+          "expected": {
+            "min": 50,
+            "max": 200
+          },
+          "description": "Visual appeal decision (50ms research)",
+          "actualTime": 100,
+          "withinRange": true,
+          "deviation": 0
+        },
+        {
+          "action": "interaction",
+          "expected": {
+            "min": 500,
+            "max": 2000
+          },
+          "description": "Quick interaction (1s research)",
+          "actualTime": 1000,
+          "withinRange": true,
+          "deviation": 0
+        },
+        {
+          "action": "reading",
+          "context": {
+            "contentLength": 500
+          },
+          "expected": {
+            "min": 2000,
+            "max": 10000
+          },
+          "description": "Reading 500 chars (~100 words)",
+          "actualTime": 24000,
+          "withinRange": false,
+          "deviation": 14000
+        },
+        {
+          "action": "reading",
+          "context": {
+            "contentLength": 2000
+          },
+          "expected": {
+            "min": 8000,
+            "max": 30000
+          },
+          "description": "Reading 2000 chars (~400 words)",
+          "actualTime": 30000,
+          "withinRange": true,
+          "deviation": 0
+        }
+      ],
+      "alignmentRate": 0.75,
+      "conclusion": "SUPPORTED"
+    },
+    "attentionEffects": {
+      "hypothesis": "Attention affects temporal perception",
+      "baseTime": 1000,
+      "focusedTime": 800,
+      "distractedTime": 1500,
+      "focusedReduction": 20,
+      "distractedIncrease": 50,
+      "conclusion": "SUPPORTED"
+    }
+  }
+}

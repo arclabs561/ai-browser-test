@@ -234,7 +234,8 @@ export function calculateAllMetrics(evaluations) {
     metrics.scoreMetrics = {
       mae: calculateMAE(metrics.scores.predictions, metrics.scores.groundTruth),
       rmse: calculateRMSE(metrics.scores.predictions, metrics.scores.groundTruth),
-      correlation: calculateCorrelation(metrics.scores.predictions, metrics.scores.groundTruth)
+      pearsonCorrelation: calculateCorrelation(metrics.scores.predictions, metrics.scores.groundTruth),
+      spearmanCorrelation: calculateSpearmanCorrelation(metrics.scores.predictions, metrics.scores.groundTruth)
     };
   }
   
@@ -284,6 +285,60 @@ function calculateCorrelation(x, y) {
   const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
   
   return denominator === 0 ? 0 : numerator / denominator;
+}
+
+/**
+ * Calculate Spearman's rank correlation coefficient
+ * Research shows this is important for LLM-as-a-Judge evaluation
+ * 
+ * @param {number[]} x - First variable
+ * @param {number[]} y - Second variable
+ * @returns {number} Spearman's rank correlation (-1 to 1)
+ */
+export function calculateSpearmanCorrelation(x, y) {
+  if (x.length !== y.length) return 0;
+  if (x.length === 0) return 0;
+  if (x.length === 1) return 1;
+  
+  // Rank the values
+  const rankX = rankValues(x);
+  const rankY = rankValues(y);
+  
+  // Calculate Pearson correlation on ranks
+  return calculateCorrelation(rankX, rankY);
+}
+
+/**
+ * Rank values (handle ties by averaging)
+ */
+function rankValues(values) {
+  const indexed = values.map((val, idx) => ({ val, idx }));
+  indexed.sort((a, b) => a.val - b.val);
+  
+  const ranks = new Array(values.length);
+  let currentRank = 1;
+  
+  for (let i = 0; i < indexed.length; i++) {
+    // Check for ties
+    let tieCount = 1;
+    let tieSum = currentRank;
+    
+    while (i + tieCount < indexed.length && indexed[i].val === indexed[i + tieCount].val) {
+      tieSum += currentRank + tieCount;
+      tieCount++;
+    }
+    
+    const avgRank = tieSum / tieCount;
+    
+    for (let j = 0; j < tieCount; j++) {
+      ranks[indexed[i + j].idx] = avgRank;
+    }
+    
+    i += tieCount - 1;
+    currentRank += tieCount;
+  }
+  
+  return ranks;
 }
 
 /**

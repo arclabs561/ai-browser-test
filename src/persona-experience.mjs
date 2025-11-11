@@ -294,6 +294,7 @@ export async function experiencePageAsPersona(page, persona, options = {}) {
  * Human-interpreted time scale
  * 
  * Not mechanical fps - human reading/interaction time based on content and context.
+ * Now uses research-aligned humanPerceptionTime from temporal-decision.mjs
  * 
  * @param {string} action - Action type ('page-load', 'reading', 'interaction')
  * @param {Object} options - Time scale options
@@ -305,7 +306,9 @@ async function humanTimeScale(action, options = {}) {
     maxTime = 5000,
     timeScale = 'human',
     contentLength = 0,
-    interactionType = null
+    interactionType = null,
+    persona = null,
+    attentionLevel = 'normal'
   } = options;
 
   if (timeScale === 'mechanical') {
@@ -313,7 +316,30 @@ async function humanTimeScale(action, options = {}) {
     return 1000 / 2; // 2 fps = 500ms
   }
 
-  // Human-interpreted time scale
+  // Use research-aligned humanPerceptionTime if available
+  try {
+    const { humanPerceptionTime } = await import('./temporal-decision.mjs');
+    
+    // Map action types
+    let perceptionAction = action;
+    if (action === 'page-load') perceptionAction = 'reading';
+    if (action === 'interaction') perceptionAction = 'interaction';
+    
+    const perceptionTime = humanPerceptionTime(perceptionAction, {
+      persona,
+      attentionLevel,
+      actionComplexity: interactionType ? (interactionType === 'think' ? 'complex' : 'normal') : 'normal',
+      contentLength
+    });
+    
+    // Clamp to min/max if provided
+    return Math.max(minTime || 0, Math.min(maxTime || Infinity, perceptionTime));
+  } catch (error) {
+    // Fallback to original implementation if import fails
+    console.warn('Could not import humanPerceptionTime, using fallback:', error.message);
+  }
+
+  // Fallback: Human-interpreted time scale (original implementation)
   switch (action) {
     case 'page-load':
       // Page load: 1-5 seconds depending on complexity

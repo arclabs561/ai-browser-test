@@ -70,5 +70,8 @@
   "devDependencies": {
     "playwright": "1.56.1",
     "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "@arclabs561/llm-utils": "file:../llm-utils"
   }
 }

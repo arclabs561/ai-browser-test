@@ -217,6 +217,62 @@ console.log('Ensemble score:', result.score);
 console.log('Agreement:', result.agreement.score);
 ```
 
+### Temporal Decision-Making
+
+#### `humanPerceptionTime(action, context)`
+
+✅ **CLEARLY USEFUL** - Models human perception at different time scales. Actually used in persona-based testing.
+
+```javascript
+import { humanPerceptionTime } from 'ai-browser-test';
+
+const time = humanPerceptionTime('reading', {
+  contentLength: 1000,
+  attentionLevel: 'normal', // 'focused', 'normal', 'distracted'
+  actionComplexity: 'normal', // 'simple', 'normal', 'complex'
+  persona: { name: 'Power User' }
+});
+// Returns: time in milliseconds based on research-aligned perception models
+```
+
+**Use Cases:**
+- Persona-based testing (realistic timing)
+- Simulating user behavior
+- Content-aware interaction timing
+
+#### `SequentialDecisionContext`
+
+⚠️ **PARTIALLY USEFUL** - Maintains context across LLM calls for better sequential decision-making.
+
+```javascript
+import { SequentialDecisionContext } from 'ai-browser-test';
+
+const context = new SequentialDecisionContext({ maxHistory: 10 });
+context.addDecision({ score: 8, issues: ['contrast'] });
+const adaptedPrompt = context.adaptPrompt(basePrompt, {});
+```
+
+**Note:** Data shows it can increase variance if over-applied. Use adaptive confidence thresholds.
+
+#### `aggregateMultiScale(notes, options)`
+
+❓ **QUESTIONABLE UTILITY** - Aggregates temporal notes at multiple time scales. No clear use case demonstrated.
+
+```javascript
+import { aggregateMultiScale } from 'ai-browser-test';
+
+const aggregated = aggregateMultiScale(notes, {
+  timeScales: {
+    immediate: 100,   // 0.1s
+    short: 1000,     // 1s
+    medium: 10000,   // 10s
+    long: 60000      // 60s
+  }
+});
+```
+
+**Note:** Consider if you actually need multi-scale analysis before using.
+
 ### Temporal Aggregation
 
 #### `aggregateTemporalNotes(notes, options)`

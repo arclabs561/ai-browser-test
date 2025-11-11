@@ -12,6 +12,7 @@ import { createConfig, getConfig } from './config.mjs';
 import { getCached, setCached } from './cache.mjs';
 import { FileError, ProviderError, TimeoutError, ValidationError } from './errors.mjs';
 import { buildRubricPrompt, getRubricForTestType } from './rubrics.mjs';
+import { applyBiasMitigation } from './bias-mitigation.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -188,7 +189,7 @@ export class VLLMJudge {
       
       const responseTime = Date.now() - startTime;
       const semanticInfo = this.extractSemanticInfo(judgment);
-      const result = {
+      let result = {
         enabled: true,
         provider: this.provider,
         judgment,
@@ -205,6 +206,24 @@ export class VLLMJudge {
         raw: data,
         semantic: semanticInfo
       };
+      
+      // Apply bias mitigation if enabled (research shows this improves reliability)
+      if (context.enableBiasMitigation !== false) {
+        result = applyBiasMitigation(result, semanticInfo.reasoning || '', {
+          adjustScores: true,
+          adjustIssues: false
+        });
+      }
+      
+      // Apply sequential context adaptation if available
+      if (context.sequentialContext && context.sequentialContext.historyLength > 0) {
+        // Sequential context already applied via prompt adaptation
+        // This is just for metadata tracking
+        result.sequentialContext = {
+          historyLength: context.sequentialContext.historyLength,
+          patterns: context.sequentialContext.patterns || {}
+        };
+      }
       
       // Cache result
       if (useCache) {

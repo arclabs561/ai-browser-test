@@ -87,6 +87,23 @@ ${Object.entries(rubricToUse.score.criteria)
   .map(([score, desc]) => `- ${score}: ${desc}`)
   .join('\n')}
 
+### Example Evaluations (Few-Shot Learning):
+
+**Example 1 - High Quality (Score: 9)**
+Screenshot: Clean, accessible homepage with high contrast
+Evaluation: "Excellent design with clear navigation, high contrast (21:1), keyboard accessible. Minor: could improve spacing. Score: 9"
+JSON: {"score": 9, "assessment": "excellent", "issues": ["minor spacing"], "reasoning": "High quality with minor improvements needed"}
+
+**Example 2 - Medium Quality (Score: 6)**
+Screenshot: Functional but cluttered interface
+Evaluation: "Functional design but cluttered layout, moderate contrast (4.2:1), some accessibility issues. Score: 6"
+JSON: {"score": 6, "assessment": "needs-improvement", "issues": ["cluttered layout", "low contrast", "accessibility issues"], "reasoning": "Functional but needs significant improvements"}
+
+**Example 3 - Low Quality (Score: 3)**
+Screenshot: Broken layout with poor accessibility
+Evaluation: "Poor design with broken layout, very low contrast (2.1:1), not keyboard accessible, multiple critical issues. Score: 3"
+JSON: {"score": 3, "assessment": "fail", "issues": ["broken layout", "critical contrast violation", "no keyboard navigation"], "reasoning": "Multiple critical issues prevent usability"}
+
 ### Evaluation Instructions:
 1. Evaluate the screenshot against the criteria below
 2. Consider both appearance and functional correctness
