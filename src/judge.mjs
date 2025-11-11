@@ -63,6 +63,29 @@ export class VLLMJudge {
    * Judge screenshot using VLLM API
    */
   async judgeScreenshot(imagePath, prompt, context = {}) {
+    // Validate inputs
+    if (typeof imagePath !== 'string' || imagePath.length === 0) {
+      throw new ValidationError('Image path must be a non-empty string', imagePath);
+    }
+    
+    if (typeof prompt !== 'string' || prompt.length === 0) {
+      throw new ValidationError('Prompt must be a non-empty string', null, {
+        promptLength: prompt?.length || 0
+      });
+    }
+    
+    if (prompt.length > 10000) {
+      throw new ValidationError('Prompt too long (max 10000 characters)', null, {
+        length: prompt.length
+      });
+    }
+    
+    if (context && typeof context !== 'object') {
+      throw new ValidationError('Context must be an object', null, {
+        received: typeof context
+      });
+    }
+    
     if (!this.enabled) {
       return {
         enabled: false,

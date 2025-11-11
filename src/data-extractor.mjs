@@ -105,9 +105,12 @@ async function callLLM(prompt, config) {
   
   switch (provider) {
     case 'gemini': {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey
+        },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
@@ -162,6 +165,13 @@ async function callLLM(prompt, config) {
 }
 
 /**
+ * Escape special regex characters to prevent ReDoS
+ */
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Extract structured data using regex patterns
  */
 function extractWithRegex(text, schema) {
@@ -170,24 +180,27 @@ function extractWithRegex(text, schema) {
   for (const [key, field] of Object.entries(schema)) {
     const { type, required = false } = field;
     
+    // Escape key to prevent ReDoS attacks
+    const escapedKey = escapeRegex(key);
+    
     // Try to find value in text
     let value = null;
     
     if (type === 'number') {
       // Look for number patterns
-      const match = text.match(new RegExp(`${key}[\\s:=]+([0-9.]+)`, 'i'));
+      const match = text.match(new RegExp(`${escapedKey}[\\s:=]+([0-9.]+)`, 'i'));
       if (match) {
         value = parseFloat(match[1]);
       }
     } else if (type === 'string') {
       // Look for string patterns
-      const match = text.match(new RegExp(`${key}[\\s:=]+([^\\n,]+)`, 'i'));
+      const match = text.match(new RegExp(`${escapedKey}[\\s:=]+([^\\n,]+)`, 'i'));
       if (match) {
         value = match[1].trim();
       }
     } else if (type === 'boolean') {
       // Look for boolean patterns
-      const match = text.match(new RegExp(`${key}[\\s:=]+(true|false|yes|no)`, 'i'));
+      const match = text.match(new RegExp(`${escapedKey}[\\s:=]+(true|false|yes|no)`, 'i'));
       if (match) {
         value = match[1].toLowerCase() === 'true' || match[1].toLowerCase() === 'yes';
       }
