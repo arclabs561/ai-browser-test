@@ -55,8 +55,11 @@ def __(API_KEY, URL, json, subprocess):
     Here we demonstrate the concept.
     """
     # Create Node.js script for multi-modal validation
+    # Note: multiModalValidation requires a validateFn that matches validateScreenshot signature
+    import json as py_json
+    
     node_script = f"""
-    import {{ multiModalValidation }} from 'ai-browser-test';
+    import {{ multiModalValidation, validateScreenshot }} from 'ai-browser-test';
     import {{ chromium }} from 'playwright';
     
     async function run() {{
@@ -64,28 +67,33 @@ def __(API_KEY, URL, json, subprocess):
         const page = await browser.newPage();
         
         try {{
-            await page.goto('{URL}');
+            await page.goto({py_json.dumps(URL)});
             
+            // multiModalValidation signature: (validateFn, page, testName, options)
+            // validateFn must match: (imagePath, prompt, context) => Promise<ValidationResult>
             const result = await multiModalValidation(
-                async (imagePath, prompt, context) => {{
-                    // This would use validateScreenshot internally
-                    return {{ score: 0.85, issues: [] }};
-                }},
+                validateScreenshot,  // Use the actual validateScreenshot function
                 page,
                 'homepage-test',
                 {{
-                    testType: 'homepage',
-                    viewport: {{ width: 1280, height: 720 }}
+                    fps: 2,
+                    duration: 2000,
+                    captureCode: true,
+                    captureState: true,
+                    multiPerspective: true
                 }}
             );
             
             console.log(JSON.stringify(result, null, 2));
+        }} catch (error) {{
+            console.error(JSON.stringify({{ error: error.message, stack: error.stack }}));
+            process.exit(1);
         }} finally {{
             await browser.close();
         }}
     }}
     
-    run().catch(console.error);
+    run();
     """
     
     # In a real scenario, you would:
@@ -95,23 +103,35 @@ def __(API_KEY, URL, json, subprocess):
     
     print("📝 Multi-modal validation script created")
     print("   (In production, this would execute and return results)")
+    print("   Note: Requires @playwright/test to be installed")
     
-    # Mock result for demonstration
+    # Mock result structure matching actual multiModalValidation return type
     mock_result = {{
-        "screenshot": {{
-            "score": 0.85,
-            "issues": ["Minor contrast issue"]
-        }},
+        "screenshotPath": "test-results/multimodal-homepage-test-1234567890.png",
         "renderedCode": {{
             "html": "<html>...</html>",
             "css": "body {{ ... }}",
-            "domStructure": "html > body > ..."
+            "domStructure": {{}}
         }},
-        "multiModal": {{
-            "score": 0.88,
-            "issues": [],
-            "assessment": "Good overall, minor improvements needed"
-        }}
+        "gameState": {{}},
+        "temporalScreenshots": [],
+        "perspectives": [
+            {{
+                "persona": "Design Critic",
+                "perspective": "visual-design",
+                "focus": "aesthetics",
+                "evaluation": {{
+                    "score": 0.85,
+                    "issues": ["Minor contrast issue"],
+                    "assessment": "Good overall design",
+                    "reasoning": "Well-structured layout with minor improvements needed"
+                }}
+            }}
+        ],
+        "codeValidation": {{}},
+        "aggregatedScore": 0.85,
+        "aggregatedIssues": ["Minor contrast issue"],
+        "timestamp": 1234567890
     }}
     
     return mock_result, node_script
@@ -126,21 +146,27 @@ def __(mock_result):
     
     result = mock_result
     
+    # Extract scores from perspectives if available
+    perspective_scores = [p["evaluation"]["score"] for p in result.get("perspectives", []) if p.get("evaluation", {}).get("score") is not None]
+    avg_score = result.get("aggregatedScore") or (sum(perspective_scores) / len(perspective_scores) if perspective_scores else None)
+    
+    score_display = f"{avg_score:.2f}/1.0" if avg_score is not None else "N/A"
+    
     mo.md(f"""
     ## Multi-Modal Validation Results
     
-    ### Screenshot Validation
-    - **Score:** {result["screenshot"]["score"]:.2f}/1.0
-    - **Issues:** {len(result["screenshot"]["issues"])}
+    ### Screenshot Path
+    - **Path:** {result.get("screenshotPath", "N/A")}
     
     ### Rendered Code Analysis
-    - **HTML:** Extracted ({len(result["renderedCode"]["html"])} chars)
-    - **CSS:** Extracted ({len(result["renderedCode"]["css"])} chars)
+    - **HTML:** Extracted ({len(result.get("renderedCode", {}).get("html", ""))} chars)
+    - **CSS:** Extracted ({len(result.get("renderedCode", {}).get("css", ""))} chars)
     - **DOM Structure:** Analyzed
     
-    ### Combined Multi-Modal Score
-    - **Score:** {result["multiModal"]["score"]:.2f}/1.0
-    - **Assessment:** {result["multiModal"]["assessment"]}
+    ### Multi-Perspective Evaluation
+    - **Perspectives:** {len(result.get("perspectives", []))}
+    - **Aggregated Score:** {score_display}
+    - **Aggregated Issues:** {len(result.get("aggregatedIssues", []))}
     """)
     
     return mo, result
@@ -153,28 +179,48 @@ def __(result):
     """
     import marimo as mo
     
-    # Display issues
-    if result["screenshot"]["issues"]:
+    # Display perspectives
+    if result.get("perspectives"):
+        perspective_text = []
+        for p in result["perspectives"]:
+            eval_data = p.get("evaluation", {})
+            score = eval_data.get("score", "N/A")
+            issues = eval_data.get("issues", [])
+            score_str = f"{score:.2f}/1.0" if isinstance(score, (int, float)) else str(score)
+            issues_text = chr(10).join(f"  - {issue}" for issue in issues) if issues else "  - None"
+            perspective_text.append(f"""
+            ### {p.get("persona", "Unknown")} Perspective
+            - **Score:** {score_str}
+            - **Focus:** {p.get("focus", "N/A")}
+            - **Issues:** {len(issues)}
+            {issues_text}
+            """)
+        mo.md("## Perspective Details\n" + "\n".join(perspective_text))
+    
+    # Display aggregated issues
+    if result.get("aggregatedIssues"):
         mo.md(f"""
-        ### Screenshot Issues
+        ### Aggregated Issues
         
-        {chr(10).join(f"- {issue}" for issue in result["screenshot"]["issues"])}
+        {chr(10).join(f"- {issue}" for issue in result["aggregatedIssues"])}
         """)
     
     # Display rendered code preview
-    mo.md(f"""
-    ### Rendered Code Preview
-    
-    **HTML Structure:**
-    ```html
-    {result["renderedCode"]["html"][:200]}...
-    ```
-    
-    **CSS:**
-    ```css
-    {result["renderedCode"]["css"][:200]}...
-    ```
-    """)
+    rendered_code = result.get("renderedCode", {})
+    if rendered_code:
+        mo.md(f"""
+        ### Rendered Code Preview
+        
+        **HTML Structure:**
+        ```html
+        {rendered_code.get("html", "")[:200]}...
+        ```
+        
+        **CSS:**
+        ```css
+        {rendered_code.get("css", "")[:200]}...
+        ```
+        """)
     
     return mo,
 

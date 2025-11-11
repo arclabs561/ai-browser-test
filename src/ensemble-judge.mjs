@@ -28,21 +28,49 @@ export class EnsembleJudge {
   constructor(options = {}) {
     const {
       judges = [],
-      votingMethod = 'weighted_average', // 'weighted_average', 'majority', 'consensus'
+      votingMethod = 'weighted_average', // 'weighted_average', 'majority', 'consensus', 'optimal'
       weights = null, // Array of weights for each judge
+      judgeAccuracies = null, // Array of accuracy scores (0-1) for optimal weighting
       minAgreement = 0.7, // Minimum agreement for consensus
       enableBiasDetection = true
     } = options;
     
     this.judges = judges.length > 0 ? judges : [new VLLMJudge()];
     this.votingMethod = votingMethod;
+    this.judgeAccuracies = judgeAccuracies; // For optimal weighting (arXiv:2510.01499)
     this.weights = weights || this.judges.map(() => 1.0);
     this.minAgreement = minAgreement;
     this.enableBiasDetection = enableBiasDetection;
     
+    // Calculate weights based on method
+    if (votingMethod === 'optimal' && this.judgeAccuracies) {
+      this.weights = this.calculateOptimalWeights(this.judgeAccuracies);
+    }
+    
     // Normalize weights
     const weightSum = this.weights.reduce((a, b) => a + b, 0);
     this.normalizedWeights = this.weights.map(w => w / weightSum);
+  }
+  
+  /**
+   * Calculate optimal weights using inverse logistic function
+   * Research: arXiv:2510.01499 - ω_i ∝ σ⁻¹(x_i) where σ(x) = e^x/(1+e^x)
+   * 
+   * @param {number[]} accuracies - Array of accuracy scores (0-1) for each judge
+   * @returns {number[]} Optimal weights
+   */
+  calculateOptimalWeights(accuracies) {
+    // Inverse logistic: σ⁻¹(p) = ln(p / (1-p))
+    // For accuracy p, optimal weight ∝ σ⁻¹(p)
+    // Handle edge cases: p=0 → -∞, p=1 → +∞, so clamp to [0.01, 0.99]
+    const clamped = accuracies.map(a => Math.max(0.01, Math.min(0.99, a)));
+    const inverseLogistic = clamped.map(p => Math.log(p / (1 - p)));
+    
+    // Normalize to positive weights (shift by min to make all positive)
+    const min = Math.min(...inverseLogistic);
+    const shifted = inverseLogistic.map(w => w - min + 1);
+    
+    return shifted;
   }
   
   /**
@@ -122,6 +150,7 @@ export class EnsembleJudge {
     
     switch (this.votingMethod) {
       case 'weighted_average':
+      case 'optimal':
         return this.weightedAverage(validResults);
       case 'majority':
         return this.majorityVote(validResults);

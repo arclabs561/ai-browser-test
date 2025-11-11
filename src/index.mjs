@@ -131,6 +131,9 @@ export {
   rankBatch
 } from './pair-comparison.mjs';
 export {
+  detectHallucination
+} from './hallucination-detector.mjs';
+export {
   applyBiasMitigation,
   mitigateBias,
   mitigatePositionBias

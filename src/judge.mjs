@@ -63,8 +63,16 @@ export class VLLMJudge {
 
   /**
    * Judge screenshot using VLLM API
+   * 
+   * @param {string | string[]} imagePath - Single image path or array of image paths for comparison
+   * @param {string} prompt - Evaluation prompt
+   * @param {import('./index.mjs').ValidationContext} [context={}] - Validation context
+   * @returns {Promise<import('./index.mjs').ValidationResult>} Validation result
    */
   async judgeScreenshot(imagePath, prompt, context = {}) {
+    // Support both single image and multi-image (for pair comparison)
+    const imagePaths = Array.isArray(imagePath) ? imagePath : [imagePath];
+    const isMultiImage = imagePaths.length > 1;
     if (!this.enabled) {
       return {
         enabled: false,
@@ -80,10 +88,11 @@ export class VLLMJudge {
     // Check cache first (if caching enabled)
     const useCache = context.useCache !== false && this.config.cache.enabled;
     if (useCache) {
-      const cached = getCached(imagePath, prompt, context);
+      const cacheKey = isMultiImage ? imagePaths.join('|') : imagePath;
+      const cached = getCached(cacheKey, prompt, context);
       if (cached) {
         if (this.config.debug.verbose) {
-          log(`[VLLM] Cache hit for ${imagePath}`);
+          log(`[VLLM] Cache hit for ${cacheKey}`);
         }
         return { ...cached, cached: true };
       }
@@ -101,8 +110,9 @@ export class VLLMJudge {
     let attempts = 0;
 
     try {
-      const base64Image = this.imageToBase64(imagePath);
-      const fullPrompt = this.buildPrompt(prompt, context);
+      // Convert all images to base64
+      const base64Images = imagePaths.map(path => this.imageToBase64(path));
+      const fullPrompt = this.buildPrompt(prompt, context, isMultiImage);
       
       // Retry API calls with exponential backoff
       const maxRetries = context.maxRetries ?? 3;
@@ -110,11 +120,12 @@ export class VLLMJudge {
         attempts++;
         let apiResponse;
         let apiData;
+        let logprobs = null; // Declare once outside switch
         
         // Route to appropriate API based on provider
         switch (this.provider) {
           case 'gemini':
-            apiResponse = await this.callGeminiAPI(base64Image, fullPrompt, abortController.signal);
+            apiResponse = await this.callGeminiAPI(base64Images, fullPrompt, abortController.signal, isMultiImage);
             clearTimeout(timeoutId);
             apiData = await apiResponse.json();
             
@@ -131,13 +142,17 @@ export class VLLMJudge {
               );
             }
             
+            // Extract logprobs if available (for uncertainty estimation)
+            logprobs = apiData.candidates?.[0]?.content?.parts?.[0]?.logprobs || null;
+            
             return {
               judgment: apiData.candidates?.[0]?.content?.parts?.[0]?.text || 'No response',
-              data: apiData
+              data: apiData,
+              logprobs
             };
             
           case 'openai':
-            apiResponse = await this.callOpenAIAPI(base64Image, fullPrompt, abortController.signal);
+            apiResponse = await this.callOpenAIAPI(base64Images, fullPrompt, abortController.signal, isMultiImage);
             clearTimeout(timeoutId);
             apiData = await apiResponse.json();
             
@@ -154,13 +169,17 @@ export class VLLMJudge {
               );
             }
             
+            // Extract logprobs if available (OpenAI provides logprobs when requested)
+            logprobs = apiData.choices?.[0]?.logprobs || null;
+            
             return {
               judgment: apiData.choices?.[0]?.message?.content || 'No response',
-              data: apiData
+              data: apiData,
+              logprobs
             };
             
           case 'claude':
-            apiResponse = await this.callClaudeAPI(base64Image, fullPrompt, abortController.signal);
+            apiResponse = await this.callClaudeAPI(base64Images, fullPrompt, abortController.signal, isMultiImage);
             clearTimeout(timeoutId);
             apiData = await apiResponse.json();
             
@@ -177,9 +196,13 @@ export class VLLMJudge {
               );
             }
             
+            // Claude doesn't provide logprobs in standard API
+            logprobs = null;
+            
             return {
               judgment: apiData.content?.[0]?.text || 'No response',
-              data: apiData
+              data: apiData,
+              logprobs
             };
             
           default:
@@ -198,6 +221,7 @@ export class VLLMJudge {
       
       judgment = apiResult.judgment;
       data = apiResult.data;
+      const logprobs = apiResult.logprobs || null;
       
       const responseTime = Date.now() - startTime;
       const semanticInfo = this.extractSemanticInfo(judgment);
@@ -236,12 +260,14 @@ export class VLLMJudge {
         viewport: context.viewport || null,
         raw: data || null,
         semantic: semanticInfo,
-        attempts: attempts || 1
+        attempts: attempts || 1,
+        logprobs // Include logprobs for uncertainty estimation (if available)
       };
       
-      // Cache result
+      // Cache result (use first image path for single image, or combined key for multi-image)
       if (useCache) {
-        setCached(imagePath, prompt, context, validationResult);
+        const cacheKey = isMultiImage ? imagePaths.join('|') : imagePath;
+        setCached(cacheKey, prompt, context, validationResult);
       }
       
       return validationResult;
@@ -299,33 +325,66 @@ export class VLLMJudge {
 
   /**
    * Build prompt for screenshot validation
+   * 
+   * Uses unified prompt composition system for research-backed consistency.
+   * Research: Explicit rubrics improve reliability by 10-20% (arXiv:2412.05579)
+   * 
+   * @param {string} prompt - Base prompt
+   * @param {import('./index.mjs').ValidationContext} context - Validation context
+   * @param {boolean} [isMultiImage=false] - Whether this is a multi-image comparison
+   * @returns {string} Full prompt with context
    */
-  buildPrompt(prompt, context = {}) {
+  buildPrompt(prompt, context = {}, isMultiImage = false) {
     // If custom prompt builder provided, use it
     if (context.promptBuilder && typeof context.promptBuilder === 'function') {
       return context.promptBuilder(prompt, context);
     }
     
-    // Build prompt with context information
-    let fullPrompt = prompt;
-    
-    // Add context information if provided
-    const contextParts = [];
-    if (context.testType) {
-      contextParts.push(`Test Type: ${context.testType}`);
+    // Use unified prompt composition system
+    try {
+      if (isMultiImage) {
+        return composeComparisonPrompt(prompt, context, {
+          includeRubric: context.includeRubric !== false // Default true (research-backed)
+        });
+      } else {
+        return composeSingleImagePrompt(prompt, context, {
+          includeRubric: context.includeRubric !== false, // Default true (research-backed)
+          temporalNotes: context.temporalNotes || null
+        });
+      }
+    } catch (error) {
+      // Fallback to basic prompt building if composition fails
+      if (this.config.debug.verbose) {
+        warn(`[VLLM] Prompt composition failed, using fallback: ${error.message}`);
+      }
+      
+      // Basic fallback (original implementation)
+      let fullPrompt = prompt;
+      const contextParts = [];
+      if (context.testType) {
+        contextParts.push(`Test Type: ${context.testType}`);
+      }
+      if (context.viewport) {
+        contextParts.push(`Viewport: ${context.viewport.width}x${context.viewport.height}`);
+      }
+      if (context.gameState) {
+        contextParts.push(`Game State: ${JSON.stringify(context.gameState)}`);
+      }
+      if (contextParts.length > 0) {
+        fullPrompt = `${prompt}\n\nContext:\n${contextParts.join('\n')}`;
+      }
+      if (isMultiImage) {
+        fullPrompt = `${fullPrompt}\n\nYou are comparing two screenshots side-by-side. Return JSON with:
+{
+  "winner": "A" | "B" | "tie",
+  "confidence": 0.0-1.0,
+  "reasoning": "explanation",
+  "differences": ["difference1", "difference2"],
+  "scores": {"A": 0-10, "B": 0-10}
+}`;
+      }
+      return fullPrompt;
     }
-    if (context.viewport) {
-      contextParts.push(`Viewport: ${context.viewport.width}x${context.viewport.height}`);
-    }
-    if (context.gameState) {
-      contextParts.push(`Game State: ${JSON.stringify(context.gameState)}`);
-    }
-    
-    if (contextParts.length > 0) {
-      fullPrompt = `${prompt}\n\nContext:\n${contextParts.join('\n')}`;
-    }
-    
-    return fullPrompt;
   }
 
   /**
@@ -451,8 +510,27 @@ export class VLLMJudge {
 
   /**
    * Call Google Gemini API
+   * 
+   * @param {string | string[]} base64Images - Single image or array of images (base64)
+   * @param {string} prompt - Evaluation prompt
+   * @param {AbortSignal} signal - Abort signal for timeout
+   * @param {boolean} [isMultiImage=false] - Whether this is a multi-image request
+   * @returns {Promise<Response>} API response
    */
-  async callGeminiAPI(base64Image, prompt, signal) {
+  async callGeminiAPI(base64Images, prompt, signal, isMultiImage = false) {
+    const images = Array.isArray(base64Images) ? base64Images : [base64Images];
+    
+    // Build parts array: text prompt + all images
+    const parts = [{ text: prompt }];
+    for (const base64Image of images) {
+      parts.push({
+        inline_data: {
+          mime_type: 'image/png',
+          data: base64Image
+        }
+      });
+    }
+    
     return fetch(
       `${this.providerConfig.apiUrl}/models/${this.providerConfig.model}:generateContent?key=${this.apiKey}`,
       {
@@ -460,17 +538,7 @@ export class VLLMJudge {
         headers: { 'Content-Type': 'application/json' },
         signal,
         body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: prompt },
-              {
-                inline_data: {
-                  mime_type: 'image/png',
-                  data: base64Image
-                }
-              }
-            ]
-          }],
+          contents: [{ parts }],
           generationConfig: {
             temperature: 0.1,
             maxOutputTokens: 2000,
@@ -484,8 +552,25 @@ export class VLLMJudge {
 
   /**
    * Call OpenAI API
+   * 
+   * @param {string | string[]} base64Images - Single image or array of images (base64)
+   * @param {string} prompt - Evaluation prompt
+   * @param {AbortSignal} signal - Abort signal for timeout
+   * @param {boolean} [isMultiImage=false] - Whether this is a multi-image request
+   * @returns {Promise<Response>} API response
    */
-  async callOpenAIAPI(base64Image, prompt, signal) {
+  async callOpenAIAPI(base64Images, prompt, signal, isMultiImage = false) {
+    const images = Array.isArray(base64Images) ? base64Images : [base64Images];
+    
+    // Build content array: text prompt + all images
+    const content = [{ type: 'text', text: prompt }];
+    for (const base64Image of images) {
+      content.push({
+        type: 'image_url',
+        image_url: { url: `data:image/png;base64,${base64Image}` }
+      });
+    }
+    
     return fetch(`${this.providerConfig.apiUrl}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -497,25 +582,42 @@ export class VLLMJudge {
         model: this.providerConfig.model,
         messages: [{
           role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            {
-              type: 'image_url',
-              image_url: { url: `data:image/png;base64,${base64Image}` }
-            }
-          ]
+          content
         }],
         temperature: 0.1,
         max_tokens: 2000,
-        top_p: 0.95
+        top_p: 0.95,
+        logprobs: true, // Request logprobs for uncertainty estimation
+        top_logprobs: 5
       })
     });
   }
 
   /**
    * Call Anthropic Claude API
+   * 
+   * @param {string | string[]} base64Images - Single image or array of images (base64)
+   * @param {string} prompt - Evaluation prompt
+   * @param {AbortSignal} signal - Abort signal for timeout
+   * @param {boolean} [isMultiImage=false] - Whether this is a multi-image request
+   * @returns {Promise<Response>} API response
    */
-  async callClaudeAPI(base64Image, prompt, signal) {
+  async callClaudeAPI(base64Images, prompt, signal, isMultiImage = false) {
+    const images = Array.isArray(base64Images) ? base64Images : [base64Images];
+    
+    // Build content array: text prompt + all images
+    const content = [{ type: 'text', text: prompt }];
+    for (const base64Image of images) {
+      content.push({
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: 'image/png',
+          data: base64Image
+        }
+      });
+    }
+    
     return fetch(`${this.providerConfig.apiUrl}/messages`, {
       method: 'POST',
       headers: {
@@ -526,20 +628,10 @@ export class VLLMJudge {
       signal,
       body: JSON.stringify({
         model: this.providerConfig.model,
-        max_tokens: 500,
+        max_tokens: 2000, // Increased for pair comparison
         messages: [{
           role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: 'image/png',
-                data: base64Image
-              }
-            }
-          ]
+          content
         }]
       })
     });

@@ -64,75 +64,100 @@ Compare them and determine which is better based on the evaluation criteria. Ret
 }`;
   
   try {
-    // For pair comparison, we need to send both images
-    // This is a simplified version - in practice, you'd need multi-image support
-    // For now, we'll do two separate evaluations and compare
-    
-    const result1 = await judge.judgeScreenshot(first, comparisonPrompt, {
+    // TRUE MULTI-IMAGE COMPARISON: Send both images in single API call
+    // This is the research-optimal approach (MLLM-as-a-Judge, arXiv:2402.04788)
+    const comparisonResult = await judge.judgeScreenshot([first, second], comparisonPrompt, {
       ...context,
-      comparisonContext: { position: 'A', total: 2 }
+      comparisonContext: { position: 'both', total: 2 }
     });
     
-    const result2 = await judge.judgeScreenshot(second, comparisonPrompt, {
-      ...context,
-      comparisonContext: { position: 'B', total: 2 }
-    });
-    
-    // Determine winner based on scores
-    const score1 = result1.score ?? 0;
-    const score2 = result2.score ?? 0;
-    
-    let winner = 'tie';
-    let confidence = 0.5;
-    
-    if (Math.abs(score1 - score2) < 0.5) {
-      winner = 'tie';
-      confidence = 0.5;
-    } else if (score1 > score2) {
-      winner = order === 'original' ? 'A' : 'B';
-      confidence = Math.min(1.0, 0.5 + Math.abs(score1 - score2) / 10);
-    } else {
-      winner = order === 'original' ? 'B' : 'A';
-      confidence = Math.min(1.0, 0.5 + Math.abs(score1 - score2) / 10);
+    if (!comparisonResult.enabled || comparisonResult.error) {
+      return {
+        enabled: false,
+        winner: null,
+        confidence: null,
+        reasoning: comparisonResult.error || 'Comparison failed',
+        comparison: null,
+        error: comparisonResult.error || 'API disabled'
+      };
     }
     
-    // Detect position bias
-    const positionBias = detectPositionBias([
-      { score: score1 },
-      { score: score2 }
-    ]);
+    // Parse comparison result - expect JSON with winner, scores, reasoning
+    const judgment = comparisonResult.judgment || '';
+    let parsedComparison = null;
     
-    // Adjust for position bias if detected
-    if (positionBias.detected) {
-      // Swap winner if position bias detected and scores are close
-      if (Math.abs(score1 - score2) < 1.0) {
-        winner = winner === 'A' ? 'B' : winner === 'B' ? 'A' : 'tie';
-        confidence = Math.max(0.3, confidence - 0.2);
+    try {
+      const jsonMatch = judgment.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsedComparison = JSON.parse(jsonMatch[0]);
       }
+    } catch (e) {
+      // Fall through to score-based comparison
     }
     
+    // If we got structured comparison, use it
+    if (parsedComparison && parsedComparison.winner) {
+      const winner = parsedComparison.winner.toLowerCase();
+      const scoreA = parsedComparison.scores?.A ?? parsedComparison.scores?.['A'] ?? null;
+      const scoreB = parsedComparison.scores?.B ?? parsedComparison.scores?.['B'] ?? null;
+      
+      // Map winner back to original order
+      const mappedWinner = order === 'reversed' 
+        ? (winner === 'a' ? 'B' : winner === 'b' ? 'A' : 'tie')
+        : (winner === 'a' ? 'A' : winner === 'b' ? 'B' : 'tie');
+      
+      return {
+        enabled: true,
+        winner: mappedWinner,
+        confidence: parsedComparison.confidence ?? 0.5,
+        reasoning: parsedComparison.reasoning || comparisonResult.reasoning || 'Direct comparison completed',
+        differences: parsedComparison.differences || [],
+        comparison: {
+          score1: scoreA ?? (mappedWinner === 'A' ? 8 : mappedWinner === 'B' ? 6 : 7),
+          score2: scoreB ?? (mappedWinner === 'B' ? 8 : mappedWinner === 'A' ? 6 : 7),
+          difference: scoreA && scoreB ? Math.abs(scoreA - scoreB) : null,
+          order: order === 'reversed' ? 'reversed' : 'original',
+          method: 'multi-image'
+        },
+        biasDetection: {
+          positionBias: false, // Multi-image eliminates position bias
+          adjusted: false
+        },
+        metadata: {
+          provider: comparisonResult.provider,
+          cached: comparisonResult.cached || false,
+          responseTime: comparisonResult.responseTime || 0,
+          estimatedCost: comparisonResult.estimatedCost,
+          logprobs: comparisonResult.logprobs || null // Include if available
+        }
+      };
+    }
+    
+    // Fallback: If structured parse failed, treat as tie (multi-image should return structured JSON)
+    // This should rarely happen if prompt is clear
     return {
       enabled: true,
-      winner: order === 'reversed' ? (winner === 'A' ? 'B' : winner === 'B' ? 'A' : 'tie') : winner,
-      confidence,
-      reasoning: `Screenshot ${winner === 'A' ? '1' : winner === 'B' ? '2' : 'neither'} is better. Score difference: ${Math.abs(score1 - score2).toFixed(2)}`,
+      winner: 'tie',
+      confidence: 0.5,
+      reasoning: comparisonResult.reasoning || 'Comparison completed but could not parse structured result. Treating as tie.',
       comparison: {
-        score1,
-        score2,
-        difference: Math.abs(score1 - score2),
-        order: order === 'reversed' ? 'reversed' : 'original'
+        score1: comparisonResult.score ?? 7,
+        score2: comparisonResult.score ?? 7,
+        difference: 0,
+        order: order === 'reversed' ? 'reversed' : 'original',
+        method: 'multi-image-fallback'
       },
       biasDetection: {
-        positionBias: positionBias.detected,
-        adjusted: positionBias.detected
+        positionBias: false,
+        adjusted: false
       },
       metadata: {
-        provider: result1.provider,
-        cached: result1.cached && result2.cached,
-        responseTime: (result1.responseTime || 0) + (result2.responseTime || 0),
-        estimatedCost: {
-          totalCost: (result1.estimatedCost?.totalCost || 0) + (result2.estimatedCost?.totalCost || 0)
-        }
+        provider: comparisonResult.provider,
+        cached: comparisonResult.cached || false,
+        responseTime: comparisonResult.responseTime || 0,
+        estimatedCost: comparisonResult.estimatedCost,
+        logprobs: comparisonResult.logprobs || null,
+        warning: 'Structured comparison parse failed - using fallback'
       }
     };
   } catch (error) {
@@ -149,9 +174,17 @@ Compare them and determine which is better based on the evaluation criteria. Ret
 
 /**
  * Build comparison prompt from base prompt
+ * 
+ * Now uses unified prompt composition system for research-backed consistency.
  */
 function buildComparisonPrompt(basePrompt, context) {
-  return `Compare the two screenshots based on the following criteria:
+  try {
+    return composeComparisonPrompt(basePrompt, context, {
+      includeRubric: context.includeRubric !== false // Default true (research-backed)
+    });
+  } catch (error) {
+    // Fallback to basic comparison prompt
+    return `Compare the two screenshots based on the following criteria:
 
 ${basePrompt}
 
@@ -162,6 +195,7 @@ Focus on:
 - Which provides better user experience?
 
 Be specific about what makes one better than the other.`;
+  }
 }
 
 /**

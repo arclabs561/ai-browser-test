@@ -96,7 +96,7 @@ def __(screenshot_available, screenshot_path, base64, io, Image):
 
 
 @app.cell
-def __(API_KEY, image_info, json, screenshot_path, subprocess):
+def __(API_KEY, height, image_info, json, os, screenshot_path, subprocess, width):
     """
     Step 3: Validate screenshot using ai-browser-test
     
@@ -108,19 +108,30 @@ def __(API_KEY, image_info, json, screenshot_path, subprocess):
         print("⏭️  Skipping validation (no screenshot)")
     else:
         # Create a Node.js script to call the package
+        # Note: Using JSON.stringify to properly escape the path
+        import json as py_json
+        screenshot_path_str = str(screenshot_path.resolve())
+        
         node_script = f"""
         import {{ validateScreenshot }} from 'ai-browser-test';
         
-        const result = await validateScreenshot(
-            '{screenshot_path}',
-            'Evaluate this screenshot for quality, accessibility, and design principles.',
-            {{
-                testType: 'general',
-                viewport: {{ width: {width}, height: {height} }}
-            }}
-        );
+        async function run() {{
+            const result = await validateScreenshot(
+                {py_json.dumps(screenshot_path_str)},
+                'Evaluate this screenshot for quality, accessibility, and design principles.',
+                {{
+                    testType: 'general',
+                    viewport: {{ width: {width}, height: {height} }}
+                }}
+            );
+            
+            console.log(JSON.stringify(result, null, 2));
+        }}
         
-        console.log(JSON.stringify(result, null, 2));
+        run().catch(err => {{
+            console.error(JSON.stringify({{ error: err.message, stack: err.stack }}));
+            process.exit(1);
+        }});
         """
         
         # Write temporary script
@@ -140,8 +151,16 @@ def __(API_KEY, image_info, json, screenshot_path, subprocess):
                 result = json.loads(process.stdout)
                 print("✅ Validation completed")
             else:
-                result = {"error": process.stderr}
+                # Try to parse error as JSON, fallback to plain text
+                try:
+                    error_data = json.loads(process.stderr)
+                    result = {"error": error_data.get("error", process.stderr)}
+                except:
+                    result = {"error": process.stderr}
                 print(f"❌ Validation failed: {process.stderr}")
+        except json.JSONDecodeError as e:
+            result = {"error": f"Failed to parse result: {e}", "raw_output": process.stdout}
+            print(f"❌ JSON parse error: {e}")
         except Exception as e:
             result = {"error": str(e)}
             print(f"❌ Error: {e}")
