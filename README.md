@@ -553,6 +553,15 @@ This package implements research-backed best practices:
 4. **Context Compression** - Aligned with ICCV 2025 research
 5. **Temporal Aggregation** - Novel application to testing domain
 
+### Comparison with Similar Projects
+
+See [`docs/COMPARISON_AND_RESEARCH.md`](./docs/COMPARISON_AND_RESEARCH.md) for a detailed comparison with:
+- Applitools, Percy, Chromatic (pixel-based tools)
+- Playwright Visual Testing
+- Testsigma, BlinqIO (AI testing platforms)
+- Research foundations and related papers
+- Unique differentiators of this package
+
 ## License
 
 MIT
