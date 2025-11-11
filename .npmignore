@@ -1,0 +1,44 @@
+# Test files
+test/
+*.test.mjs
+test-results/
+
+# Development files
+scripts/
+.github/
+archive/
+.env*
+.env.bak
+.env.backup
+
+# Documentation (keep only essential)
+# Keep: README.md, CHANGELOG.md, LICENSE, CONTRIBUTING.md, DEPLOYMENT.md
+# Remove analysis docs
+API_*.md
+IMPLEMENTATION_*.md
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Cache
+.cache/
+*.cache
+
+# Git
+.git/
+.gitignore
+
+# Husky (dev tool)
+.husky/
+
+# Secrets
+.secretsignore
+

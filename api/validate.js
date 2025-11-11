@@ -28,6 +28,11 @@ import { writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
+// Security limits
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_PROMPT_LENGTH = 5000;
+const MAX_CONTEXT_SIZE = 10000;
+
 export default async function handler(req, res) {
   // Only allow POST
   if (req.method !== 'POST') {
@@ -37,12 +42,26 @@ export default async function handler(req, res) {
   try {
     const { image, prompt, context = {} } = req.body;
 
-    // Validate input
+    // Validate input presence
     if (!image) {
       return res.status(400).json({ error: 'Missing image (base64 encoded)' });
     }
     if (!prompt) {
       return res.status(400).json({ error: 'Missing prompt' });
+    }
+
+    // Validate input size
+    if (typeof image !== 'string' || image.length > MAX_IMAGE_SIZE) {
+      return res.status(400).json({ error: 'Image too large or invalid format' });
+    }
+    if (typeof prompt !== 'string' || prompt.length > MAX_PROMPT_LENGTH) {
+      return res.status(400).json({ error: 'Prompt too long' });
+    }
+    if (context && typeof context === 'object') {
+      const contextSize = JSON.stringify(context).length;
+      if (contextSize > MAX_CONTEXT_SIZE) {
+        return res.status(400).json({ error: 'Context too large' });
+      }
     }
 
     // Decode base64 image
@@ -76,10 +95,16 @@ export default async function handler(req, res) {
       throw error;
     }
   } catch (error) {
+    // Log full error for debugging (server-side only)
     console.error('[VLLM API] Error:', error);
+    
+    // Return sanitized error to client (don't leak internal details)
+    const sanitizedError = error instanceof Error 
+      ? 'Validation failed' 
+      : String(error);
+    
     return res.status(500).json({
-      error: 'Validation failed',
-      message: error.message
+      error: sanitizedError
     });
   }
 }
