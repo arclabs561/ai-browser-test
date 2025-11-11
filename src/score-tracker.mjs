@@ -54,9 +54,14 @@ export class ScoreTracker {
     }
     
     try {
-      return JSON.parse(readFileSync(this.baselineFile, 'utf8'));
+      const content = readFileSync(this.baselineFile, 'utf8');
+      if (!content || content.trim().length === 0) {
+        return {};
+      }
+      return JSON.parse(content);
     } catch (error) {
-      warn(`[ScoreTracker] Failed to load baselines: ${error.message}`);
+      // SECURITY: Don't expose file paths or internal details in error
+      warn(`[ScoreTracker] Failed to load baselines: ${error instanceof SyntaxError ? 'Invalid JSON format' : 'File read error'}`);
       return {};
     }
   }

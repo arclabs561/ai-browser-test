@@ -15,6 +15,16 @@
 
 import { VLLMJudge, validateScreenshot as _validateScreenshot } from './judge.mjs';
 
+// Initialize global error handlers (only in Node.js environment)
+// Use dynamic import to avoid top-level await (compatibility)
+if (typeof process !== 'undefined' && process.on) {
+  import('./error-handler.mjs')
+    .then(({ initErrorHandlers }) => initErrorHandlers())
+    .catch(() => {
+      // Silently fail if error handler can't be loaded (e.g., in browser)
+    });
+}
+
 export { VLLMJudge, _validateScreenshot as validateScreenshot };
 
 /**

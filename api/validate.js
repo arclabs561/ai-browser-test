@@ -27,6 +27,7 @@ import { validateScreenshot, createConfig } from '../src/index.mjs';
 import { writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { randomBytes } from 'crypto';
 
 // Security limits
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -186,8 +187,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid base64 image' });
     }
 
-    // Save to temporary file
-    const tempPath = join(tmpdir(), `vllm-validate-${Date.now()}.png`);
+    // Save to temporary file with secure random name (prevents race conditions and information disclosure)
+    const randomSuffix = randomBytes(16).toString('hex');
+    const tempPath = join(tmpdir(), `vllm-validate-${randomSuffix}.png`);
     writeFileSync(tempPath, imageBuffer);
 
     try {

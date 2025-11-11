@@ -531,11 +531,16 @@ export class VLLMJudge {
       });
     }
     
+    // SECURITY: Use header for API key, not URL parameter
+    // API keys in URLs are exposed in logs, browser history, referrer headers
     return fetch(
-      `${this.providerConfig.apiUrl}/models/${this.providerConfig.model}:generateContent?key=${this.apiKey}`,
+      `${this.providerConfig.apiUrl}/models/${this.providerConfig.model}:generateContent`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-goog-api-key': this.apiKey  // Use header instead of URL parameter
+        },
         signal,
         body: JSON.stringify({
           contents: [{ parts }],

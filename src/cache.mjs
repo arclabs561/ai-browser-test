@@ -6,7 +6,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, normalize, resolve } from 'path';
 import { createHash } from 'crypto';
 import { fileURLToPath } from 'url';
 import { CacheError, FileError } from './errors.mjs';
@@ -19,9 +19,13 @@ const __dirname = dirname(__filename);
 let CACHE_DIR = null;
 let CACHE_FILE = null;
 const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
+const MAX_CACHE_SIZE = 1000; // Maximum number of cache entries (LRU eviction)
+const MAX_CACHE_SIZE_BYTES = 100 * 1024 * 1024; // 100MB maximum cache file size
 
 // Cache instance
 let cacheInstance = null;
+// Cache write lock to prevent race conditions
+let cacheWriteLock = false;
 
 /**
  * Initialize cache with directory
@@ -30,7 +34,17 @@ let cacheInstance = null;
  * @returns {void}
  */
 export function initCache(cacheDir) {
-  CACHE_DIR = cacheDir || join(__dirname, '..', '..', '..', 'test-results', 'vllm-cache');
+  // SECURITY: Validate and normalize cache directory to prevent path traversal
+  if (cacheDir) {
+    const normalized = normalize(resolve(cacheDir));
+    // Prevent path traversal
+    if (normalized.includes('..')) {
+      throw new CacheError('Invalid cache directory: path traversal detected', { cacheDir });
+    }
+    CACHE_DIR = normalized;
+  } else {
+    CACHE_DIR = join(__dirname, '..', '..', '..', 'test-results', 'vllm-cache');
+  }
   CACHE_FILE = join(CACHE_DIR, 'cache.json');
   
   if (!existsSync(CACHE_DIR)) {
@@ -91,25 +105,68 @@ function loadCache() {
 }
 
 /**
- * Save cache to file
+ * Save cache to file with size limits and race condition protection
  */
 function saveCache(cache) {
   if (!CACHE_FILE) return;
   
+  // Prevent concurrent writes (simple lock mechanism)
+  if (cacheWriteLock) {
+    warn('[VLLM Cache] Cache write already in progress, skipping save');
+    return;
+  }
+  
+  cacheWriteLock = true;
+  
   try {
     const cacheData = {};
     const now = Date.now();
+    let totalSize = 0;
     
-    for (const [key, value] of cache.entries()) {
-      cacheData[key] = {
+    // Convert to array and sort by timestamp (LRU: oldest first)
+    const entries = Array.from(cache.entries())
+      .map(([key, value]) => ({
+        key,
+        value,
+        timestamp: now // All entries get current timestamp on save
+      }))
+      .sort((a, b) => {
+        // Sort by access time if available, otherwise FIFO
+        const aTime = a.value._lastAccessed || 0;
+        const bTime = b.value._lastAccessed || 0;
+        return aTime - bTime;
+      });
+    
+    // Apply size limits (LRU eviction)
+    const entriesToKeep = entries.slice(-MAX_CACHE_SIZE);
+    
+    for (const { key, value, timestamp } of entriesToKeep) {
+      const entry = {
         data: value,
-        timestamp: now
+        timestamp
       };
+      const entrySize = JSON.stringify(entry).length;
+      
+      // Check total size limit
+      if (totalSize + entrySize > MAX_CACHE_SIZE_BYTES) {
+        break; // Stop adding entries if we exceed size limit
+      }
+      
+      cacheData[key] = entry;
+      totalSize += entrySize;
+    }
+    
+    // Update in-memory cache to match saved entries
+    cache.clear();
+    for (const [key, entry] of Object.entries(cacheData)) {
+      cache.set(key, entry.data);
     }
     
     writeFileSync(CACHE_FILE, JSON.stringify(cacheData, null, 2), 'utf8');
   } catch (error) {
     warn(`[VLLM Cache] Failed to save cache: ${error.message}`);
+  } finally {
+    cacheWriteLock = false;
   }
 }
 
@@ -137,7 +194,14 @@ function getCache() {
 export function getCached(imagePath, prompt, context = {}) {
   const cache = getCache();
   const key = generateCacheKey(imagePath, prompt, context);
-  return cache.get(key) || null;
+  const cached = cache.get(key);
+  
+  if (cached) {
+    // Update access time for LRU eviction
+    cached._lastAccessed = Date.now();
+  }
+  
+  return cached || null;
 }
 
 /**
@@ -152,8 +216,22 @@ export function getCached(imagePath, prompt, context = {}) {
 export function setCached(imagePath, prompt, context, result) {
   const cache = getCache();
   const key = generateCacheKey(imagePath, prompt, context);
-  cache.set(key, result);
-  saveCache(cache);
+  
+  // Add access time for LRU eviction
+  const resultWithMetadata = {
+    ...result,
+    _lastAccessed: Date.now()
+  };
+  
+  cache.set(key, resultWithMetadata);
+  
+  // Check if cache exceeds size limit before saving
+  if (cache.size > MAX_CACHE_SIZE) {
+    // Trigger eviction by saving (which applies LRU)
+    saveCache(cache);
+  } else {
+    saveCache(cache);
+  }
 }
 
 /**
