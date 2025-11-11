@@ -536,12 +536,29 @@ This package is based on research in:
 
 ### Key Papers
 
+**Core Testing Papers:**
+- **VETL** (arXiv:2410.12157) - First LVLM-driven end-to-end web testing, 25% more actions discovered
+- **VLM-Fuzz** (arXiv:2504.11675) - Vision language model assisted UI testing, 9% coverage improvement
+- **A Survey on Web Testing** (arXiv:2503.05378) - Comprehensive survey of 259 papers (2014-2025)
+
+**UI Evaluation:**
+- **MLLM as a UI Judge** (arXiv:2510.08783) - Directly relevant, benchmarks MLLMs on 30 interfaces
+- **Test-Agent** (IEEE 2024) - Multimodal app automation testing framework
+
+**Web Agents:**
+- **WebSight** (arXiv:2508.16987) - Vision-first architecture, 68% success on WebVoyager
+- **WebVIA** (arXiv:2511.06251) - Web-based vision-language agentic framework
+- **WALT** (arXiv:2510.01524) - Web agents that learn tools with Set-of-Mark prompts
+
+**Other:**
 - **ICCV 2025** - Context-Aware Simplification for GUI Agents (arXiv:2507.03730)
-- **VETL** - LVLM-driven end-to-end web testing (arXiv:2410.12157)
 - **LLM-as-a-Judge Bias** - Evaluating and Mitigating Bias (arXiv:2510.12462)
+- **PersonaTeaming** (arXiv:2509.03728v3) - Automated AI red-teaming with personas
 - **Ensemble Judging** - Multiple judges for consensus (various papers)
 - **Temporal Aggregation** - Opinion propagation and coherence analysis
 - **Multi-Perspective Evaluation** - Persona-based evaluation strategies
+
+**See [`docs/RESEARCH_UPDATE_2025.md`](./docs/RESEARCH_UPDATE_2025.md) for comprehensive analysis of 10 critical missing papers and recent advances.**
 
 ### Research-Based Features
 
