@@ -5,6 +5,8 @@
  * Designed to be flexible and extensible.
  */
 
+import { ConfigError } from './errors.mjs';
+
 /**
  * Default provider configurations
  */

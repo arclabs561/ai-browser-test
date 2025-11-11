@@ -1,4 +1,4 @@
-name: Test
+name: CI
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    name: Test Node.js ${{ matrix.node-version }}
     runs-on: ubuntu-latest
     
     strategy:
@@ -30,15 +31,12 @@ jobs:
       - name: Run tests
         run: npm test
       
-      - name: Check TypeScript definitions
+      - name: Verify exports
         run: |
-          if command -v tsc &> /dev/null; then
-            npx tsc --noEmit index.d.ts || echo "TypeScript check skipped (tsc not available)"
-          else
-            echo "TypeScript check skipped (tsc not installed)"
-          fi
+          node -e "import('./src/index.mjs').then(m => { const exports = Object.keys(m); console.log('Total exports:', exports.length); if (exports.length < 30) { console.error('Expected at least 30 exports'); process.exit(1); } })"
 
   lint:
+    name: Lint and Code Quality
     runs-on: ubuntu-latest
     
     steps:
@@ -54,14 +52,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Check code formatting
+      - name: Check for console.log
         run: |
-          echo "Checking for common code quality issues..."
-          # Check for console.log in source (should use proper logging)
           if grep -r "console\.log" src/ --exclude-dir=node_modules; then
-            echo "Warning: console.log found in source files"
+            echo "⚠️  Warning: console.log found in source files"
+          else
+            echo "✅ No console.log in source files"
           fi
-          # Check for TODO/FIXME comments
-          if grep -r "TODO\|FIXME" src/ --exclude-dir=node_modules; then
-            echo "Info: TODO/FIXME comments found"
-          fi
+      
+      - name: Check file structure
+        run: |
+          test -f index.d.ts && echo "✅ TypeScript definitions present" || echo "❌ Missing index.d.ts"
+          test -f src/errors.mjs && echo "✅ Error classes present" || echo "❌ Missing errors.mjs"
+          test -d test && echo "✅ Test directory present" || echo "❌ Missing test directory"
+

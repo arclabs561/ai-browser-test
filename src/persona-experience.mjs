@@ -24,12 +24,47 @@ export async function experiencePageAsPersona(page, persona, options = {}) {
     captureScreenshots = true,
     captureState = true,
     captureCode = true,
-    notes = []
+    notes = [],
+    trace = null // Optional ExperienceTrace instance
   } = options;
 
   const experienceNotes = [...notes];
   const screenshots = [];
   const startTime = Date.now();
+  
+  // If trace provided, add initial event
+  if (trace) {
+    trace.addEvent('experience-start', {
+      persona: persona.name,
+      viewport,
+      device,
+      timeScale
+    });
+  }
+  
+  // Helper to capture screenshot at current state
+  const captureScreenshotNow = async (step, description) => {
+    if (!captureScreenshots) return null;
+    
+    const timestamp = Date.now();
+    const elapsed = timestamp - startTime;
+    const screenshotPath = `test-results/persona-${persona.name.toLowerCase().replace(/\s+/g, '-')}-${step}-${timestamp}.png`;
+    
+    try {
+      await page.screenshot({ path: screenshotPath, fullPage: true });
+      screenshots.push({
+        path: screenshotPath,
+        timestamp,
+        elapsed,
+        step,
+        description
+      });
+      return screenshotPath;
+    } catch (error) {
+      console.warn(`Failed to capture screenshot at step ${step}:`, error.message);
+      return null;
+    }
+  };
 
   // Set viewport based on persona device preference
   if (persona.device) {
@@ -47,6 +82,12 @@ export async function experiencePageAsPersona(page, persona, options = {}) {
   await page.goto(options.url || options.baseURL || 'about:blank', {
     waitUntil: 'domcontentloaded'
   });
+  
+  // Capture screenshot immediately after page load
+  const pageLoadScreenshot = await captureScreenshotNow('page-load', 'Page loaded');
+  if (trace && pageLoadScreenshot) {
+    trace.addScreenshot(pageLoadScreenshot, 'page-load');
+  }
 
   // Step 1: Initial page load experience (human time scale)
   const initialLoadTime = await humanTimeScale('page-load', {
@@ -56,12 +97,9 @@ export async function experiencePageAsPersona(page, persona, options = {}) {
   });
 
   await page.waitForTimeout(initialLoadTime);
-
-  // Capture initial state
-  if (captureScreenshots) {
-    const screenshot = await page.screenshot({ path: `test-results/persona-${persona.name}-initial-${Date.now()}.png` });
-    screenshots.push({ step: 'initial', path: screenshot, timestamp: Date.now() });
-  }
+  
+  // Capture after initial reading time
+  await captureScreenshotNow('after-initial-read', 'After initial reading time');
 
   // Extract initial state
   let renderedCode = null;
@@ -98,6 +136,14 @@ export async function experiencePageAsPersona(page, persona, options = {}) {
   });
 
   // Step 2: Reading/scanning experience (human time scale)
+  if (trace) {
+    trace.addEvent('observation', {
+      step: 'before-reading',
+      observation: 'About to read/scan page content'
+    });
+  }
+  await captureScreenshotNow('before-reading', 'Before reading/scanning');
+  
   const readingTime = await humanTimeScale('reading', {
     minTime: 2000, // Minimum 2 seconds to read/scan
     maxTime: 10000, // Maximum 10 seconds for thorough reading
@@ -106,10 +152,22 @@ export async function experiencePageAsPersona(page, persona, options = {}) {
   });
 
   await page.waitForTimeout(readingTime);
+  
+  // Capture after reading
+  if (trace) {
+    trace.addEvent('observation', {
+      step: 'after-reading',
+      observation: 'Finished reading/scanning page content'
+    });
+  }
+  await captureScreenshotNow('after-reading', 'After reading/scanning');
 
   // Step 3: Interaction experience (if persona has goals)
   if (persona.goals && persona.goals.length > 0) {
     for (const goal of persona.goals) {
+      // Capture before interaction
+      await captureScreenshotNow(`before-${goal}`, `Before ${goal}`);
+      
       const interactionTime = await humanTimeScale('interaction', {
         minTime: 500, // Minimum 0.5 seconds to interact
         maxTime: 3000, // Maximum 3 seconds for complex interactions
@@ -120,16 +178,14 @@ export async function experiencePageAsPersona(page, persona, options = {}) {
       // Simulate persona trying to achieve goal
       // This is extensible - different personas interact differently
       await simulatePersonaInteraction(page, persona, goal);
+      
+      // Capture immediately after interaction (before delay)
+      await captureScreenshotNow(`during-${goal}`, `During ${goal}`);
 
       await page.waitForTimeout(interactionTime);
-
-      // Capture state after interaction
-      if (captureScreenshots) {
-        const screenshot = await page.screenshot({ 
-          path: `test-results/persona-${persona.name}-${goal}-${Date.now()}.png` 
-        });
-        screenshots.push({ step: goal, path: screenshot, timestamp: Date.now() });
-      }
+      
+      // Capture after interaction delay
+      await captureScreenshotNow(`after-${goal}`, `After ${goal}`);
 
       // Update state
       if (captureState) {
@@ -153,6 +209,21 @@ export async function experiencePageAsPersona(page, persona, options = {}) {
       });
     }
   }
+  
+  // Capture final state
+  const finalScreenshot = await captureScreenshotNow('final-state', 'Final state');
+  if (trace && finalScreenshot) {
+    trace.addScreenshot(finalScreenshot, 'final-state');
+  }
+  
+  // Add final event to trace
+  if (trace) {
+    trace.addEvent('experience-end', {
+      duration: Date.now() - startTime,
+      noteCount: experienceNotes.length,
+      screenshotCount: screenshots.length
+    });
+  }
 
   return {
     persona: persona.name,
@@ -163,7 +234,8 @@ export async function experiencePageAsPersona(page, persona, options = {}) {
     renderedCode,
     pageState,
     duration: Date.now() - startTime,
-    timeScale
+    timeScale,
+    trace: trace ? trace.getSummary() : null
   };
 }
 

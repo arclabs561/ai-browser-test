@@ -10,6 +10,8 @@
  * It's designed to work with @playwright/test but doesn't require it as a hard dependency.
  */
 
+import { ValidationError } from './errors.mjs';
+
 /**
  * Extract rendered HTML/CSS for code analysis
  * 
@@ -18,7 +20,10 @@
  */
 export async function extractRenderedCode(page) {
   if (!page || typeof page.evaluate !== 'function') {
-    throw new Error('extractRenderedCode requires a Playwright Page object');
+    throw new ValidationError('extractRenderedCode requires a Playwright Page object', {
+      received: typeof page,
+      hasEvaluate: typeof page?.evaluate === 'function'
+    });
   }
 
   const html = await page.content();
@@ -122,7 +127,10 @@ export async function extractRenderedCode(page) {
  */
 export async function captureTemporalScreenshots(page, fps = 2, duration = 2000) {
   if (!page || typeof page.screenshot !== 'function') {
-    throw new Error('captureTemporalScreenshots requires a Playwright Page object');
+    throw new ValidationError('captureTemporalScreenshots requires a Playwright Page object', {
+      received: typeof page,
+      hasScreenshot: typeof page?.screenshot === 'function'
+    });
   }
 
   const screenshots = [];
@@ -153,7 +161,9 @@ export async function captureTemporalScreenshots(page, fps = 2, duration = 2000)
  */
 export async function multiPerspectiveEvaluation(validateFn, screenshotPath, renderedCode, gameState = {}, personas = null) {
   if (!validateFn || typeof validateFn !== 'function') {
-    throw new Error('multiPerspectiveEvaluation requires a validate function');
+    throw new ValidationError('multiPerspectiveEvaluation requires a validate function', {
+      received: typeof validateFn
+    });
   }
 
   // Default personas if not provided
@@ -262,10 +272,15 @@ Provide evaluation from your persona's perspective.`;
  */
 export async function multiModalValidation(validateFn, page, testName, options = {}) {
   if (!validateFn || typeof validateFn !== 'function') {
-    throw new Error('multiModalValidation requires a validate function');
+    throw new ValidationError('multiModalValidation requires a validate function', {
+      received: typeof validateFn
+    });
   }
   if (!page || typeof page.screenshot !== 'function') {
-    throw new Error('multiModalValidation requires a Playwright Page object');
+    throw new ValidationError('multiModalValidation requires a Playwright Page object', {
+      received: typeof page,
+      hasScreenshot: typeof page?.screenshot === 'function'
+    });
   }
 
   const {

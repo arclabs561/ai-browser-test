@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Pre-commit checks..."
+
+# Secret detection
+echo "Checking for secrets..."
+if [ -f "scripts/detect-secrets.mjs" ]; then
+  node scripts/detect-secrets.mjs || {
+    echo "❌ Secret detection failed. Commit aborted."
+    exit 1
+  }
+else
+  echo "⚠️  Warning: detect-secrets.mjs not found, skipping secret check"
+fi
+
+# Run tests before commit
+echo "Running tests..."
+npm test || {
+  echo "❌ Tests failed. Commit aborted."
+  exit 1
+}
+
+# Check for uncommitted changes in package.json
+if git diff --cached --name-only | grep -q "package.json"; then
+  echo "⚠️  package.json changed - ensure version is updated if needed"
+fi
+
+# Check for console.log in staged source files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "\.(mjs|js)$" || true)
+if [ -n "$STAGED_FILES" ]; then
+  if echo "$STAGED_FILES" | xargs grep -l "console\.log" 2>/dev/null; then
+    echo "⚠️  Warning: console.log found in staged files"
+  fi
+fi
+
+echo "✅ Pre-commit checks passed"

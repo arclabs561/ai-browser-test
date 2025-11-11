@@ -11,6 +11,7 @@ import {
   multiPerspectiveEvaluation,
   multiModalValidation
 } from '../src/multi-modal.mjs';
+import { ValidationError } from '../src/errors.mjs';
 import { createMockPage } from './helpers/mock-page.mjs';
 import { validateScreenshot } from '../src/judge.mjs';
 
@@ -29,15 +30,15 @@ describe('extractRenderedCode', () => {
     assert.ok('timestamp' in result);
   });
 
-  it('should throw error for invalid page object', async () => {
+  it('should throw ValidationError for invalid page object', async () => {
     await assert.rejects(
       () => extractRenderedCode(null),
-      /requires a Playwright Page object/
+      ValidationError
     );
     
     await assert.rejects(
       () => extractRenderedCode({}),
-      /requires a Playwright Page object/
+      ValidationError
     );
   });
 });
@@ -64,10 +65,10 @@ describe('captureTemporalScreenshots', () => {
     assert.ok(screenshots.length >= 4 && screenshots.length <= 6);
   });
 
-  it('should throw error for invalid page object', async () => {
+  it('should throw ValidationError for invalid page object', async () => {
     await assert.rejects(
       () => captureTemporalScreenshots(null),
-      /requires a Playwright Page object/
+      ValidationError
     );
   });
 });
@@ -125,10 +126,10 @@ describe('multiPerspectiveEvaluation', () => {
     assert.ok(result.length >= 3); // At least 3 default personas
   });
 
-  it('should throw error for invalid validate function', async () => {
+  it('should throw ValidationError for invalid validate function', async () => {
     await assert.rejects(
       () => multiPerspectiveEvaluation(null, 'test.png', {}),
-      /requires a validate function/
+      ValidationError
     );
   });
 });
@@ -160,17 +161,17 @@ describe('multiModalValidation', () => {
     );
     
     assert.ok(typeof result === 'object');
-    assert.ok('screenshot' in result);
+    assert.ok('screenshotPath' in result);
     assert.ok('renderedCode' in result);
     assert.ok('gameState' in result);
   });
 
-  it('should throw error for invalid page object', async () => {
+  it('should throw ValidationError for invalid page object', async () => {
     const mockValidateFn = async () => ({ enabled: false });
     
     await assert.rejects(
       () => multiModalValidation(mockValidateFn, null, 'test'),
-      /requires a Playwright Page object/
+      ValidationError
     );
   });
 });

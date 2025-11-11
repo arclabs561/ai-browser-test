@@ -8,16 +8,20 @@
   "description": "Browser testing utilities using Vision Language Models (VLLM) for multi-modal validation with Playwright. Supports persona-based experience testing, human-interpreted time scales, and built-in prompt templates.",
   "type": "module",
   "main": "src/index.mjs",
+  "types": "index.d.ts",
   "exports": {
     ".": "./src/index.mjs",
     "./judge": "./src/judge.mjs",
     "./multi-modal": "./src/multi-modal.mjs",
     "./temporal": "./src/temporal.mjs",
     "./cache": "./src/cache.mjs",
-    "./config": "./src/config.mjs"
+    "./config": "./src/config.mjs",
+    "./load-env": "./src/load-env.mjs",
+    "./persona-experience": "./src/persona-experience.mjs"
   },
   "files": [
     "src/**/*.mjs",
+    "index.d.ts",
     "api/**/*.js",
     "public/**/*.html",
     "vercel.json",
@@ -31,7 +35,8 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "test:watch": "node --test --watch test/*.test.mjs",
-    "test:coverage": "node --test test/*.test.mjs"
+    "test:coverage": "node --test test/*.test.mjs",
+    "prepare": "husky install || true"
   },
   "keywords": [
     "browser-testing",

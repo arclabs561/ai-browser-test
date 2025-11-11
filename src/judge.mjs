@@ -10,6 +10,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createConfig, getConfig } from './config.mjs';
 import { getCached, setCached } from './cache.mjs';
+import { FileError, ProviderError, TimeoutError } from './errors.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -47,10 +48,14 @@ export class VLLMJudge {
    */
   imageToBase64(imagePath) {
     if (!existsSync(imagePath)) {
-      throw new Error(`Screenshot not found: ${imagePath}`);
+      throw new FileError(`Screenshot not found: ${imagePath}`, imagePath);
     }
-    const imageBuffer = readFileSync(imagePath);
-    return imageBuffer.toString('base64');
+    try {
+      const imageBuffer = readFileSync(imagePath);
+      return imageBuffer.toString('base64');
+    } catch (error) {
+      throw new FileError(`Failed to read screenshot: ${error.message}`, imagePath, { originalError: error.message });
+    }
   }
 
   /**
@@ -103,7 +108,9 @@ export class VLLMJudge {
           data = await response.json();
           
           if (data.error) {
-            throw new Error(`Gemini API error: ${data.error.message}`);
+            throw new ProviderError(`Gemini API error: ${data.error.message}`, 'gemini', {
+              apiError: data.error
+            });
           }
           
           judgment = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
@@ -115,7 +122,9 @@ export class VLLMJudge {
           data = await response.json();
           
           if (data.error) {
-            throw new Error(`OpenAI API error: ${data.error.message}`);
+            throw new ProviderError(`OpenAI API error: ${data.error.message}`, 'openai', {
+              apiError: data.error
+            });
           }
           
           judgment = data.choices?.[0]?.message?.content || 'No response';
@@ -129,7 +138,7 @@ export class VLLMJudge {
           break;
           
         default:
-          throw new Error(`Unknown provider: ${this.provider}`);
+          throw new ProviderError(`Unknown provider: ${this.provider}`, this.provider);
       }
       
       const responseTime = Date.now() - startTime;
@@ -162,6 +171,20 @@ export class VLLMJudge {
       clearTimeout(timeoutId);
       error = err;
       
+      // Handle timeout errors specifically
+      if (error.name === 'AbortError' || error.message?.includes('timeout') || error.message?.includes('aborted')) {
+        throw new TimeoutError(`VLLM API call timed out after ${timeout}ms`, timeout, {
+          provider: this.provider,
+          imagePath
+        });
+      }
+      
+      // Re-throw ProviderError and FileError as-is
+      if (error instanceof ProviderError || error instanceof FileError || error instanceof TimeoutError) {
+        throw error;
+      }
+      
+      // For other errors, return error object (backward compatibility)
       return {
         enabled: true,
         provider: this.provider,
@@ -180,14 +203,35 @@ export class VLLMJudge {
   /**
    * Build prompt for screenshot validation
    */
-  buildPrompt(prompt, context) {
+  buildPrompt(prompt, context = {}) {
     // If custom prompt builder provided, use it
     if (context.promptBuilder && typeof context.promptBuilder === 'function') {
       return context.promptBuilder(prompt, context);
     }
     
-    // Otherwise, use prompt as-is (caller should build full prompt)
-    return prompt;
+    // Build prompt with context information
+    let fullPrompt = prompt;
+    
+    // Add context information if provided
+    const contextParts = [];
+    if (context.testType) {
+      contextParts.push(`Test Type: ${context.testType}`);
+    }
+    if (context.viewport) {
+      contextParts.push(`Viewport: ${context.viewport.width}x${context.viewport.height}`);
+    }
+    if (context.url) {
+      contextParts.push(`URL: ${context.url}`);
+    }
+    if (context.description) {
+      contextParts.push(`Description: ${context.description}`);
+    }
+    
+    if (contextParts.length > 0) {
+      fullPrompt = `${prompt}\n\nContext:\n${contextParts.join('\n')}`;
+    }
+    
+    return fullPrompt;
   }
 
   /**

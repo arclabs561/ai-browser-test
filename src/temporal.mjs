@@ -143,10 +143,10 @@ function calculateCoherence(windows) {
       const prev = keywords[i - 1];
       const curr = keywords[i];
       if (prev && curr && prev.size > 0 && curr.size > 0) {
-        const intersection = new Set([...prev].filter(x => curr.has(x)));
-        const union = new Set([...prev, ...curr]);
-        const overlap = union.size > 0 ? intersection.size / union.size : 0;
-        overlapSum += overlap;
+      const intersection = new Set([...prev].filter(x => curr.has(x)));
+      const union = new Set([...prev, ...curr]);
+      const overlap = union.size > 0 ? intersection.size / union.size : 0;
+      overlapSum += overlap;
       }
     }
     observationConsistency = overlapSum / Math.max(1, keywords.length - 1);
@@ -215,7 +215,9 @@ function generateSummary(windows, coherence, conflicts) {
   if (windows.length > 0) {
     const firstWindow = windows[0];
     const lastWindow = windows[windows.length - 1];
-    parts.push(`Score progression: ${firstWindow.avgScore} → ${lastWindow.avgScore} (${lastWindow.avgScore - firstWindow.avgScore > 0 ? '+' : ''}${lastWindow.avgScore - firstWindow.avgScore}).`);
+    const firstScore = firstWindow?.avgScore ?? 0;
+    const lastScore = lastWindow?.avgScore ?? 0;
+    parts.push(`Score progression: ${firstScore} → ${lastScore} (${lastScore - firstScore > 0 ? '+' : ''}${lastScore - firstScore}).`);
   }
   
   parts.push(`Temporal coherence: ${(coherence * 100).toFixed(0)}% ${coherence > 0.7 ? '(high)' : coherence > 0.4 ? '(moderate)' : '(low)'}.`);

@@ -13,6 +13,8 @@ coverage/
 .env
 .env.local
 .env.*.local
+.env.bak
+.env.backup
 
 # IDE
 .vscode/
@@ -37,4 +39,7 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# Secret detection
+.secretsignore
 

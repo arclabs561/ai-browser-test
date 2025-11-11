@@ -24,8 +24,7 @@ export function loadEnv(basePath = null) {
     ? [
         join(basePath, '.env'),
         join(basePath, '..', '.env'),
-        join(basePath, '../..', '.env'),
-        join(process.cwd(), '.env')
+        join(basePath, '../..', '.env')
       ]
     : [
         join(process.cwd(), '.env'),
