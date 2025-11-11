@@ -10,7 +10,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createConfig, getConfig } from './config.mjs';
 import { getCached, setCached } from './cache.mjs';
-import { FileError, ProviderError, TimeoutError } from './errors.mjs';
+import { FileError, ProviderError, TimeoutError, ValidationError } from './errors.mjs';
 import { buildRubricPrompt, getRubricForTestType } from './rubrics.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
