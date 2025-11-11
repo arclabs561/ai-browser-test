@@ -23,9 +23,14 @@ if [ -n "$STAGED_FILES" ]; then
   fi
 fi
 
-# Sage Hooks - Documentation bloat detection (optional, can be disabled)
-if [ -f "node_modules/@arclabs561/sage-hooks/src/hooks/doc-bloat.mjs" ]; then
-  node node_modules/@arclabs561/sage-hooks/src/hooks/doc-bloat.mjs || exit 1
+# Hookwise - Documentation bloat detection (optional, can be disabled)
+# Note: hookwise is a local package helper - check if available
+if [ -f "../hookwise/src/hooks/doc-bloat.mjs" ]; then
+  # Use hookwise from sibling directory
+  node ../hookwise/src/hooks/doc-bloat.mjs || exit 1
+elif [ -f "node_modules/@arclabs561/hookwise/src/hooks/doc-bloat.mjs" ]; then
+  # Try npm package if installed
+  node node_modules/@arclabs561/hookwise/src/hooks/doc-bloat.mjs || exit 1
 fi
 
 echo "✅ Pre-commit checks passed"

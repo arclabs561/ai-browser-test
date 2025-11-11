@@ -1,6 +1,6 @@
 # Dependencies
 node_modules/
-package-lock.json
+# package-lock.json - Keep for reproducible builds
 yarn.lock
 
 # Test results
@@ -43,3 +43,6 @@ yarn-error.log*
 # Secret detection
 .secretsignore
 
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.cursor/rules/snyk_rules.mdc

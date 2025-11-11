@@ -1,5 +1,15 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Sage Hooks - LLM-powered commit message validation
-node node_modules/@arclabs561/sage-hooks/src/hooks/commit-msg.mjs "$1"
+# Hookwise - LLM-powered commit message validation
+# Note: hookwise is a local package helper - check if available
+if [ -f "../hookwise/src/hooks/commit-msg.mjs" ]; then
+  # Use hookwise from sibling directory
+  node ../hookwise/src/hooks/commit-msg.mjs "$1"
+elif [ -f "node_modules/@arclabs561/hookwise/src/hooks/commit-msg.mjs" ]; then
+  # Try npm package if installed
+  node node_modules/@arclabs561/hookwise/src/hooks/commit-msg.mjs "$1"
+elif [ -f "scripts/validate-commit-msg.mjs" ]; then
+  # Fallback to local validation script
+  node scripts/validate-commit-msg.mjs "$1"
+fi

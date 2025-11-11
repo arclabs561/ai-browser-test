@@ -7,8 +7,8 @@ This notebook demonstrates multi-modal validation combining:
 - CSS styles
 - Rendered code
 
-Note: This requires Playwright integration. In practice, you would
-call the Node.js package from Python.
+Note: This requires Playwright integration (@playwright/test as peer dependency).
+The function signature matches the actual API: multiModalValidation(validateFn, page, testName, options)
 """
 
 import marimo
@@ -23,12 +23,16 @@ def __():
     import json
     import subprocess
     from pathlib import Path
+    from pydantic import ValidationError
+    from models import MultiModalValidationResult
+    from config import AppSettings
     
-    # Configuration
-    API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY")
-    URL = "https://example.com"  # Change to your test URL
+    # Configuration using Pydantic Settings
+    settings = AppSettings()
+    API_KEY = settings.api_key
+    URL = settings.test_url
     
-    return API_KEY, Path, URL, json, os, subprocess
+    return API_KEY, Path, URL, ValidationError, MultiModalValidationResult, json, os, settings, subprocess
 
 
 @app.cell
@@ -106,6 +110,7 @@ def __(API_KEY, URL, json, subprocess):
     print("   Note: Requires @playwright/test to be installed")
     
     # Mock result structure matching actual multiModalValidation return type
+    # In production, this would be validated with MultiModalValidationResult
     mock_result = {{
         "screenshotPath": "test-results/multimodal-homepage-test-1234567890.png",
         "renderedCode": {{
@@ -121,7 +126,7 @@ def __(API_KEY, URL, json, subprocess):
                 "perspective": "visual-design",
                 "focus": "aesthetics",
                 "evaluation": {{
-                    "score": 0.85,
+                    "score": 8.5,
                     "issues": ["Minor contrast issue"],
                     "assessment": "Good overall design",
                     "reasoning": "Well-structured layout with minor improvements needed"
@@ -129,7 +134,7 @@ def __(API_KEY, URL, json, subprocess):
             }}
         ],
         "codeValidation": {{}},
-        "aggregatedScore": 0.85,
+        "aggregatedScore": 8.5,
         "aggregatedIssues": ["Minor contrast issue"],
         "timestamp": 1234567890
     }}
@@ -146,11 +151,11 @@ def __(mock_result):
     
     result = mock_result
     
-    # Extract scores from perspectives if available
+    # Extract scores from perspectives if available (scores are 0-10, not 0-1)
     perspective_scores = [p["evaluation"]["score"] for p in result.get("perspectives", []) if p.get("evaluation", {}).get("score") is not None]
     avg_score = result.get("aggregatedScore") or (sum(perspective_scores) / len(perspective_scores) if perspective_scores else None)
     
-    score_display = f"{avg_score:.2f}/1.0" if avg_score is not None else "N/A"
+    score_display = f"{avg_score:.1f}/10" if avg_score is not None else "N/A"
     
     mo.md(f"""
     ## Multi-Modal Validation Results
@@ -186,7 +191,7 @@ def __(result):
             eval_data = p.get("evaluation", {})
             score = eval_data.get("score", "N/A")
             issues = eval_data.get("issues", [])
-            score_str = f"{score:.2f}/1.0" if isinstance(score, (int, float)) else str(score)
+            score_str = f"{score:.1f}/10" if isinstance(score, (int, float)) else str(score)
             issues_text = chr(10).join(f"  - {issue}" for issue in issues) if issues else "  - None"
             perspective_text.append(f"""
             ### {p.get("persona", "Unknown")} Perspective

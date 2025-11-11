@@ -152,3 +152,4 @@ function detectContradictions(judgment) {
   return issues;
 }
 
+

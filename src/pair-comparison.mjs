@@ -11,6 +11,7 @@
 
 import { VLLMJudge } from './judge.mjs';
 import { detectBias, detectPositionBias } from './bias-detector.mjs';
+import { composeComparisonPrompt } from './prompt-composer.mjs';
 
 /**
  * Compare two screenshots and determine which is better

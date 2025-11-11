@@ -189,4 +189,22 @@ export {
   pick,
   getProperty
 } from './type-guards.mjs';
+export {
+  evaluateWithCounterBalance,
+  shouldUseCounterBalance
+} from './position-counterbalance.mjs';
+export {
+  selectFewShotExamples,
+  formatFewShotExamples
+} from './dynamic-few-shot.mjs';
+export {
+  spearmanCorrelation,
+  pearsonCorrelation,
+  calculateRankAgreement
+} from './metrics.mjs';
+export {
+  composeSingleImagePrompt,
+  composeComparisonPrompt,
+  composeMultiModalPrompt
+} from './prompt-composer.mjs';
 

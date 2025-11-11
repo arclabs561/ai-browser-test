@@ -4,8 +4,8 @@ Basic Screenshot Validation with ai-browser-test
 This notebook demonstrates how to use ai-browser-test for basic
 screenshot validation using Vision Language Models (VLLM).
 
-Note: This is a conceptual example. In practice, you would need
-to call the Node.js package from Python using subprocess or a bridge.
+This notebook calls the Node.js package from Python using subprocess.
+The function signature matches the actual API: validateScreenshot(imagePath, prompt, context)
 """
 
 import marimo
@@ -23,12 +23,14 @@ def __():
     import base64
     from PIL import Image
     import io
+    from pydantic import ValidationError
+    from models import ValidationResult
     
     # Configuration
     API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY")
     SCREENSHOT_PATH = "screenshot.png"
     
-    return API_KEY, Image, Path, base64, io, json, os, subprocess, SCREENSHOT_PATH
+    return API_KEY, Image, Path, ValidationError, ValidationResult, base64, io, json, os, subprocess, SCREENSHOT_PATH
 
 
 @app.cell
@@ -96,7 +98,7 @@ def __(screenshot_available, screenshot_path, base64, io, Image):
 
 
 @app.cell
-def __(API_KEY, height, image_info, json, os, screenshot_path, subprocess, width):
+def __(API_KEY, Path, height, image_info, json, os, screenshot_path, subprocess, width):
     """
     Step 3: Validate screenshot using ai-browser-test
     
@@ -108,7 +110,7 @@ def __(API_KEY, height, image_info, json, os, screenshot_path, subprocess, width
         print("⏭️  Skipping validation (no screenshot)")
     else:
         # Create a Node.js script to call the package
-        # Note: Using JSON.stringify to properly escape the path
+        # Note: Using JSON.dumps to properly escape the path
         import json as py_json
         screenshot_path_str = str(screenshot_path.resolve())
         
@@ -148,8 +150,18 @@ def __(API_KEY, height, image_info, json, os, screenshot_path, subprocess, width
             )
             
             if process.returncode == 0:
-                result = json.loads(process.stdout)
-                print("✅ Validation completed")
+                # Parse and validate with Pydantic
+                try:
+                    raw_result = json.loads(process.stdout)
+                    validated_result = ValidationResult.model_validate(raw_result)
+                    result = validated_result
+                    print("✅ Validation completed")
+                except ValidationError as e:
+                    result = {"error": f"Validation error: {e}", "raw_data": raw_result}
+                    print(f"❌ Pydantic validation error: {e}")
+                except json.JSONDecodeError as e:
+                    result = {"error": f"JSON parse error: {e}", "raw_output": process.stdout}
+                    print(f"❌ JSON parse error: {e}")
             else:
                 # Try to parse error as JSON, fallback to plain text
                 try:
@@ -158,9 +170,6 @@ def __(API_KEY, height, image_info, json, os, screenshot_path, subprocess, width
                 except:
                     result = {"error": process.stderr}
                 print(f"❌ Validation failed: {process.stderr}")
-        except json.JSONDecodeError as e:
-            result = {"error": f"Failed to parse result: {e}", "raw_output": process.stdout}
-            print(f"❌ JSON parse error: {e}")
         except Exception as e:
             result = {"error": str(e)}
             print(f"❌ Error: {e}")
@@ -173,29 +182,38 @@ def __(API_KEY, height, image_info, json, os, screenshot_path, subprocess, width
 
 
 @app.cell
-def __(result):
+def __(ValidationResult, result):
     """
     Step 4: Display validation results
     """
     import marimo as mo
     
-    if result and "error" not in result:
-        if result.get("enabled", True):
-            score = result.get("score")
-            issues = result.get("issues", [])
-            assessment = result.get("assessment", "")
-            reasoning = result.get("reasoning", "")
+    # Check if result is a ValidationResult instance or dict
+    if isinstance(result, ValidationResult):
+        # Pydantic model - use directly
+        if result.enabled:
+            score = result.score
+            issues = result.issues
+            assessment = result.assessment
+            reasoning = result.reasoning
             
-            # Display score
+            # Display score (scores are 0-10, not 0-1)
             if score is not None:
-                score_color = "green" if score >= 0.8 else "orange" if score >= 0.6 else "red"
+                score_color = "green" if score >= 8 else "orange" if score >= 6 else "red"
                 mo.md(f"""
                 ## Validation Results
                 
-                **Score:** <span style="color: {score_color}">{score:.2f}/1.0</span>
+                **Score:** <span style="color: {score_color}">{score:.1f}/10</span>
                 
-                **Provider:** {result.get("provider", "unknown")}
-                **Cached:** {result.get("cached", False)}
+                **Provider:** {result.provider}
+                **Cached:** {result.cached or False}
+                **Response Time:** {result.responseTime:.0f}ms
+                """)
+                
+                # Display cost if available
+                if result.estimatedCost:
+                    mo.md(f"""
+                **Estimated Cost:** ${result.estimatedCost.totalCost}
                 """)
             else:
                 mo.md("## Validation Results\n\n⚠️ No score available")
@@ -227,9 +245,9 @@ def __(result):
             mo.md(f"""
             ## Validation Disabled
             
-            {result.get("message", "API key not configured")}
+            {result.message or "API key not configured"}
             """)
-    elif result and "error" in result:
+    elif isinstance(result, dict) and "error" in result:
         mo.md(f"""
         ## Error
         
@@ -248,8 +266,12 @@ def __():
     
     - Try different prompts for specific evaluations
     - Test with different viewport sizes
+    - Use different testType values: 'homepage', 'payment-screen', 'game-ui', etc.
     - Use multi-modal validation (screenshot + HTML + CSS)
     - Explore persona-based testing
+    - Check result.enabled to verify API key is configured
+    - Monitor estimatedCost for cost tracking
+    - Use createConfig() for advanced configuration
     """
     return
 

@@ -2,6 +2,86 @@
 
 All notable changes to ai-browser-test will be documented in this file.
 
+## [0.3.1] - 2025-11-11
+
+### Added
+- **Systematic Position Counter-Balancing**
+  - `evaluateWithCounterBalance()` - Eliminates position bias by running evaluations twice with reversed order
+  - `shouldUseCounterBalance()` - Determines when counter-balancing is needed
+  - Automatic averaging of scores from original and reversed evaluations
+  - Position bias detection in counter-balanced results
+
+- **Dynamic Few-Shot Example Selection**
+  - `selectFewShotExamples()` - ES-KNN-style semantic similarity matching for examples
+  - `formatFewShotExamples()` - Formats examples for prompt inclusion
+  - Keyword-based similarity scoring (Jaccard similarity)
+  - Supports both default and JSON formatting styles
+
+- **Comprehensive Metrics**
+  - `spearmanCorrelation()` - Spearman's rank correlation (ρ) for ordinal ratings
+  - `pearsonCorrelation()` - Pearson's correlation coefficient (r)
+  - `calculateRankAgreement()` - Complete rank agreement metrics including Kendall's τ
+  - Handles ties correctly in rank calculations
+
+### Changed
+- **Exports**: Added new modules to main package exports
+  - Position counter-balancing utilities
+  - Dynamic few-shot selection
+  - Metrics (Spearman, Pearson, rank agreement)
+
+### Research Alignment
+- ✅ Position counter-balancing implemented (arXiv:2508.02020)
+- ✅ Dynamic few-shot examples with semantic matching (arXiv:2503.04779)
+- ✅ Spearman correlation for rank-based metrics (arXiv:2506.02945)
+
+## [0.3.0] - 2025-11-11
+
+### Added
+- **Unified Prompt Composition System**
+  - `src/prompt-composer.mjs` - Research-backed prompt composition for all testing types
+  - `composeSingleImagePrompt()` - Integrates rubrics, temporal notes, persona context, multi-modal data
+  - `composeComparisonPrompt()` - Structured comparison prompts with research-backed formatting
+  - Automatic rubric inclusion (10-20% improvement shown in research)
+  - Consistent prompt structure across temporal, persona, and multi-modal evaluations
+
+- **Hallucination Detection**
+  - `src/hallucination-detector.mjs` - Detect unreliable VLLM judgments
+  - `detectHallucination()` - Faithfulness checking, uncertainty estimation, contradiction detection
+  - Logprobs-based uncertainty estimation (when available from API)
+  - Visual grounding verification
+  - Confidence scoring based on visual-text alignment
+
+- **True Multi-Image Pair Comparison**
+  - `VLLMJudge.judgeScreenshot()` now accepts `string | string[]` for multi-image comparison
+  - Direct visual comparison in single API call (research-optimal approach)
+  - Eliminates position bias through true side-by-side comparison
+  - Structured JSON output for comparison results
+  - Support for Gemini, OpenAI, and Claude multi-image APIs
+
+- **Optimal Ensemble Weighting**
+  - `calculateOptimalWeights()` - Inverse logistic weighting based on judge accuracy
+  - Research-backed optimal weighting scheme (2-14% accuracy improvements)
+  - Automatic weight calculation from historical judge accuracies
+  - `votingMethod: 'optimal'` option in `EnsembleJudge`
+
+### Changed
+- **Pair Comparison**: Now uses true multi-image API calls instead of two separate evaluations
+- **VLLMJudge**: Enhanced to support multi-image inputs with proper API handling
+- **Ensemble Judge**: Added optimal weighting method based on inverse logistic function
+- **Prompt Building**: Unified through `prompt-composer.mjs` with fallback for compatibility
+- **Logprobs Extraction**: Added to API responses (Gemini, OpenAI) for uncertainty estimation
+
+### Fixed
+- Fixed pair comparison to use true multi-image comparison (critical research alignment fix)
+- Fixed prompt composition inconsistencies across different testing types
+- Improved cache key generation for multi-image requests
+
+### Research Alignment
+- ✅ Pair comparison now uses true multi-image API (MLLM-as-a-Judge methodology)
+- ✅ Hallucination detection implemented (arXiv:2506.19513, 2507.19024)
+- ✅ Optimal ensemble weighting implemented (arXiv:2510.01499)
+- ✅ Unified prompt composition with research-backed rubrics
+
 ## [0.2.0] - 2025-11-11
 
 ### Added
