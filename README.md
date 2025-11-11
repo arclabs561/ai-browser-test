@@ -382,7 +382,102 @@ error('Critical failure');
 
 ## Examples
 
-See `example.test.mjs` for complete examples.
+### Basic Screenshot Validation
+
+```javascript
+import { validateScreenshot, createConfig } from 'ai-browser-test';
+
+const result = await validateScreenshot(
+  'screenshot.png',
+  'Evaluate this payment screen for usability and accessibility.',
+  {
+    testType: 'payment-screen',
+    viewport: { width: 1280, height: 720 }
+  }
+);
+
+console.log(`Score: ${result.score}/10`);
+console.log(`Issues: ${result.issues?.length || 0}`);
+```
+
+### Persona-Based Testing
+
+```javascript
+import { experiencePageAsPersona } from 'ai-browser-test';
+import { test } from '@playwright/test';
+
+test('test from accessibility advocate perspective', async ({ page }) => {
+  await page.goto('https://example.com');
+  
+  const experience = await experiencePageAsPersona(page, {
+    name: 'Accessibility Advocate',
+    goals: ['Check keyboard navigation', 'Verify screen reader compatibility'],
+    device: 'desktop',
+    timeScale: 'human'
+  });
+  
+  console.log(`Experience score: ${experience.score}`);
+  console.log(`Notes: ${experience.notes.length}`);
+});
+```
+
+### Temporal Analysis (Gameplay Testing)
+
+```javascript
+import { captureTemporalScreenshots, aggregateTemporalNotes } from 'ai-browser-test';
+
+// Capture screenshots over time
+const screenshots = await captureTemporalScreenshots(page, {
+  fps: 2,
+  duration: 5000 // 5 seconds
+});
+
+// Aggregate temporal notes
+const aggregated = aggregateTemporalNotes(notes, {
+  windowSize: 10000,
+  decayFactor: 0.9
+});
+
+console.log(`Coherence: ${aggregated.coherence}`);
+console.log(`Trend: ${aggregated.trend}`);
+```
+
+### Multi-Modal Validation
+
+```javascript
+import { multiModalValidation } from 'ai-browser-test';
+
+const result = await multiModalValidation(page, {
+  prompt: 'Evaluate the overall user experience',
+  includeScreenshot: true,
+  includeHTML: true,
+  includeCSS: true,
+  includeRenderedCode: true
+});
+
+console.log(`Multi-modal score: ${result.score}`);
+```
+
+### Batch Optimization
+
+```javascript
+import { BatchOptimizer } from 'ai-browser-test';
+
+const optimizer = new BatchOptimizer({ maxBatchSize: 5 });
+const screenshots = ['img1.png', 'img2.png', 'img3.png'];
+
+const batch = optimizer.selectBatch(screenshots.map(img => ({
+  image: img,
+  prompt: 'Evaluate this screenshot'
+})));
+
+// Process batch efficiently
+for (const item of batch) {
+  await validateScreenshot(item.image, item.prompt);
+}
+```
+
+See `example.test.mjs` for more complete examples.
 
 ## Cost Management
 
