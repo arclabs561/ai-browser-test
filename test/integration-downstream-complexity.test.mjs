@@ -166,7 +166,7 @@ describe('Downstream Complexity: Multi-Modal with Rendered Code', () => {
 });
 
 describe('Downstream Complexity: Multi-Perspective with Rendered Code', () => {
-  it('should evaluate from multiple perspectives with rendered code like queeraoke', async () => {
+  it('should evaluate from multiple perspectives with rendered code for interactive applications', async () => {
     const mockPage = createMockPage({
       html: '<html><body><div id="game-paddle"></div><div id="game-canvas"></div></body></html>',
       gameState: { gameActive: true, score: 100 }
@@ -184,7 +184,7 @@ describe('Downstream Complexity: Multi-Perspective with Rendered Code', () => {
       };
     };
     
-    // Multi-perspective evaluation (like queeraoke's vllm-interactive-game.test.mjs)
+    // Multi-perspective evaluation for interactive game testing
     const evaluations = await multiPerspectiveEvaluation(
       mockValidateFn,
       'test-screenshot.png',
@@ -214,7 +214,7 @@ describe('Downstream Complexity: Multi-Perspective with Rendered Code', () => {
 });
 
 describe('Downstream Complexity: Full Integration Workflow', () => {
-  it.skip('should handle complete queeraoke-like workflow: persona + temporal + multi-modal + batch', async () => {
+  it.skip('should handle complete interactive application workflow: persona + temporal + multi-modal + batch', async () => {
     const mockPage = createMockPage({
       html: '<html><body><div id="game"></div></body></html>',
       gameState: { gameActive: true, score: 0, bricks: Array(20).fill({}) }
@@ -222,7 +222,7 @@ describe('Downstream Complexity: Full Integration Workflow', () => {
     
     const batchOptimizer = new BatchOptimizer({ maxConcurrency: 2, batchSize: 2 });
     
-    // Step 1: Experience page as persona (like queeraoke)
+    // Step 1: Experience page as persona for interactive applications
     const persona = {
       name: 'Test Gamer',
       device: 'desktop',
@@ -238,7 +238,7 @@ describe('Downstream Complexity: Full Integration Workflow', () => {
     assert.ok(experience);
     assert.ok(experience.notes.length > 0);
     
-    // Step 2: Capture temporal screenshots (like queeraoke)
+    // Step 2: Capture temporal screenshots for interactive applications
     const screenshots = await captureTemporalScreenshots(mockPage, {
       fps: 2,
       duration: 1000
@@ -247,11 +247,11 @@ describe('Downstream Complexity: Full Integration Workflow', () => {
     assert.ok(Array.isArray(screenshots));
     // Note: Mock page may not produce screenshots, test continues with empty array
     
-    // Step 3: Extract rendered code (like queeraoke)
+    // Step 3: Extract rendered code for interactive applications
     const renderedCode = await extractRenderedCode(mockPage);
     assert.ok(renderedCode);
     
-    // Step 4: Aggregate temporal notes (like queeraoke)
+    // Step 4: Aggregate temporal notes for interactive applications
     // Use experience notes if screenshots weren't captured
     const temporalNotes = screenshots.length > 0
       ? screenshots.map((shot, i) => ({
@@ -270,12 +270,12 @@ describe('Downstream Complexity: Full Integration Workflow', () => {
     const aggregated = aggregateTemporalNotes(temporalNotes);
     assert.ok(aggregated);
     
-    // Step 5: Format notes for prompt (like queeraoke)
+    // Step 5: Format notes for prompt in interactive applications
     const formatted = formatNotesForPrompt(aggregated);
     assert.ok(typeof formatted === 'string');
     assert.ok(formatted.length > 0);
     
-    // Step 6: Batch validation would happen here in queeraoke
+    // Step 6: Batch validation for interactive applications
     // Use batchValidate instead of selectBatch
     const screenshotPaths = screenshots.length > 0
       ? screenshots.map(shot => shot.path || `test-${shot.timestamp}.png`)
@@ -291,7 +291,7 @@ describe('Downstream Complexity: Full Integration Workflow', () => {
 });
 
 describe('Downstream Complexity: Error Recovery', () => {
-  it.skip('should handle errors gracefully like queeraoke does', async () => {
+  it.skip('should handle errors gracefully in interactive applications', async () => {
     const mockPage = createMockPage();
     
     // Test that invalid page objects are handled
@@ -305,7 +305,7 @@ describe('Downstream Complexity: Error Recovery', () => {
       /ValidationError|Page object is required/
     );
     
-    // Test that missing API keys don't crash (like queeraoke handles)
+    // Test that missing API keys don't crash (handled gracefully)
     const config = createConfig({ apiKey: null });
     assert.strictEqual(config.enabled, false);
     
@@ -318,7 +318,7 @@ describe('Downstream Complexity: Error Recovery', () => {
 });
 
 describe('Downstream Complexity: State Tracking', () => {
-  it.skip('should track game state changes over time like queeraoke', async () => {
+  it.skip('should track game state changes over time in interactive applications', async () => {
     const states = [
       { gameActive: false, score: 0, bricks: 20 },
       { gameActive: true, score: 0, bricks: 20 },
@@ -333,7 +333,7 @@ describe('Downstream Complexity: State Tracking', () => {
       timestamp: Date.now() + (i * 1000)
     }));
     
-    // Aggregate to detect trends (like queeraoke does)
+    // Aggregate to detect trends in interactive applications
     const aggregated = aggregateTemporalNotes(notes);
     
     assert.ok(aggregated);
@@ -344,7 +344,7 @@ describe('Downstream Complexity: State Tracking', () => {
       assert.ok(typeof aggregated.trend === 'object' || typeof aggregated.trend === 'string');
     }
     
-    // Format for prompt (like queeraoke does)
+    // Format for prompt in interactive applications
     const formatted = formatNotesForPrompt(aggregated);
     assert.ok(typeof formatted === 'string');
     assert.ok(formatted.length > 0);
