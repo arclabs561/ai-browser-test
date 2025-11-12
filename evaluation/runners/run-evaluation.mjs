@@ -2,7 +2,7 @@
 /**
  * Real-World Evaluation Script
  * 
- * Evaluates ai-browser-test against real websites with known characteristics.
+ * Evaluates ai-visual-test against real websites with known characteristics.
  * Compares VLLM judgments against ground truth annotations.
  */
 

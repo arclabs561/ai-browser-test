@@ -1,12 +1,12 @@
 /**
- * Custom Error Classes for ai-browser-test
+ * Custom Error Classes for ai-visual-test
  * 
  * Provides standardized error handling across the package.
  * Based on Playwright's error handling patterns and industry best practices.
  */
 
 /**
- * Base error class for all ai-browser-test errors
+ * Base error class for all ai-visual-test errors
  * 
  * @class AIBrowserTestError
  * @extends {Error}

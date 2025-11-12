@@ -123,7 +123,7 @@ Integrate into Queeraoke workflow:
 ### Step 1: Run Tests with Human Validation
 
 ```javascript
-import { initHumanValidation } from 'ai-browser-test';
+import { initHumanValidation } from 'ai-visual-test';
 
 initHumanValidation({
   enabled: true,

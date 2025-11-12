@@ -1,4 +1,4 @@
-# Real Sites for Testing ai-browser-test
+# Real Sites for Testing ai-visual-test
 
 ## Quick Test Sites (Fast, Reliable)
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide helps migrate queeraoke tests to use the new research-enhanced validation functions, temporal decision logic, and note pruning features from `ai-browser-test`.
+This guide helps migrate queeraoke tests to use the new research-enhanced validation functions, temporal decision logic, and note pruning features from `ai-visual-test`.
 
 ## Migration Benefits
 
@@ -28,7 +28,7 @@ This guide helps migrate queeraoke tests to use the new research-enhanced valida
 
 #### Before
 ```javascript
-import { validateScreenshot, createConfig } from 'ai-browser-test';
+import { validateScreenshot, createConfig } from 'ai-visual-test';
 
 const config = createConfig();
 const result = await validateScreenshot(screenshotPath, prompt, {
@@ -39,7 +39,7 @@ const result = await validateScreenshot(screenshotPath, prompt, {
 
 #### After (Option A: Explicit Rubric)
 ```javascript
-import { validateWithExplicitRubric, createConfig } from 'ai-browser-test';
+import { validateWithExplicitRubric, createConfig } from 'ai-visual-test';
 
 const config = createConfig();
 const result = await validateWithExplicitRubric(screenshotPath, prompt, {
@@ -51,7 +51,7 @@ const result = await validateWithExplicitRubric(screenshotPath, prompt, {
 
 #### After (Option B: All Research Enhancements)
 ```javascript
-import { validateWithAllResearchEnhancements, createConfig } from 'ai-browser-test';
+import { validateWithAllResearchEnhancements, createConfig } from 'ai-visual-test';
 
 const config = createConfig();
 const result = await validateWithAllResearchEnhancements(screenshotPath, prompt, {
@@ -78,7 +78,7 @@ import {
   aggregateTemporalNotes,
   formatNotesForPrompt,
   captureTemporalScreenshots 
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 
 // Capture temporal screenshots
 const temporalScreenshots = await captureTemporalScreenshots(page, {
@@ -111,7 +111,7 @@ import {
   captureTemporalScreenshots,
   TemporalDecisionManager,
   selectTopWeightedNotes
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 
 // Capture temporal screenshots
 const temporalScreenshots = await captureTemporalScreenshots(page, {
@@ -190,7 +190,7 @@ for (const screenshot of temporalScreenshots) {
 import { 
   extractRenderedCode, 
   multiModalValidation 
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 
 const renderedCode = await extractRenderedCode(page);
 const result = await multiModalValidation(
@@ -209,7 +209,7 @@ const result = await multiModalValidation(
 import { 
   extractRenderedCode, 
   validateWithAllResearchEnhancements
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 
 const renderedCode = await extractRenderedCode(page);
 
@@ -252,20 +252,20 @@ grep -r "validateScreenshot" test/ | wc -l
 
 ```javascript
 // Old
-import { validateScreenshot, createConfig } from 'ai-browser-test';
+import { validateScreenshot, createConfig } from 'ai-visual-test';
 
 // New (for research enhancements)
 import { 
   validateWithExplicitRubric,
   validateWithAllResearchEnhancements,
   createConfig 
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 
 // New (for temporal decision logic)
 import { 
   TemporalDecisionManager,
   selectTopWeightedNotes
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 ```
 
 ### Step 4: Update Function Calls
@@ -291,7 +291,7 @@ Run tests to ensure:
 
 ### Before: `visual-regression-vllm.test.mjs`
 ```javascript
-import { validateScreenshot, createConfig } from 'ai-browser-test';
+import { validateScreenshot, createConfig } from 'ai-visual-test';
 
 const config = createConfig();
 const VLLM_ENABLED = config.enabled;
@@ -317,7 +317,7 @@ test('payment screen: visual consistency', async ({ page, baseURL }) => {
 import { 
   validateWithExplicitRubric, 
   createConfig 
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 
 const config = createConfig();
 const VLLM_ENABLED = config.enabled;

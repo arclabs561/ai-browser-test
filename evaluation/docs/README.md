@@ -1,6 +1,6 @@
 # Real-World Evaluation
 
-This directory contains scripts and datasets for evaluating `ai-browser-test` against real websites with known characteristics.
+This directory contains scripts and datasets for evaluating `ai-visual-test` against real websites with known characteristics.
 
 ## Quick Start
 

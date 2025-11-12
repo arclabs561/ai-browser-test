@@ -12,7 +12,7 @@
 
 ## What This Repository Is
 
-**`ai-browser-test`** - AI-powered visual testing using Vision Language Models (VLLM) for screenshot validation with Playwright. Semantic visual regression testing that understands UI meaning, not just pixels.
+**`ai-visual-test`** - AI-powered visual testing using Vision Language Models (VLLM) for screenshot validation with Playwright. Semantic visual regression testing that understands UI meaning, not just pixels.
 
 ### Core Value Proposition
 - **Semantic validation** - Understands UI meaning, not just pixels

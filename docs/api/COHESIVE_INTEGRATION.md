@@ -36,7 +36,7 @@ const result = await validateScreenshot('screenshot.png', 'Base prompt', {
 The prompt composition system (`composeSingleImagePrompt`, `composeComparisonPrompt`, `composeMultiModalPrompt`) now automatically detects and uses goals from context:
 
 ```javascript
-import { composeSingleImagePrompt } from 'ai-browser-test';
+import { composeSingleImagePrompt } from 'ai-visual-test';
 
 const prompt = await composeSingleImagePrompt('Base prompt', {
   goal: 'Is it fun?', // Automatically used
@@ -56,7 +56,7 @@ const prompt = await composeSingleImagePrompt('Base prompt', {
 The convenience function now passes goals through to the underlying system:
 
 ```javascript
-import { validateWithGoals, createGameGoal } from 'ai-browser-test';
+import { validateWithGoals, createGameGoal } from 'ai-visual-test';
 
 const goal = createGameGoal('accessibility');
 const result = await validateWithGoals('screenshot.png', {
@@ -77,7 +77,7 @@ const result = await validateWithGoals('screenshot.png', {
 The high-level convenience function integrates goals throughout the workflow:
 
 ```javascript
-import { testGameplay, createGameGoals } from 'ai-browser-test';
+import { testGameplay, createGameGoals } from 'ai-visual-test';
 
 const goals = createGameGoals(['fun', 'accessibility', 'performance']);
 const result = await testGameplay(page, {

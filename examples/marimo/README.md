@@ -1,6 +1,6 @@
-# Marimo Notebook Examples for ai-browser-test
+# Marimo Notebook Examples for ai-visual-test
 
-These notebooks demonstrate how to use `ai-browser-test` in interactive Python notebooks using [marimo](https://marimo.io).
+These notebooks demonstrate how to use `ai-visual-test` in interactive Python notebooks using [marimo](https://marimo.io).
 
 **Status**: ✅ All notebooks have been reviewed and updated to match the actual API signatures and return types.
 
@@ -34,7 +34,7 @@ These notebooks demonstrate how to use `ai-browser-test` in interactive Python n
 
 2. **Install Node.js dependencies:**
    ```bash
-   npm install ai-browser-test
+   npm install ai-visual-test
    # For multi-modal and persona examples, also install Playwright:
    npm install @playwright/test
    # Or use the standalone playwright package:

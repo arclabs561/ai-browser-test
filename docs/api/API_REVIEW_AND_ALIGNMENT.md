@@ -117,7 +117,7 @@ This document provides a comprehensive review of the API based on:
 
 **Pattern 1: Basic Validation**
 ```javascript
-import { validateScreenshot, extractRenderedCode } from 'ai-browser-test';
+import { validateScreenshot, extractRenderedCode } from 'ai-visual-test';
 
 const renderedCode = await extractRenderedCode(page);
 const result = await validateScreenshot('screenshot.png', prompt, {
@@ -128,7 +128,7 @@ const result = await validateScreenshot('screenshot.png', prompt, {
 
 **Pattern 2: Multi-Perspective Evaluation**
 ```javascript
-import { multiPerspectiveEvaluation, validateScreenshot } from 'ai-browser-test';
+import { multiPerspectiveEvaluation, validateScreenshot } from 'ai-visual-test';
 
 const perspectives = await multiPerspectiveEvaluation(
   validateScreenshot,
@@ -141,7 +141,7 @@ const perspectives = await multiPerspectiveEvaluation(
 
 **Pattern 3: Experience with Personas**
 ```javascript
-import { experiencePageAsPersona, extractRenderedCode } from 'ai-browser-test';
+import { experiencePageAsPersona, extractRenderedCode } from 'ai-visual-test';
 
 const experience = await experiencePageAsPersona(page, persona, {
   url: 'https://game.example.com',
@@ -153,7 +153,7 @@ const renderedCode = experience.renderedCode;
 
 **Pattern 4: Temporal Aggregation**
 ```javascript
-import { aggregateTemporalNotes, formatNotesForPrompt } from 'ai-browser-test';
+import { aggregateTemporalNotes, formatNotesForPrompt } from 'ai-visual-test';
 
 const aggregated = aggregateTemporalNotes(experience.notes);
 const prompt = formatNotesForPrompt(aggregated);
@@ -161,7 +161,7 @@ const prompt = formatNotesForPrompt(aggregated);
 
 **Pattern 5: Human Validation Setup**
 ```javascript
-import { initHumanValidation, getHumanValidationManager } from 'ai-browser-test';
+import { initHumanValidation, getHumanValidationManager } from 'ai-visual-test';
 
 const manager = initHumanValidation({
   enabled: true,
@@ -308,7 +308,7 @@ const manager = initHumanValidation({
 
 ```javascript
 // Gameplay testing (complete workflow)
-import { testGameplay } from 'ai-browser-test';
+import { testGameplay } from 'ai-visual-test';
 
 const result = await testGameplay(page, {
   url: 'https://game.example.com',

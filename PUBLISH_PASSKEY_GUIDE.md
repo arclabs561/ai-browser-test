@@ -35,7 +35,7 @@ If you haven't configured OIDC on npmjs.com yet:
 3. Select "GitHub Actions"
 4. Enter:
    - **Organization or user**: `arclabs561`
-   - **Repository**: `ai-browser-test`
+   - **Repository**: `ai-visual-test`
    - **Workflow filename**: `publish.yml`
 5. Click "Add"
 
@@ -47,7 +47,7 @@ Automation tokens bypass OTP requirements. You can create one:
 
 1. Go to: https://www.npmjs.com/settings/arclabs561/access-tokens
 2. Click "Generate New Token" → "Automation"
-3. Name it (e.g., "ai-browser-test-publish")
+3. Name it (e.g., "ai-visual-test-publish")
 4. Copy the token
 5. Use it:
    ```bash

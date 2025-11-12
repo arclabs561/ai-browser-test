@@ -87,7 +87,7 @@
         },
         "attempts": 1,
         "logprobs": null,
-        "screenshotPath": "/Users/arc/Documents/dev/ai-browser-test/evaluation/queeraoke-results/queeraoke-test-1762908043309.png",
+        "screenshotPath": "/Users/arc/Documents/dev/ai-visual-test/evaluation/queeraoke-results/queeraoke-test-1762908043309.png",
         "originalScore": 100,
         "calibrated": true
       }
@@ -184,7 +184,7 @@
         },
         "attempts": 1,
         "logprobs": null,
-        "screenshotPath": "/Users/arc/Documents/dev/ai-browser-test/evaluation/queeraoke-results/queeraoke-test-1762908043309.png"
+        "screenshotPath": "/Users/arc/Documents/dev/ai-visual-test/evaluation/queeraoke-results/queeraoke-test-1762908043309.png"
       }
     }
   ],
@@ -331,7 +331,7 @@
     },
     "attempts": 1,
     "logprobs": null,
-    "screenshotPath": "/Users/arc/Documents/dev/ai-browser-test/evaluation/queeraoke-results/queeraoke-test-1762908043309.png"
+    "screenshotPath": "/Users/arc/Documents/dev/ai-visual-test/evaluation/queeraoke-results/queeraoke-test-1762908043309.png"
   },
   "calibrationStatus": {
     "calibrated": true,

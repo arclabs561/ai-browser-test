@@ -16,7 +16,7 @@ import {
   generateCacheKey
 } from '../src/cache.mjs';
 
-const TEST_CACHE_DIR = join(tmpdir(), 'ai-browser-test-cache-test');
+const TEST_CACHE_DIR = join(tmpdir(), 'ai-visual-test-cache-test');
 
 test.beforeEach(() => {
   // Clean up test cache directory

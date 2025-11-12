@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the coherent patterns and integration points across the `ai-browser-test` API surface. It ensures consistent usage patterns and clear guidance on when to use which functions.
+This document outlines the coherent patterns and integration points across the `ai-visual-test` API surface. It ensures consistent usage patterns and clear guidance on when to use which functions.
 
 ## Core Principles
 
@@ -11,7 +11,7 @@ This document outlines the coherent patterns and integration points across the `
 **Always use this as the foundation** for all validation. All convenience functions ultimately call this.
 
 ```javascript
-import { validateScreenshot } from 'ai-browser-test';
+import { validateScreenshot } from 'ai-visual-test';
 
 const result = await validateScreenshot(imagePath, prompt, {
   // Core options
@@ -102,7 +102,7 @@ const experiences = await experiencePageWithPersonas(page, personas, {
 
 **All functions throw `ValidationError` for invalid inputs**:
 ```javascript
-import { ValidationError } from 'ai-browser-test';
+import { ValidationError } from 'ai-visual-test';
 
 try {
   await validateScreenshot('missing.png', 'prompt');

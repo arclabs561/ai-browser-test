@@ -35,7 +35,7 @@ function createTempImage(path) {
 describe('Variable Goals Cohesive Integration', () => {
   describe('validateScreenshot with goals in context', () => {
     it('should accept goal in context and use it for prompt generation', async () => {
-      const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+      const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
       const screenshotPath = join(tempDir, 'test.png');
       createTempImage(screenshotPath);
 
@@ -57,7 +57,7 @@ describe('Variable Goals Cohesive Integration', () => {
     });
 
     it('should work with goal object in context', async () => {
-      const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+      const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
       const screenshotPath = join(tempDir, 'test.png');
       createTempImage(screenshotPath);
 
@@ -105,7 +105,7 @@ describe('Variable Goals Cohesive Integration', () => {
 
   describe('convenience functions with goals', () => {
     it('should pass goals through validateWithGoals', async () => {
-      const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+      const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
       const screenshotPath = join(tempDir, 'test.png');
       createTempImage(screenshotPath);
 
@@ -127,7 +127,7 @@ describe('Variable Goals Cohesive Integration', () => {
     });
 
     it('should work with goal object in validateWithGoals', async () => {
-      const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+      const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
       const screenshotPath = join(tempDir, 'test.png');
       createTempImage(screenshotPath);
 
@@ -151,7 +151,7 @@ describe('Variable Goals Cohesive Integration', () => {
 
   describe('cohesive workflow', () => {
     it('should work end-to-end: goal -> prompt -> validation', async () => {
-      const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+      const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
       const screenshotPath = join(tempDir, 'test.png');
       createTempImage(screenshotPath);
 
@@ -181,7 +181,7 @@ describe('Variable Goals Cohesive Integration', () => {
     });
 
     it('should work with convenience function: validateWithGoals', async () => {
-      const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+      const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
       const screenshotPath = join(tempDir, 'test.png');
       createTempImage(screenshotPath);
 

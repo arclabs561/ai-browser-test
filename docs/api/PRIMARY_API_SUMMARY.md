@@ -5,7 +5,7 @@
 **`validateScreenshot(imagePath, prompt, context?)`** - This is the primary API.
 
 ```javascript
-import { validateScreenshot } from 'ai-browser-test';
+import { validateScreenshot } from 'ai-visual-test';
 
 const result = await validateScreenshot('screenshot.png', 'Evaluate this page');
 // result.score: 0-10
@@ -28,7 +28,7 @@ const result = await validateScreenshot('screenshot.png', 'Evaluate this page');
 
 ## Meta-Testing
 
-The documentation site uses ai-browser-test to test itself:
+The documentation site uses ai-visual-test to test itself:
 
 ```bash
 node evaluation/meta-documentation-test.mjs

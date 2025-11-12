@@ -42,7 +42,7 @@ The workflow is configured for OIDC trusted publishing (no MFA needed):
    - Select "GitHub Actions"
    - Enter:
      - GitHub User: `arclabs561`
-     - Repository: `arclabs561/ai-browser-test`
+     - Repository: `arclabs561/ai-visual-test`
      - Workflow file: `.github/workflows/publish.yml`
    - Click "Add"
 
@@ -78,7 +78,7 @@ The workflow is configured for OIDC trusted publishing (no MFA needed):
 
 After publishing, verify:
 ```bash
-npm view ai-browser-test version  # Should show 0.3.1
-npm view ai-browser-test time.modified  # Should show recent timestamp
+npm view ai-visual-test version  # Should show 0.3.1
+npm view ai-visual-test time.modified  # Should show recent timestamp
 ```
 

@@ -32,7 +32,7 @@ function createTestImage(path) {
 async function testCohesiveGoals() {
   console.log('🧪 Testing Cohesive Goals Integration\n');
 
-  const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+  const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
   const screenshotPath = join(tempDir, 'test.png');
   createTestImage(screenshotPath);
 

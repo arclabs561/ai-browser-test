@@ -2,7 +2,7 @@
 /**
  * Comprehensive Meta Experience Test
  * 
- * Uses ALL of ai-browser-test's capabilities to experience and validate
+ * Uses ALL of ai-visual-test's capabilities to experience and validate
  * the documentation site itself. This is the ultimate "drink champagne / dog food" test.
  * 
  * Tests:
@@ -49,7 +49,7 @@ const SCREENSHOTS_DIR = join(process.cwd(), 'evaluation', 'screenshots', 'meta-c
  */
 async function runComprehensiveMetaExperience() {
   console.log('🍾 Comprehensive Meta Experience Test');
-  console.log('Using ALL ai-browser-test capabilities on the docs site itself\n');
+  console.log('Using ALL ai-visual-test capabilities on the docs site itself\n');
   console.log('='.repeat(60));
 
   const browser = await chromium.launch({ headless: true });
@@ -525,7 +525,7 @@ function generateComprehensiveReport(results, timestamp) {
 </head>
 <body>
   <div class="header">
-    <div class="meta-badge">🍾 META TEST: ai-browser-test testing itself</div>
+    <div class="meta-badge">🍾 META TEST: ai-visual-test testing itself</div>
     <h1>Comprehensive Meta Experience Test Results</h1>
     <p>All API capabilities used to evaluate the documentation site</p>
     <p><small>Generated: ${new Date(results.timestamp).toLocaleString()}</small></p>
@@ -607,7 +607,7 @@ function generateComprehensiveReport(results, timestamp) {
   
   <div class="test-result" style="background: #f0fdf4; border: 2px solid #10b981;">
     <h3>✅ Meta Test Complete</h3>
-    <p>This demonstrates ai-browser-test comprehensively testing itself using all available APIs and capabilities.</p>
+    <p>This demonstrates ai-visual-test comprehensively testing itself using all available APIs and capabilities.</p>
     <p><strong>Techniques Demonstrated:</strong></p>
     <ul>
       ${results.summary?.techniquesUsed?.map(t => `<li><code>${t}</code></li>`).join('') || ''}

@@ -29,7 +29,7 @@ After researching the codebase, several features marked as "unused" are actually
   - Reducing LLM costs by prompting only when needed
 - **Integration**:
 ```javascript
-import { TemporalDecisionManager } from 'ai-browser-test';
+import { TemporalDecisionManager } from 'ai-visual-test';
 
 const decisionManager = new TemporalDecisionManager();
 const decision = decisionManager.shouldPrompt(currentState, previousState, notes);
@@ -51,7 +51,7 @@ if (decision.shouldPrompt) {
   - Reducing bias and improving reliability
 - **Integration**:
 ```javascript
-import { createEnsembleJudge } from 'ai-browser-test';
+import { createEnsembleJudge } from 'ai-visual-test';
 
 const ensemble = createEnsembleJudge(['gemini', 'openai'], {
   votingMethod: 'optimal',
@@ -73,7 +73,7 @@ const result = await ensemble.evaluate(screenshotPath, prompt);
   - When you need to process independent requests first
 - **Integration**:
 ```javascript
-import { TemporalBatchOptimizer } from 'ai-browser-test';
+import { TemporalBatchOptimizer } from 'ai-visual-test';
 
 const optimizer = new TemporalBatchOptimizer({
   maxConcurrency: 3,

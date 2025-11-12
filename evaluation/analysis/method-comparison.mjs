@@ -2,7 +2,7 @@
 /**
  * Method Comparison
  * 
- * Compares ai-browser-test against other evaluation methods:
+ * Compares ai-visual-test against other evaluation methods:
  * - Other VLLM providers
  * - Traditional accessibility tools
  * - Research implementations

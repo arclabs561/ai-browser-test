@@ -30,7 +30,7 @@ function createTempImage(path) {
 describe('Convenience Functions', () => {
   describe('validateWithGoals', () => {
     it('should validate with string goal', async () => {
-      const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+      const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
       const screenshotPath = join(tempDir, 'test.png');
       createTempImage(screenshotPath);
 
@@ -52,7 +52,7 @@ describe('Convenience Functions', () => {
     });
 
     it('should validate with goal object', async () => {
-      const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+      const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
       const screenshotPath = join(tempDir, 'test.png');
       createTempImage(screenshotPath);
 
@@ -75,7 +75,7 @@ describe('Convenience Functions', () => {
     });
 
     it('should validate with goal array', async () => {
-      const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+      const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
       const screenshotPath = join(tempDir, 'test.png');
       createTempImage(screenshotPath);
 
@@ -105,7 +105,7 @@ describe('Convenience Functions', () => {
     });
 
     it('should throw error if goal missing', async () => {
-      const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+      const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
       const screenshotPath = join(tempDir, 'test.png');
       createTempImage(screenshotPath);
 

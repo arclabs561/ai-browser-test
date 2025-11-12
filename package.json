@@ -1,18 +1,18 @@
 {
-  "name": "ai-browser-test",
+  "name": "ai-visual-test",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arclabs561/ai-browser-test.git"
+    "url": "git+https://github.com/arclabs561/ai-visual-test.git"
   },
-  "homepage": "https://github.com/arclabs561/ai-browser-test#readme",
+  "homepage": "https://github.com/arclabs561/ai-visual-test#readme",
   "bugs": {
-    "url": "https://github.com/arclabs561/ai-browser-test/issues"
+    "url": "https://github.com/arclabs561/ai-visual-test/issues"
   },
   "funding": {
     "type": "github",
     "url": "https://github.com/sponsors/arclabs561"
   },
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "AI-powered visual testing using Vision Language Models (VLLM) for screenshot validation with Playwright. Semantic visual regression testing that understands UI meaning, not just pixels.",
   "type": "module",
   "main": "src/index.mjs",

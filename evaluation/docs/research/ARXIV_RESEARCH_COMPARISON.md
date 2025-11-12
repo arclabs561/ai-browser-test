@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides a comprehensive comparison between our `ai-browser-test` implementation and the latest arXiv research on LLM-as-a-Judge and MLLM evaluation methodologies.
+This document provides a comprehensive comparison between our `ai-visual-test` implementation and the latest arXiv research on LLM-as-a-Judge and MLLM evaluation methodologies.
 
 ## Key Papers Analyzed
 

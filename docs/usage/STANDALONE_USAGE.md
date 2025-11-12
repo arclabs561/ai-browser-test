@@ -2,7 +2,7 @@
 
 ## Overview
 
-`ai-browser-test` is designed to be **standalone** and **language-agnostic**. The core validation functionality works without Playwright and can be used from any programming language.
+`ai-visual-test` is designed to be **standalone** and **language-agnostic**. The core validation functionality works without Playwright and can be used from any programming language.
 
 ## Standalone Features (No Playwright Required)
 
@@ -146,7 +146,7 @@ import base64
 
 # Create Node.js script
 script = f"""
-import {{ validateScreenshot }} from 'ai-browser-test';
+import {{ validateScreenshot }} from 'ai-visual-test';
 
 const result = await validateScreenshot(
     'screenshot.png',
@@ -195,7 +195,7 @@ The package could be compiled to WebAssembly for browser use:
 
 ```javascript
 // Future: Browser usage
-import { validateScreenshot } from 'ai-browser-test/wasm';
+import { validateScreenshot } from 'ai-visual-test/wasm';
 
 const result = await validateScreenshot(
     imageBlob,
@@ -215,11 +215,11 @@ import base64
 from pathlib import Path
 
 def validate_screenshot(image_path, prompt, context=None):
-    """Validate a screenshot using ai-browser-test"""
+    """Validate a screenshot using ai-visual-test"""
     
     # Create Node.js script
     script = f"""
-    import {{ validateScreenshot }} from 'ai-browser-test';
+    import {{ validateScreenshot }} from 'ai-visual-test';
     
     const result = await validateScreenshot(
         '{image_path}',
@@ -296,7 +296,7 @@ puts "Score: #{result['score']}"
 ## Package Structure for Standalone Use
 
 ```
-ai-browser-test/
+ai-visual-test/
 ├── src/
 │   ├── judge.mjs          # ✅ Standalone (core validation)
 │   ├── config.mjs         # ✅ Standalone

@@ -48,7 +48,7 @@ Games need **variable prompts and goals** - not hardcoded game states. This syst
 #### 1. String Prompt (Simple)
 
 ```javascript
-import { generateGamePrompt } from 'ai-browser-test';
+import { generateGamePrompt } from 'ai-visual-test';
 
 const prompt = generateGamePrompt(
   'Evaluate if the game is fun. Current score: ${gameState.score}, Level: ${gameState.level}',
@@ -63,7 +63,7 @@ const prompt = generateGamePrompt(
 #### 2. Goal Object (Structured)
 
 ```javascript
-import { generateGamePrompt } from 'ai-browser-test';
+import { generateGamePrompt } from 'ai-visual-test';
 
 const goal = {
   description: 'Evaluate game accessibility',
@@ -92,7 +92,7 @@ const prompt = generateGamePrompt(goal, {
 #### 3. Goal Array (Multiple Goals)
 
 ```javascript
-import { generateGamePrompt } from 'ai-browser-test';
+import { generateGamePrompt } from 'ai-visual-test';
 
 const goals = [
   'Is the game fun?',
@@ -114,7 +114,7 @@ const prompt = generateGamePrompt(goals, {
 #### 4. Predefined Goal Templates
 
 ```javascript
-import { createGameGoal, createGameGoals, generateGamePrompt } from 'ai-browser-test';
+import { createGameGoal, createGameGoals, generateGamePrompt } from 'ai-visual-test';
 
 // Single goal
 const funGoal = createGameGoal('fun');
@@ -136,7 +136,7 @@ const prompt2 = generateGamePrompt(goals, { gameState });
 #### 5. Function (Dynamic)
 
 ```javascript
-import { generateGamePrompt } from 'ai-browser-test';
+import { generateGamePrompt } from 'ai-visual-test';
 
 const dynamicGoal = (context) => {
   const { gameState } = context;
@@ -159,7 +159,7 @@ const prompt = generateGamePrompt(dynamicGoal, {
 #### 6. Integration with `validateScreenshot()`
 
 ```javascript
-import { validateScreenshot, generateGamePrompt, createGameGoal } from 'ai-browser-test';
+import { validateScreenshot, generateGamePrompt, createGameGoal } from 'ai-visual-test';
 
 // Create goal
 const goal = createGameGoal('accessibility', {
@@ -182,7 +182,7 @@ const result = await validateScreenshot('gameplay.png', prompt, {
 #### 7. Integration with `experiencePageAsPersona()`
 
 ```javascript
-import { experiencePageAsPersona, generateGamePrompt, createGameGoals } from 'ai-browser-test';
+import { experiencePageAsPersona, generateGamePrompt, createGameGoals } from 'ai-visual-test';
 
 // Create multiple goals
 const goals = createGameGoals(['fun', 'accessibility', 'performance']);

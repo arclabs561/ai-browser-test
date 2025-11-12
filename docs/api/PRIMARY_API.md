@@ -1,11 +1,11 @@
-# Primary API: ai-browser-test
+# Primary API: ai-visual-test
 
 ## Main Entry Point
 
 The primary API is **`validateScreenshot()`** - this is the core function that all other features build upon.
 
 ```javascript
-import { validateScreenshot } from 'ai-browser-test';
+import { validateScreenshot } from 'ai-visual-test';
 
 const result = await validateScreenshot(
   'screenshot.png',
@@ -52,7 +52,7 @@ const result = await validateScreenshot(
 
 ## Documentation Site
 
-The documentation site is served at `/docs-site/index.html` and uses ai-browser-test to test itself (meta-testing).
+The documentation site is served at `/docs-site/index.html` and uses ai-visual-test to test itself (meta-testing).
 
 ### Running the Documentation Site
 
@@ -67,7 +67,7 @@ node evaluation/meta-documentation-test.mjs
 
 ### Meta Testing
 
-The documentation site includes a "meta test" section that demonstrates ai-browser-test testing itself. This is the "drink champagne / dog food" approach - using our own tool to validate our own documentation.
+The documentation site includes a "meta test" section that demonstrates ai-visual-test testing itself. This is the "drink champagne / dog food" approach - using our own tool to validate our own documentation.
 
 See `evaluation/meta-documentation-test.mjs` for the complete implementation.
 

@@ -7,7 +7,7 @@
       "id": "github-homepage",
       "name": "GitHub Homepage",
       "url": "https://github.com",
-      "screenshot": "/Users/arc/Documents/dev/ai-browser-test/evaluation/datasets/screenshots/github-homepage.png",
+      "screenshot": "/Users/arc/Documents/dev/ai-visual-test/evaluation/datasets/screenshots/github-homepage.png",
       "groundTruth": {
         "expectedScore": {
           "min": 7,
@@ -40,7 +40,7 @@
       "id": "mdn-homepage",
       "name": "MDN Web Docs",
       "url": "https://developer.mozilla.org",
-      "screenshot": "/Users/arc/Documents/dev/ai-browser-test/evaluation/datasets/screenshots/mdn-homepage.png",
+      "screenshot": "/Users/arc/Documents/dev/ai-visual-test/evaluation/datasets/screenshots/mdn-homepage.png",
       "groundTruth": {
         "expectedScore": {
           "min": 8,
@@ -73,7 +73,7 @@
       "id": "w3c-homepage",
       "name": "W3C Homepage",
       "url": "https://www.w3.org",
-      "screenshot": "/Users/arc/Documents/dev/ai-browser-test/evaluation/datasets/screenshots/w3c-homepage.png",
+      "screenshot": "/Users/arc/Documents/dev/ai-visual-test/evaluation/datasets/screenshots/w3c-homepage.png",
       "groundTruth": {
         "expectedScore": {
           "min": 8,
@@ -105,7 +105,7 @@
       "id": "example-com",
       "name": "Example.com",
       "url": "https://example.com",
-      "screenshot": "/Users/arc/Documents/dev/ai-browser-test/evaluation/datasets/screenshots/example-com.png",
+      "screenshot": "/Users/arc/Documents/dev/ai-visual-test/evaluation/datasets/screenshots/example-com.png",
       "groundTruth": {
         "expectedScore": {
           "min": 5,

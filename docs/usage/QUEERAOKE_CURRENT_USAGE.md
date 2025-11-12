@@ -1,8 +1,8 @@
-# Queeraoke Current Usage of ai-browser-test
+# Queeraoke Current Usage of ai-visual-test
 
 ## Overview
 
-This document captures how queeraoke **actually uses** the `ai-browser-test` library based on code analysis.
+This document captures how queeraoke **actually uses** the `ai-visual-test` library based on code analysis.
 
 ## Import Patterns
 
@@ -10,7 +10,7 @@ This document captures how queeraoke **actually uses** the `ai-browser-test` lib
 
 ```javascript
 // Most common pattern (38+ test files)
-import { validateScreenshot, createConfig } from 'ai-browser-test';
+import { validateScreenshot, createConfig } from 'ai-visual-test';
 
 // Configuration
 const config = createConfig();
@@ -24,7 +24,7 @@ import {
   aggregateTemporalNotes, 
   formatNotesForPrompt,
   captureTemporalScreenshots 
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 ```
 
 ### Multi-Modal Tests
@@ -34,14 +34,14 @@ import {
 import { 
   extractRenderedCode, 
   multiModalValidation 
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 ```
 
 ### Batch Optimization
 
 ```javascript
 // Used in some tests for batching
-import { BatchOptimizer } from 'ai-browser-test';
+import { BatchOptimizer } from 'ai-visual-test';
 ```
 
 ## Usage Patterns
@@ -51,7 +51,7 @@ import { BatchOptimizer } from 'ai-browser-test';
 **Files**: `visual-regression-vllm.test.mjs`, `qr-avatar-ux.test.mjs`, `accessibility-visual-vllm.test.mjs`
 
 ```javascript
-import { validateScreenshot, createConfig } from 'ai-browser-test';
+import { validateScreenshot, createConfig } from 'ai-visual-test';
 
 const config = createConfig();
 const result = await validateScreenshot(screenshotPath, prompt, {
@@ -80,7 +80,7 @@ import {
   aggregateTemporalNotes,
   formatNotesForPrompt,
   captureTemporalScreenshots 
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 
 // Capture temporal screenshots
 const temporalScreenshots = await captureTemporalScreenshots(page, {
@@ -119,7 +119,7 @@ const result = await validateScreenshot(screenshotPath, prompt, {
 import { 
   extractRenderedCode, 
   multiModalValidation 
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 
 // Extract rendered code
 const renderedCode = await extractRenderedCode(page);
@@ -146,7 +146,7 @@ const result = await multiModalValidation(
 **Files**: Some performance tests
 
 ```javascript
-import { BatchOptimizer } from 'ai-browser-test';
+import { BatchOptimizer } from 'ai-visual-test';
 
 const optimizer = new BatchOptimizer({
   maxConcurrency: 3,
@@ -205,7 +205,7 @@ const result = await validateScreenshot(screenshotPath, prompt, {
 });
 
 // After
-import { validateWithExplicitRubric } from 'ai-browser-test';
+import { validateWithExplicitRubric } from 'ai-visual-test';
 
 const result = await validateWithExplicitRubric(screenshotPath, prompt, {
   testType: 'visual-regression',
@@ -226,7 +226,7 @@ const result = await validateScreenshot(screenshotPath, prompt, {
 });
 
 // After
-import { TemporalDecisionManager } from 'ai-browser-test';
+import { TemporalDecisionManager } from 'ai-visual-test';
 
 const decisionManager = new TemporalDecisionManager();
 const decision = decisionManager.shouldPrompt(currentState, previousState, notes);
@@ -250,7 +250,7 @@ const result = await validateScreenshot(screenshotPath, prompt, {
 });
 
 // After
-import { selectTopWeightedNotes } from 'ai-browser-test';
+import { selectTopWeightedNotes } from 'ai-visual-test';
 
 const topNotes = await selectTopWeightedNotes(allNotes, { topN: 10 });
 const result = await validateScreenshot(screenshotPath, prompt, {

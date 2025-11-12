@@ -9,7 +9,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { loadEnv } from '../src/load-env.mjs';
 
-const TEST_DIR = join(tmpdir(), 'ai-browser-test-load-env');
+const TEST_DIR = join(tmpdir(), 'ai-visual-test-load-env');
 
 test.beforeEach(() => {
   if (existsSync(TEST_DIR)) {

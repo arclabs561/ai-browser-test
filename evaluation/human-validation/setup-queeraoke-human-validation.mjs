@@ -31,7 +31,7 @@ function createQueeraokeSetup() {
  * for interesting cases during your tests.
  */
 
-import { initHumanValidation, getHumanValidationManager } from 'ai-browser-test';
+import { initHumanValidation, getHumanValidationManager } from 'ai-visual-test';
 
 let queeraokeHumanValidationInitialized = false;
 

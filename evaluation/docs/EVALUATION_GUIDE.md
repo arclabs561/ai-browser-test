@@ -2,7 +2,7 @@
 
 ## Overview
 
-This evaluation system provides a complete framework for evaluating `ai-browser-test` against real-world datasets with ground truth annotations.
+This evaluation system provides a complete framework for evaluating `ai-visual-test` against real-world datasets with ground truth annotations.
 
 ## Quick Start
 

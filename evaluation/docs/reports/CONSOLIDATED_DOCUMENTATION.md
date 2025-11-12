@@ -17,7 +17,7 @@ Models human perception at different time scales based on research.
 
 **Example:**
 ```javascript
-import { humanPerceptionTime } from 'ai-browser-test';
+import { humanPerceptionTime } from 'ai-visual-test';
 
 const time = humanPerceptionTime('reading', {
   contentLength: 1000,
@@ -43,7 +43,7 @@ Maintains context across LLM calls for better sequential decision-making.
 
 **Example:**
 ```javascript
-import { SequentialDecisionContext } from 'ai-browser-test';
+import { SequentialDecisionContext } from 'ai-visual-test';
 
 const context = new SequentialDecisionContext({ maxHistory: 10 });
 context.addDecision({ score: 8, issues: ['contrast'] });
@@ -63,7 +63,7 @@ Aggregates temporal notes at multiple time scales.
 
 **Example:**
 ```javascript
-import { aggregateMultiScale } from 'ai-browser-test';
+import { aggregateMultiScale } from 'ai-visual-test';
 
 const aggregated = aggregateMultiScale(notes, {
   timeScales: {
@@ -88,7 +88,7 @@ Temporal-aware batching with dependencies.
 
 **Example:**
 ```javascript
-import { TemporalBatchOptimizer } from 'ai-browser-test';
+import { TemporalBatchOptimizer } from 'ai-visual-test';
 
 const optimizer = new TemporalBatchOptimizer({
   sequentialContext: context,
@@ -111,7 +111,7 @@ import {
   COMPLEXITY_MULTIPLIERS,
   CONFIDENCE_THRESHOLDS,
   TIME_BOUNDS
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 ```
 
 ## Error Handling
@@ -124,7 +124,7 @@ import {
   PerceptionTimeError,
   SequentialContextError,
   MultiScaleError
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 ```
 
 ## Validation
@@ -132,7 +132,7 @@ import {
 Input validation is built-in:
 
 ```javascript
-import { validateNotes, validateAction, validatePerceptionContext } from 'ai-browser-test/temporal-validation';
+import { validateNotes, validateAction, validatePerceptionContext } from 'ai-visual-test/temporal-validation';
 ```
 
 ## Context Utilities
@@ -140,7 +140,7 @@ import { validateNotes, validateAction, validatePerceptionContext } from 'ai-bro
 Standardized context creation:
 
 ```javascript
-import { createTemporalContext, mergeTemporalContext } from 'ai-browser-test';
+import { createTemporalContext, mergeTemporalContext } from 'ai-visual-test';
 
 const context = createTemporalContext({
   attentionLevel: 'focused',

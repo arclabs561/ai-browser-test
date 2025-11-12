@@ -9,7 +9,7 @@
 npm i -g vercel
 
 # Deploy
-cd /path/to/ai-browser-test
+cd /path/to/ai-visual-test
 vercel
 ```
 
@@ -76,5 +76,5 @@ npm install
 npm test
 
 # Use as library
-import { validateScreenshot } from '@ai-browser-test/core';
+import { validateScreenshot } from '@ai-visual-test/core';
 ```

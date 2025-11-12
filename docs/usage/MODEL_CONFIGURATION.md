@@ -50,7 +50,7 @@ export OPENAI_API_KEY=your-key
 ### 2. Code Configuration
 
 ```javascript
-import { validateScreenshot } from 'ai-browser-test';
+import { validateScreenshot } from 'ai-visual-test';
 
 // Use balanced tier
 const result = await validateScreenshot(
@@ -74,7 +74,7 @@ const result = await validateScreenshot(
 ### 3. Judge Configuration
 
 ```javascript
-import { VLLMJudge } from 'ai-browser-test';
+import { VLLMJudge } from 'ai-visual-test';
 
 const judge = new VLLMJudge({
   provider: 'openai',

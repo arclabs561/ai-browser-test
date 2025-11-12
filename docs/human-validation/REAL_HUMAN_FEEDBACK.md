@@ -17,7 +17,7 @@ The **real human feedback system** makes it practical for humans (you!) to provi
 ### 1. Run Evaluations with Human Validation Enabled
 
 ```javascript
-import { initHumanValidation, validateScreenshot } from 'ai-browser-test';
+import { initHumanValidation, validateScreenshot } from 'ai-visual-test';
 
 // Initialize human validation (no validator function needed - it queues for review)
 initHumanValidation({
@@ -158,7 +158,7 @@ Review this judgment? (y/n/q to quit): y
 
 ```javascript
 // In queeraoke test file
-import { initHumanValidation } from 'ai-browser-test';
+import { initHumanValidation } from 'ai-visual-test';
 
 // Initialize once
 initHumanValidation({

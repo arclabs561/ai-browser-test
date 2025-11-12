@@ -59,7 +59,7 @@ Implemented variable goals/prompts for games with:
 ### Basic Usage
 
 ```javascript
-import { generateGamePrompt, createGameGoal } from 'ai-browser-test';
+import { generateGamePrompt, createGameGoal } from 'ai-visual-test';
 
 // Simple string
 const prompt1 = generateGamePrompt('Is the game fun?', { gameState });

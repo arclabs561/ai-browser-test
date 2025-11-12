@@ -18,10 +18,10 @@
 npm pack --dry-run
 
 # Check published package info
-npm view ai-browser-test
+npm view ai-visual-test
 
 # Verify OIDC publisher
-npm view ai-browser-test --json | jq '.dist.publisher'
+npm view ai-visual-test --json | jq '.dist.publisher'
 ```
 
 ---
@@ -32,10 +32,10 @@ npm view ai-browser-test --json | jq '.dist.publisher'
 
 **Verified Evidence**:
 ```bash
-$ npm view ai-browser-test --json | jq '.time.modified'
+$ npm view ai-visual-test --json | jq '.time.modified'
 "2025-11-11T21:31:02.020Z"
 
-$ npm view ai-browser-test
+$ npm view ai-visual-test
 published 19 hours ago by GitHub Actions <npm-oidc-no-reply@github.com>
 ```
 
@@ -49,13 +49,13 @@ published 19 hours ago by GitHub Actions <npm-oidc-no-reply@github.com>
 **Validation**:
 ```bash
 # Verify OIDC publisher
-npm view ai-browser-test --json | jq '.dist.publisher'
+npm view ai-visual-test --json | jq '.dist.publisher'
 
 # Check package integrity
-npm view ai-browser-test dist.integrity
+npm view ai-visual-test dist.integrity
 
 # Verify tarball URL
-npm view ai-browser-test dist.tarball
+npm view ai-visual-test dist.tarball
 ```
 
 ### Workflow Configuration
@@ -76,13 +76,13 @@ npm view ai-browser-test dist.tarball
 2. Check "Trusted Publishers" section
 3. Should show:
    - **Organization/User**: `arclabs561`
-   - **Repository**: `ai-browser-test`
+   - **Repository**: `ai-visual-test`
    - **Workflow**: `publish.yml`
 
 **Automated Verification** (via npm CLI):
 ```bash
 # Check if package was published via OIDC
-npm view ai-browser-test --json | jq '.dist.publisher'
+npm view ai-visual-test --json | jq '.dist.publisher'
 
 # Expected output: "GitHub Actions <npm-oidc-no-reply@github.com>"
 ```
@@ -98,7 +98,7 @@ npm view ai-browser-test --json | jq '.dist.publisher'
 **Verified from npm registry**:
 ```json
 {
-  "name": "ai-browser-test",
+  "name": "ai-visual-test",
   "version": "0.3.1",
   "license": "MIT",
   "published": "2025-11-11T21:31:02.020Z",
@@ -110,7 +110,7 @@ npm view ai-browser-test --json | jq '.dist.publisher'
 
 **Validation**:
 ```bash
-npm view ai-browser-test --json | jq '{name, version, license, time: .time.modified, maintainers}'
+npm view ai-visual-test --json | jq '{name, version, license, time: .time.modified, maintainers}'
 ```
 
 ### Package Size (Verified)
@@ -340,7 +340,7 @@ $ npm pack --dry-run 2>&1 | grep "src/.*\.mjs" | wc -l
 ### Monitoring
 
 **Automated Monitoring**:
-1. ✅ **Package downloads**: `npm view ai-browser-test` (shows download stats)
+1. ✅ **Package downloads**: `npm view ai-visual-test` (shows download stats)
 2. ✅ **Security advisories**: `npm audit` (runs in CI workflow)
 3. ✅ **Dependency updates**: Dependabot configured (`.github/dependabot.yml`)
 4. ✅ **Workflow runs**: GitHub Actions dashboard
@@ -349,13 +349,13 @@ $ npm pack --dry-run 2>&1 | grep "src/.*\.mjs" | wc -l
 **Manual Monitoring Commands**:
 ```bash
 # Check package stats
-npm view ai-browser-test
+npm view ai-visual-test
 
 # Check for security issues
-npm audit ai-browser-test
+npm audit ai-visual-test
 
 # Verify package integrity
-npm view ai-browser-test dist.integrity
+npm view ai-visual-test dist.integrity
 ```
 
 ---
@@ -371,7 +371,7 @@ npm view ai-browser-test dist.integrity
 
 **Validation Command**:
 ```bash
-npm view ai-browser-test --json | jq '.dist.publisher'
+npm view ai-visual-test --json | jq '.dist.publisher'
 # Expected: "GitHub Actions <npm-oidc-no-reply@github.com>"
 ```
 
@@ -446,15 +446,15 @@ npm pack --dry-run 2>&1 | grep "test/"
 **Quick Validation**:
 ```bash
 # Verify package exists and is accessible
-npm view ai-browser-test version
+npm view ai-visual-test version
 # Output: 0.3.1 ✅
 
 # Check package integrity
-npm view ai-browser-test dist.integrity
+npm view ai-visual-test dist.integrity
 # Output: sha512-0I+URC4zwDxkgkKw62nJZ0c9ZXWD+c86NivYNVHQiWHHS6PqdfECIY2sVlxZzVwe9nNolcCsfhi7WBkrSxo10g== ✅
 
 # Verify OIDC publisher (check human-readable output)
-npm view ai-browser-test | grep "published.*by"
+npm view ai-visual-test | grep "published.*by"
 # Expected: "published X hours ago by GitHub Actions <npm-oidc-no-reply@github.com>" ✅
 
 # Test local package contents

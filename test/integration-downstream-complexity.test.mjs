@@ -96,7 +96,7 @@ describe('Downstream Complexity: Multi-Persona with BatchOptimizer', () => {
     
     // Simulate batch validation of screenshots for interactive applications
     // Create temporary test files or use batchValidate (will return disabled if no API key)
-    const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+    const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
     const screenshotPaths = experiences.map((exp, i) => join(tempDir, `test-screenshot-${i}.png`));
     
     // Create temp files if API is enabled (will throw FileError if files don't exist)
@@ -342,7 +342,7 @@ describe('Downstream Complexity: Full Integration Workflow', () => {
     assert.ok(formatted.length > 0);
     
     // Step 6: Batch validation for interactive applications
-    const tempDir = join(tmpdir(), `ai-browser-test-${Date.now()}`);
+    const tempDir = join(tmpdir(), `ai-visual-test-${Date.now()}`);
     const screenshotPaths = screenshots.length > 0
       ? screenshots.map((shot, i) => shot.path || join(tempDir, `test-${shot.timestamp || i}.png`))
       : [join(tempDir, 'test-screenshot.png')]; // Fallback if no screenshots

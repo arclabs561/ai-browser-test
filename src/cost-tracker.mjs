@@ -13,7 +13,7 @@ import { getCached, setCached } from './cache.mjs';
  */
 export class CostTracker {
   constructor(options = {}) {
-    this.storageKey = options.storageKey || 'ai-browser-test-costs';
+    this.storageKey = options.storageKey || 'ai-visual-test-costs';
     this.maxHistory = options.maxHistory || 1000;
     this.costs = this.loadCosts();
   }

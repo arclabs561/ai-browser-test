@@ -1,7 +1,7 @@
 /**
- * ai-browser-test
+ * ai-visual-test
  * 
- * Browser testing utilities using Vision Language Models (VLLM) for multi-modal validation.
+ * Visual testing utilities using Vision Language Models (VLLM) for multi-modal validation.
  * 
  * Supports:
  * - Browser/Playwright integration

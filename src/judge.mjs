@@ -562,8 +562,11 @@ export class VLLMJudge {
     }
 
     // Fallback: extract basic info from text
+    // Try to extract score from the full judgment text (including reasoning)
+    const extractedScore = this.extractScore(judgmentText);
+    
     return {
-      score: this.extractScore(judgmentText),
+      score: extractedScore,
       issues: this.extractIssues(judgmentText),
       assessment: this.extractAssessment(judgmentText),
       reasoning: judgmentText.substring(0, 500)
@@ -593,7 +596,16 @@ export class VLLMJudge {
       /\*\*score\*\*[:\s]*(\d+)/i,
       /##\s*score[:\s]*(\d+)/i,
       // Structured text: "Overall Score: 7 out of 10"
-      /overall\s*score[:\s]*(\d+)\s*(?:out\s*of|\/)\s*10/i
+      /overall\s*score[:\s]*(\d+)\s*(?:out\s*of|\/)\s*10/i,
+      // Standalone number at start (common when API returns just "10" or "9" as reasoning)
+      // Match: "10", "10.", "10 ", "10\n", etc.
+      /^\s*(\d{1,2})(?:\s|\.|$)/,
+      // Number followed by common words (e.g., "10 out of 10", "9/10")
+      /^(\d{1,2})\s*(?:out\s*of|\/)\s*10/i,
+      // "Rate from 1-10" response patterns
+      /rate[:\s]*(\d{1,2})\s*(?:out\s*of|\/)?\s*10/i,
+      // Very simple: just a number 0-10 at the start (for cases like "10" with nothing else)
+      /^(\d{1,2})$/
     ];
     
     for (const pattern of patterns) {

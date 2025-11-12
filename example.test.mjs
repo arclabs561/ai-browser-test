@@ -1,5 +1,5 @@
 /**
- * Example: Visual Testing with ai-browser-test
+ * Example: Visual Testing with ai-visual-test
  * 
  * This example demonstrates how to use the VLLM testing package
  * for comprehensive visual regression testing with Playwright.
@@ -14,7 +14,7 @@ import {
   aggregateTemporalNotes,
   formatNotesForPrompt,
   createConfig
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 
 // Configure VLLM (optional - auto-detects from env vars)
 const config = createConfig({

@@ -9,7 +9,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { ScoreTracker } from '../src/score-tracker.mjs';
 
-const TEST_BASELINE_DIR = join(tmpdir(), 'ai-browser-test-baseline-test');
+const TEST_BASELINE_DIR = join(tmpdir(), 'ai-visual-test-baseline-test');
 
 test.beforeEach(() => {
   // Clean up test baseline directory

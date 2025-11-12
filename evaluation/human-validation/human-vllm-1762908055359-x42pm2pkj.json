@@ -1,6 +1,6 @@
 {
   "id": "vllm-1762908055359-x42pm2pkj",
-  "screenshot": "/Users/arc/Documents/dev/ai-browser-test/evaluation/queeraoke-results/queeraoke-test-1762908043309.png",
+  "screenshot": "/Users/arc/Documents/dev/ai-visual-test/evaluation/queeraoke-results/queeraoke-test-1762908043309.png",
   "prompt": "PERSONA PERSPECTIVE: Accessibility Advocate\nGoals: accessibility. Concerns: keyboard navigation.\n\nFOCUS AREAS: accessibility, keyboard navigation\n\nRENDERED CODE ANALYSIS (DOM STRUCTURE):\n{}\n\nCRITICAL CSS VALIDATION (COMPUTED STYLES):\n{\n  \"body\": {\n    \"position\": \"static\",\n    \"top\": \"auto\",\n    \"bottom\": \"auto\",\n    \"left\": \"auto\",\n    \"right\": \"auto\",\n    \"width\": \"1264px\",\n    \"height\": \"682.438px\",\n    \"backgroundColor\": \"rgba(0, 0, 0, 0)\",\n    \"color\": \"rgb(0, 0, 0)\",\n    \"display\": \"block\",\n    \"visibility\": \"visible\",\n    \"zIndex\": \"auto\",\n    \"transform\": \"none\",\n    \"opacity\": \"1\"\n  }\n}\n\nGAME STATE (IF APPLICABLE):\n{\n  \"level\": 1,\n  \"score\": 100,\n  \"lives\": 3,\n  \"gameActive\": true\n}\n\nEVALUATION TASK:\nEvaluate this state from your persona's perspective. Consider:\n1. Visual appearance (from screenshot)\n2. Code correctness (from rendered code - check positioning, structure, styles)\n3. State consistency (does visual match code and game state?)\n4. Principles alignment (does it match design principles and product purpose?)\n\nProvide evaluation from your persona's perspective.",
   "humanScore": 0,
   "humanIssues": [

@@ -1,9 +1,9 @@
-# ai-browser-test
+# ai-visual-test
 
 Validate screenshots with AI instead of pixel-diffing. Understands what your UI actually means, not just whether pixels changed.
 
-[![GitHub](https://img.shields.io/github/license/arclabs561/ai-browser-test)](https://github.com/arclabs561/ai-browser-test)
-[![Node.js](https://img.shields.io/node/v/ai-browser-test)](https://nodejs.org/)
+[![GitHub](https://img.shields.io/github/license/arclabs561/ai-visual-test)](https://github.com/arclabs561/ai-visual-test)
+[![Node.js](https://img.shields.io/node/v/ai-visual-test)](https://nodejs.org/)
 
 ## Why this exists
 
@@ -14,7 +14,7 @@ Instead of asking "did pixels change?", it asks "does this payment screen look c
 ## Quick example
 
 ```javascript
-import { validateScreenshot } from 'ai-browser-test';
+import { validateScreenshot } from 'ai-visual-test';
 
 const result = await validateScreenshot(
   'payment-screen.png',
@@ -28,7 +28,7 @@ console.log(result.issues); // ['Missing error messages', 'Low contrast on submi
 ## Installation
 
 ```bash
-npm install ai-browser-test
+npm install ai-visual-test
 ```
 
 Set `GEMINI_API_KEY` or `OPENAI_API_KEY` in your environment. Works with Gemini (cheapest), OpenAI, or Claude. Auto-picks the cheapest available provider.
@@ -50,7 +50,7 @@ Set `GEMINI_API_KEY` or `OPENAI_API_KEY` in your environment. Works with Gemini 
 ## Basic usage
 
 ```javascript
-import { validateScreenshot } from 'ai-browser-test';
+import { validateScreenshot } from 'ai-visual-test';
 
 const result = await validateScreenshot(
   'screenshot.png',
@@ -70,7 +70,7 @@ if (result.score < 7) {
 
 ```javascript
 import { test } from '@playwright/test';
-import { validateScreenshot } from 'ai-browser-test';
+import { validateScreenshot } from 'ai-visual-test';
 
 test('payment screen is accessible', async ({ page }) => {
   await page.goto('/checkout');
@@ -90,7 +90,7 @@ test('payment screen is accessible', async ({ page }) => {
 Test from different user perspectives:
 
 ```javascript
-import { experiencePageAsPersona } from 'ai-browser-test';
+import { experiencePageAsPersona } from 'ai-visual-test';
 
 const experience = await experiencePageAsPersona(page, {
   name: 'Accessibility Advocate',

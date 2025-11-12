@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides performance benchmarks and cost comparisons for `ai-browser-test` across different providers and use cases.
+This document provides performance benchmarks and cost comparisons for `ai-visual-test` across different providers and use cases.
 
 ## Cost Comparison
 
@@ -73,7 +73,7 @@ const result = await validateScreenshot('screenshot.png', 'prompt', {
 ### 2. Use Batch Optimization
 
 ```javascript
-import { BatchOptimizer } from 'ai-browser-test';
+import { BatchOptimizer } from 'ai-visual-test';
 
 const optimizer = new BatchOptimizer({ maxConcurrency: 5 });
 const results = await optimizer.batchValidate(screenshots, prompt);
@@ -136,7 +136,7 @@ validateScreenshot('img.png', 'prompt', {});
 Use built-in cost tracking:
 
 ```javascript
-import { getCostStats, getCostTracker } from 'ai-browser-test';
+import { getCostStats, getCostTracker } from 'ai-visual-test';
 
 // Get statistics
 const stats = getCostStats();
@@ -188,7 +188,7 @@ console.log(`Projected cost: $${projection.projected.toFixed(2)}`);
 Set up cost monitoring:
 
 ```javascript
-import { getCostTracker } from 'ai-browser-test';
+import { getCostTracker } from 'ai-visual-test';
 
 const tracker = getCostTracker();
 const check = tracker.checkThreshold(10.00); // $10 threshold

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ai-browser-test API Documentation</title>
+  <title>ai-visual-test API Documentation</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -131,7 +131,7 @@
 <body>
   <div class="container">
     <header>
-      <h1>ai-browser-test</h1>
+      <h1>ai-visual-test</h1>
       <p class="subtitle">Vision Language Model (VLLM) Browser Testing & Validation</p>
     </header>
 
@@ -144,7 +144,7 @@
       
       <div class="example">
         <strong>Basic Usage:</strong>
-        <pre><code>import { validateScreenshot } from 'ai-browser-test';
+        <pre><code>import { validateScreenshot } from 'ai-visual-test';
 
 const result = await validateScreenshot(
   'screenshot.png',
@@ -159,7 +159,7 @@ const result = await validateScreenshot(
 
       <div class="example">
         <strong>With Goals (Recommended):</strong>
-        <pre><code>import { validateScreenshot, createGameGoal } from 'ai-browser-test';
+        <pre><code>import { validateScreenshot, createGameGoal } from 'ai-visual-test';
 
 const goal = createGameGoal('accessibility');
 const result = await validateScreenshot('screenshot.png', 'Evaluate', {
@@ -203,8 +203,8 @@ const result = await validateScreenshot('screenshot.png', 'Evaluate', {
     </section>
 
     <section class="meta-test">
-      <h3>🍾 Meta Test: Using ai-browser-test on Itself</h3>
-      <p>This documentation site is being validated by ai-browser-test itself using <strong>all available APIs</strong>:</p>
+      <h3>🍾 Meta Test: Using ai-visual-test on Itself</h3>
+      <p>This documentation site is being validated by ai-visual-test itself using <strong>all available APIs</strong>:</p>
       <ul style="margin: 1rem 0; padding-left: 2rem;">
         <li><code>validateScreenshot()</code> - Basic validation</li>
         <li><code>experiencePageAsPersona()</code> - Persona-based evaluation</li>
@@ -232,7 +232,7 @@ const result = await validateScreenshot('screenshot.png', 'Evaluate', {
           <h3>📖 API Reference</h3>
           <p>Auto-generated from code (JSDoc)</p>
         </a>
-        <a href="https://github.com/arclabs561/ai-browser-test" class="quick-link" target="_blank">
+        <a href="https://github.com/arclabs561/ai-visual-test" class="quick-link" target="_blank">
           <h3>📚 GitHub</h3>
           <p>Full source code and issues</p>
         </a>
@@ -253,7 +253,7 @@ const result = await validateScreenshot('screenshot.png', 'Evaluate', {
 
     <section class="api-section">
       <h2>Installation</h2>
-      <pre><code>npm install ai-browser-test</code></pre>
+      <pre><code>npm install ai-visual-test</code></pre>
       
       <h3 style="margin-top: 2rem;">Environment Setup</h3>
       <pre><code># .env file
@@ -266,7 +266,7 @@ ANTHROPIC_API_KEY=your-key-here</code></pre>
   </div>
 
   <script type="module">
-    // Meta test: Use ai-browser-test to validate this page
+    // Meta test: Use ai-visual-test to validate this page
     async function runMetaTest() {
       const resultEl = document.getElementById('meta-test-result');
       

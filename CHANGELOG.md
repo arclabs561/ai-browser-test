@@ -1,6 +1,15 @@
 # Changelog
 
-All notable changes to ai-browser-test will be documented in this file.
+All notable changes to ai-visual-test will be documented in this file.
+
+## [0.4.0] - 2025-01-27
+
+### Changed
+- **Package Rename**: Renamed from `ai-browser-test` to `ai-visual-test` for better clarity
+  - Package name now accurately reflects focus on visual/screenshot testing
+  - All imports updated: `import { ... } from 'ai-visual-test'`
+  - Repository URL updated to `arclabs561/ai-visual-test`
+  - Breaking change: Users must update imports and package.json
 
 ## [0.3.1] - 2025-11-11
 
@@ -105,7 +114,7 @@ All notable changes to ai-browser-test will be documented in this file.
 - **Logger Utility**
   - `src/logger.mjs` - Conditional logging utility with debug mode support
   - Logger exports: `enableDebug`, `disableDebug`, `isDebugEnabled`, `warn`, `log`, `error`
-  - Logger sub-path export: `ai-browser-test/logger`
+  - Logger sub-path export: `ai-visual-test/logger`
 
 - **Type Guards and Validation**
   - Comprehensive type guards: `isObject`, `isString`, `isNumber`, `isArray`, `isFunction`, `isPromise`
@@ -184,12 +193,12 @@ All notable changes to ai-browser-test will be documented in this file.
 ## [0.1.1] - 2025-01-27
 
 ### Changed
-- Renamed package from `ai-screenshot-test` to `ai-browser-test`
+- Renamed package from `ai-screenshot-test` to `ai-visual-test`
 - Updated description to reflect browser/Playwright integration and multi-modal validation
 - Added persona-based experience testing with human-interpreted time scales
 - Updated keywords to better reflect capabilities
-- Renamed directory to match npm package name (`ai-browser-test`)
-- Updated git remote to `arclabs561/ai-browser-test`
+- Renamed directory to match npm package name (`ai-visual-test`)
+- Updated git remote to `arclabs561/ai-visual-test`
 - Fixed all temporal test edge cases (null safety)
 
 ### Added

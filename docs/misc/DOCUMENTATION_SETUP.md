@@ -98,10 +98,10 @@ The generated docs are embedded in `docs-site/api-reference.html` which:
 
 ## Meta-Testing
 
-The documentation site uses ai-browser-test to test itself:
+The documentation site uses ai-visual-test to test itself:
 
 ```bash
-# Test the docs site with ai-browser-test
+# Test the docs site with ai-visual-test
 node evaluation/meta-documentation-test.mjs
 ```
 

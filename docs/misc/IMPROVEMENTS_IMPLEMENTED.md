@@ -53,7 +53,7 @@ renderedCode: renderedCode ? {
 
 **Usage**:
 ```javascript
-import { trackPropagation } from 'ai-browser-test';
+import { trackPropagation } from 'ai-visual-test';
 
 // Track at each stage
 trackPropagation('capture', { renderedCode }, 'Captured HTML/CSS');
@@ -93,7 +93,7 @@ trackPropagation('trace', { renderedCode }, 'Added to trace');
 
 **Usage**:
 ```javascript
-import { checkCrossModalConsistency, validateExperienceConsistency } from 'ai-browser-test';
+import { checkCrossModalConsistency, validateExperienceConsistency } from 'ai-visual-test';
 
 // Check consistency
 const consistency = checkCrossModalConsistency({
@@ -186,7 +186,7 @@ export {
 ### Basic Usage
 
 ```javascript
-import { experiencePageAsPersona, trackPropagation, checkCrossModalConsistency } from 'ai-browser-test';
+import { experiencePageAsPersona, trackPropagation, checkCrossModalConsistency } from 'ai-visual-test';
 
 // Experience page (now includes propagation tracking and consistency checking)
 const experience = await experiencePageAsPersona(page, persona, {
@@ -205,7 +205,7 @@ trackPropagation('custom-stage', { renderedCode: experience.renderedCode });
 ### Advanced Usage
 
 ```javascript
-import { getPropagationTracker, validateExperienceConsistency } from 'ai-browser-test';
+import { getPropagationTracker, validateExperienceConsistency } from 'ai-visual-test';
 
 // Get propagation tracker
 const tracker = getPropagationTracker({ logLevel: 'debug' });

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document identifies **critical missing research** that should be incorporated into `ai-browser-test` based on comprehensive analysis of 2024-2025 papers. Several important papers and methodologies were not previously documented.
+This document identifies **critical missing research** that should be incorporated into `ai-visual-test` based on comprehensive analysis of 2024-2025 papers. Several important papers and methodologies were not previously documented.
 
 ## Critical Missing Papers
 
@@ -20,7 +20,7 @@ This document identifies **critical missing research** that should be incorporat
 - Target Element Selector uses visual instructions
 - No fine-tuning required - uses pre-trained LVLM capabilities
 
-**Relevance to ai-browser-test:**
+**Relevance to ai-visual-test:**
 - Our screenshot validation could be extended with element selection
 - Text input generation could enhance multi-modal validation
 - Visual Q&A approach could improve prompt construction
@@ -41,7 +41,7 @@ This document identifies **critical missing research** that should be incorporat
 - Static analysis + runtime UI hierarchy extraction
 - Effective for mobile and web UI testing
 
-**Relevance to ai-browser-test:**
+**Relevance to ai-visual-test:**
 - Could enhance our temporal screenshot capture
 - Exploration strategies could improve test coverage
 - Mobile testing capabilities could be added
@@ -62,7 +62,7 @@ This document identifies **critical missing research** that should be incorporat
 - Need for better benchmarks and evaluation
 - Integration of multiple AI techniques
 
-**Relevance to ai-browser-test:**
+**Relevance to ai-visual-test:**
 - Validates our approach aligns with trends
 - Identifies areas for improvement
 - Provides comprehensive context
@@ -83,7 +83,7 @@ This document identifies **critical missing research** that should be incorporat
 - Useful for narrowing options before formal testing
 - Some dimensions show good alignment, others diverge
 
-**Relevance to ai-browser-test:**
+**Relevance to ai-visual-test:**
 - Validates our UI evaluation approach
 - Suggests dimension-specific analysis needed
 - Human alignment calibration important
@@ -104,7 +104,7 @@ This document identifies **critical missing research** that should be incorporat
 - Handles diverse interaction modalities
 - Generalizes across different action spaces
 
-**Relevance to ai-browser-test:**
+**Relevance to ai-visual-test:**
 - Validates vision-first approach
 - Visual grounding techniques could improve our validation
 - Robustness to layout changes aligns with our goals
@@ -125,7 +125,7 @@ This document identifies **critical missing research** that should be incorporat
 - Interaction graph with screenshots and actions
 - Validates full front-end workflow
 
-**Relevance to ai-browser-test:**
+**Relevance to ai-visual-test:**
 - State discovery aligns with our temporal analysis
 - Interaction graphs could enhance our workflow
 - Full front-end workflow evaluation matches our multi-modal approach
@@ -146,7 +146,7 @@ This document identifies **critical missing research** that should be incorporat
 - Trajectory-based retrieval
 - State maintenance via multimodal queue
 
-**Relevance to ai-browser-test:**
+**Relevance to ai-visual-test:**
 - SoM techniques could improve our element identification
 - Trajectory summaries align with our temporal aggregation
 - State maintenance relevant to our context compression
@@ -167,7 +167,7 @@ This document identifies **critical missing research** that should be incorporat
 - Accurate interaction logic understanding
 - Cross-platform testing
 
-**Relevance to ai-browser-test:**
+**Relevance to ai-visual-test:**
 - Multimodal approach aligns with our design
 - Cross-platform capabilities could be added
 - Test generation could be enhanced
@@ -188,7 +188,7 @@ This document identifies **critical missing research** that should be incorporat
 - Extensible for multiple testing angles
 - Persona-based prompt mutation
 
-**Relevance to ai-browser-test:**
+**Relevance to ai-visual-test:**
 - Our persona-based testing aligns with this research
 - Automated persona generation could be added
 - Prompt mutation could enhance our evaluation
@@ -209,7 +209,7 @@ This document identifies **critical missing research** that should be incorporat
 - Dynamic content handling
 - Reduced brittleness
 
-**Relevance to ai-browser-test:**
+**Relevance to ai-visual-test:**
 - Vision-driven approach aligns
 - Mobile testing capabilities could be added
 - Dynamic content handling already addressed
@@ -379,7 +379,7 @@ This document identifies **critical missing research** that should be incorporat
 
 ## Conclusion
 
-While `ai-browser-test` is well-aligned with research trends, several **critical papers and methodologies** were missing from our documentation:
+While `ai-visual-test` is well-aligned with research trends, several **critical papers and methodologies** were missing from our documentation:
 
 1. **VETL** - First LVLM-driven web testing (should be core reference)
 2. **MLLM as a UI Judge** - Directly relevant UI evaluation paper

@@ -1,5 +1,5 @@
 /**
- * TypeScript definitions for ai-browser-test
+ * TypeScript definitions for ai-visual-test
  * 
  * Provides type safety and IntelliSense support for the package.
  */

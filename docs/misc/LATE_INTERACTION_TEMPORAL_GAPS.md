@@ -2,7 +2,7 @@
 
 ## Overview
 
-Late interaction in `ai-browser-test` currently has significant gaps when dealing with temporal sequences, experience data, and multi-step reasoning. This document identifies these gaps and outlines what needs to be addressed.
+Late interaction in `ai-visual-test` currently has significant gaps when dealing with temporal sequences, experience data, and multi-step reasoning. This document identifies these gaps and outlines what needs to be addressed.
 
 ## Current State
 

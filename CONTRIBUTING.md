@@ -1,13 +1,13 @@
 # Contributing
 
-Thanks for contributing to ai-browser-test!
+Thanks for contributing to ai-visual-test!
 
 ## Development Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/arclabs561/ai-browser-test.git
-cd ai-browser-test
+git clone https://github.com/arclabs561/ai-visual-test.git
+cd ai-visual-test
 
 # Install dependencies (if any)
 npm install
@@ -16,7 +16,7 @@ npm install
 ## Project Structure
 
 ```
-ai-browser-test/
+ai-visual-test/
 ├── src/
 │   ├── index.mjs          # Main exports
 │   ├── judge.mjs          # VLLM judge

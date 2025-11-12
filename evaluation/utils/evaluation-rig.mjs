@@ -2,7 +2,7 @@
 /**
  * Comprehensive Evaluation Rig
  * 
- * Runs ai-browser-test against multiple datasets with standard metrics.
+ * Runs ai-visual-test against multiple datasets with standard metrics.
  * Compares results against ground truth and other methods.
  */
 

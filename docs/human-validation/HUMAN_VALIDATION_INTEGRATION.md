@@ -16,7 +16,7 @@ The human validation system is now **cleverly integrated** into the evaluation p
 **Option A: Queue for Review (Recommended)**
 
 ```javascript
-import { initHumanValidation } from 'ai-browser-test';
+import { initHumanValidation } from 'ai-visual-test';
 
 // Initialize without validator function - judgments will be queued for review
 const manager = initHumanValidation({
@@ -33,7 +33,7 @@ const manager = initHumanValidation({
 **Option B: Custom Validator Function**
 
 ```javascript
-import { initHumanValidation } from 'ai-browser-test';
+import { initHumanValidation } from 'ai-visual-test';
 
 // Initialize with custom human validator function
 const manager = initHumanValidation({
@@ -66,7 +66,7 @@ node evaluation/human-validation/real-human-feedback.mjs
 This opens screenshots and VLLM judgments for you to review interactively.
 
 ```javascript
-import { validateScreenshot } from 'ai-browser-test';
+import { validateScreenshot } from 'ai-visual-test';
 
 // Human validation is automatically collected (non-blocking)
 const result = await validateScreenshot(
@@ -87,7 +87,7 @@ console.log(result.calibrated); // true if calibration was applied
 ### 3. Check Calibration Status
 
 ```javascript
-import { getHumanValidationManager } from 'ai-browser-test';
+import { getHumanValidationManager } from 'ai-visual-test';
 
 const manager = getHumanValidationManager();
 const status = manager.getCalibrationStatus();
@@ -149,7 +149,7 @@ if (result.success) {
 ### With Batching
 
 ```javascript
-import { LatencyAwareBatchOptimizer } from 'ai-browser-test';
+import { LatencyAwareBatchOptimizer } from 'ai-visual-test';
 
 const optimizer = new LatencyAwareBatchOptimizer({
   maxConcurrency: 5,
@@ -170,7 +170,7 @@ const result = await optimizer.addRequest(
 ### With Temporal Aggregation
 
 ```javascript
-import { experiencePageAsPersona, aggregateMultiScale } from 'ai-browser-test';
+import { experiencePageAsPersona, aggregateMultiScale } from 'ai-visual-test';
 
 const experience = await experiencePageAsPersona(page, persona, {
   enableHumanValidation: true // Collected for each evaluation
@@ -277,7 +277,7 @@ import {
   initHumanValidation, 
   validateScreenshot,
   getHumanValidationManager 
-} from 'ai-browser-test';
+} from 'ai-visual-test';
 
 // 1. Initialize human validation
 const manager = initHumanValidation({

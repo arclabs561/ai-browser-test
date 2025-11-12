@@ -1,6 +1,6 @@
 {
   "id": "vllm-1762908066051-kjx2hxrjj",
-  "screenshot": "/Users/arc/Documents/dev/ai-browser-test/evaluation/queeraoke-results/queeraoke-test-1762908043309.png",
+  "screenshot": "/Users/arc/Documents/dev/ai-visual-test/evaluation/queeraoke-results/queeraoke-test-1762908043309.png",
   "prompt": "Evaluate this gameplay screenshot considering the temporal context:\nAggregated 1 temporal windows from gameplay notes. Score progression: 100 → 100 (0). Temporal coherence: 100% (high).\n\nCheck for:\n- Gameplay quality\n- Accessibility\n- Visual design\n- User experience",
   "humanScore": 0,
   "humanIssues": [

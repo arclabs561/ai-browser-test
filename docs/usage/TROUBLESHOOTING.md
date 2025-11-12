@@ -46,11 +46,11 @@
 
 ### Import Errors
 
-**Error**: `Cannot find module 'ai-browser-test'`
+**Error**: `Cannot find module 'ai-visual-test'`
 
 **Solutions**:
-1. Install package: `npm install ai-browser-test`
-2. For local dev: `npm link ai-browser-test`
+1. Install package: `npm install ai-visual-test`
+2. For local dev: `npm link ai-visual-test`
 3. Check `package.json` includes the dependency
 4. Verify Node.js version >= 18.0.0
 
@@ -80,7 +80,7 @@
 Enable verbose logging:
 
 ```javascript
-import { enableDebug } from 'ai-browser-test';
+import { enableDebug } from 'ai-visual-test';
 
 enableDebug();
 // Now all operations log detailed information
@@ -90,7 +90,7 @@ enableDebug();
 
 1. Check [README.md](../README.md) for usage examples
 2. Review [example.test.mjs](../example.test.mjs)
-3. Check GitHub issues: https://github.com/arclabs561/ai-browser-test/issues
+3. Check GitHub issues: https://github.com/arclabs561/ai-visual-test/issues
 4. Review error messages - they include helpful context
 
 ## Performance Tips

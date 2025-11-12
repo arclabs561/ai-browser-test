@@ -123,7 +123,7 @@ All new functions are exported from `src/index.mjs`:
 
 ### Adaptive Window Sizing
 ```javascript
-import { aggregateTemporalNotesAdaptive } from 'ai-browser-test';
+import { aggregateTemporalNotesAdaptive } from 'ai-visual-test';
 
 const aggregated = aggregateTemporalNotesAdaptive(notes, {
   adaptive: true // Automatically calculates optimal window
@@ -132,7 +132,7 @@ const aggregated = aggregateTemporalNotesAdaptive(notes, {
 
 ### Enhanced Personas
 ```javascript
-import { createEnhancedPersona, experiencePageWithEnhancedPersona } from 'ai-browser-test';
+import { createEnhancedPersona, experiencePageWithEnhancedPersona } from 'ai-visual-test';
 
 const persona = createEnhancedPersona(
   { name: 'User', device: 'desktop', goals: ['efficiency'] },
@@ -149,7 +149,7 @@ console.log(experience.consistency); // { promptToLine, lineToLine, overall }
 
 ### Structured Fusion
 ```javascript
-import { buildStructuredFusionPrompt, calculateModalityWeights } from 'ai-browser-test';
+import { buildStructuredFusionPrompt, calculateModalityWeights } from 'ai-visual-test';
 
 const weights = calculateModalityWeights(modalities, 'Evaluate visual design');
 const prompt = buildStructuredFusionPrompt('Evaluate UI', modalities);

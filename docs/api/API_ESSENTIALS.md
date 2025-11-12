@@ -4,7 +4,7 @@
 
 ### Basic Validation
 ```javascript
-import { validateScreenshot } from 'ai-browser-test';
+import { validateScreenshot } from 'ai-visual-test';
 
 const result = await validateScreenshot('screenshot.png', 'Evaluate this page');
 // result.score: 0-10
@@ -15,7 +15,7 @@ const result = await validateScreenshot('screenshot.png', 'Evaluate this page');
 
 ### With Goals (Recommended)
 ```javascript
-import { validateScreenshot, createGameGoal } from 'ai-browser-test';
+import { validateScreenshot, createGameGoal } from 'ai-visual-test';
 
 const goal = createGameGoal('accessibility');
 const result = await validateScreenshot('screenshot.png', 'Evaluate', {
@@ -25,7 +25,7 @@ const result = await validateScreenshot('screenshot.png', 'Evaluate', {
 
 ### High-Level Convenience Functions
 ```javascript
-import { testGameplay, testBrowserExperience, validateWithGoals } from 'ai-browser-test';
+import { testGameplay, testBrowserExperience, validateWithGoals } from 'ai-visual-test';
 
 // Gameplay testing
 const gameplay = await testGameplay(page, {
@@ -50,7 +50,7 @@ const validation = await validateWithGoals('screenshot.png', {
 
 All functions throw `ValidationError` for invalid inputs:
 ```javascript
-import { ValidationError } from 'ai-browser-test';
+import { ValidationError } from 'ai-visual-test';
 
 try {
   await validateScreenshot('missing.png', 'prompt');
@@ -172,7 +172,7 @@ const gameplay = await testGameplay(page, { url: '...' });
 
 ### Queeraoke Pattern
 ```javascript
-import { testGameplay, validateWithGoals } from 'ai-browser-test';
+import { testGameplay, validateWithGoals } from 'ai-visual-test';
 
 const gameplay = await testGameplay(page, {
   url: 'https://game.example.com',
@@ -193,7 +193,7 @@ const validation = await validateWithGoals(
 
 ### Multi-Perspective
 ```javascript
-import { experiencePageWithPersonas, validateScreenshot } from 'ai-browser-test';
+import { experiencePageWithPersonas, validateScreenshot } from 'ai-visual-test';
 
 const experiences = await experiencePageWithPersonas(page, [
   { name: 'Gamer', goals: ['fun'] },
@@ -217,7 +217,7 @@ CLAUDE_API_KEY=your-key
 
 Or set programmatically:
 ```javascript
-import { setConfig } from 'ai-browser-test';
+import { setConfig } from 'ai-visual-test';
 
 setConfig({
   provider: 'gemini',

@@ -2,12 +2,12 @@
 /**
  * Meta Documentation Test
  * 
- * Uses ai-browser-test to test and document itself.
+ * Uses ai-visual-test to test and document itself.
  * "Drink champagne / dog food" - use our own tool on itself.
  * 
  * This script:
  * 1. Captures screenshots of the documentation site
- * 2. Validates them using ai-browser-test
+ * 2. Validates them using ai-visual-test
  * 3. Generates a report showing how well the docs score
  * 4. Creates a meta-documentation page with live results
  */
@@ -32,7 +32,7 @@ const SCREENSHOTS_DIR = join(process.cwd(), 'evaluation', 'screenshots', 'meta-d
  * Test the documentation site itself
  */
 async function testDocumentationSite() {
-  console.log('🍾 Meta Test: Using ai-browser-test on itself\n');
+  console.log('🍾 Meta Test: Using ai-visual-test on itself\n');
   console.log('='.repeat(60));
 
   const browser = await chromium.launch({ headless: true });
@@ -126,7 +126,7 @@ async function testDocumentationSite() {
     
     const validation3 = await validateScreenshot(
       screenshot3,
-      'Evaluate this meta-test section that shows ai-browser-test testing itself. Check: Does it clearly demonstrate the tool? Is the concept well-explained?',
+      'Evaluate this meta-test section that shows ai-visual-test testing itself. Check: Does it clearly demonstrate the tool? Is the concept well-explained?',
       {
         testType: 'meta-documentation',
         viewport: { width: 1280, height: 720 }
@@ -266,7 +266,7 @@ function generateHTMLReport(results, timestamp) {
 <body>
   <div class="header">
     <h1>🍾 Meta Documentation Test Results</h1>
-    <p>ai-browser-test testing itself - "Drink champagne / dog food"</p>
+    <p>ai-visual-test testing itself - "Drink champagne / dog food"</p>
     <p><small>Generated: ${new Date(results.timestamp).toLocaleString()}</small></p>
   </div>
 

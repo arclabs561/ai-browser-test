@@ -3,7 +3,7 @@
   "entryPoints": ["./src/index.mjs"],
   "entryPointStrategy": "resolve",
   "out": "./docs-generated",
-  "name": "ai-browser-test",
+  "name": "ai-visual-test",
   "readme": "./README.md",
   "includeVersion": true,
   "excludePrivate": true,

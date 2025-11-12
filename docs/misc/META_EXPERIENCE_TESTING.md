@@ -1,8 +1,8 @@
-# Meta Experience Testing: Using ai-browser-test on Itself
+# Meta Experience Testing: Using ai-visual-test on Itself
 
 ## Overview
 
-The documentation site uses **all of ai-browser-test's capabilities** to test and validate itself. This is the ultimate "drink champagne / dog food" approach - comprehensively using our own tool on our own documentation.
+The documentation site uses **all of ai-visual-test's capabilities** to test and validate itself. This is the ultimate "drink champagne / dog food" approach - comprehensively using our own tool on our own documentation.
 
 ## Comprehensive Meta Test
 
