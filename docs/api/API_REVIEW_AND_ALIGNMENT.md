@@ -104,7 +104,7 @@ This document provides a comprehensive review of the API based on:
 - ✅ Clear categories (Core, Browser, Temporal, Game, Batching, etc.)
 - ✅ Consistent naming (camelCase functions, PascalCase classes)
 - ✅ Options pattern (functions accept options objects)
-- ✅ Sub-path exports (modular imports)
+- ✅ All exports from main entry point (`import { ... } from 'ai-visual-test'`)
 
 **Issues:**
 - ⚠️ Large number of exports (30+) - could be overwhelming
@@ -353,8 +353,8 @@ const result = await testGameplay(page, {
    // All validation functions return same shape
    interface ValidationResult {
      score: number | null; // 0-10, property always exists but value may be null
-     issues: string[]; // Always array
-     reasoning: string; // Always present
+     issues: string[]; // Property always exists, array may be empty
+     reasoning: string; // Always present with a value
      assessment: string | null; // Property always exists but value may be null
      // ... other fields
    }

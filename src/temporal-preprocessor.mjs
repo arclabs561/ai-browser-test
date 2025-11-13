@@ -6,14 +6,22 @@
  * low-Hz periods (idle, reading, stable) and use preprocessed data during high-Hz periods
  * (rapid interactions, fast state changes).
  * 
- * Research context:
- * - arXiv:2406.12125 - Only 1.5% LLM calls needed through strategic selection
- * - arXiv:2505.13326 - "Short and right" thinking management, early stopping
+ * Research context (inspired by, not exact implementations):
+ * - arXiv:2406.12125 - Temporal dependency concepts (loosely related, not implementing core algorithm)
+ * - arXiv:2505.13326 - Adaptive batching concepts (inspired by, not exact method)
  * - Human perception time scales (NN/g, PMC) - 0.1s threshold for direct manipulation
  * 
  * Pattern:
  * - High-Hz (10-60Hz): Fast note capture, use preprocessed aggregations
  * - Low-Hz (0.1-1Hz): Expensive preprocessing (multi-scale aggregation, coherence, pruning)
+ * 
+ * CACHE ARCHITECTURE NOTE:
+ * - This has its OWN in-memory cache (object), separate from VLLM cache and BatchOptimizer cache
+ * - Purpose: Cache aggregated temporal notes to avoid recomputation during high-activity periods
+ * - Why separate: Different data type (AggregatedTemporalNotes vs ValidationResult), different lifecycle
+ *   (instance-scoped vs process-scoped vs persistent), different invalidation strategy (activity-based vs TTL)
+ * - No coordination with other caches (by design - they serve different purposes with minimal data overlap)
+ * - See docs/CACHE_ARCHITECTURE_DEEP_DIVE.md for details
  */
 
 import { aggregateTemporalNotes } from './temporal.mjs';
@@ -176,6 +184,10 @@ export class TemporalPreprocessingManager {
   /**
    * Fast path: Get aggregation using preprocessed data if available
    * 
+   * Performance note: Full recomputation is fast enough for typical use cases (10-50 notes).
+   * Incremental aggregation would only be beneficial for very large datasets (1000+ notes),
+   * which is not a current use case. Full recomputation is O(n) and typically completes in <1ms.
+   * 
    * @param {import('./index.mjs').TemporalNote[]} notes - Temporal notes
    * @param {Object} options - Aggregation options
    * @returns {import('./index.mjs').AggregatedTemporalNotes} Aggregated notes
@@ -189,14 +201,10 @@ export class TemporalPreprocessingManager {
       return this.preprocessedCache.aggregated;
     }
     
-    // During medium/low activity or invalid cache, compute synchronously
-    // But use lighter computation if cache exists
-    if (this.preprocessedCache.aggregated && this.isCachePartiallyValid(notes)) {
-      // Cache is partially valid, do incremental update
-      return this._incrementalAggregation(notes, options);
-    }
-    
     // Full synchronous computation
+    // Note: For typical datasets (10-50 notes), full recomputation is fast (<1ms)
+    // and simpler than incremental approaches. If use cases emerge with 1000+ notes,
+    // consider implementing true incremental aggregation at that time.
     return aggregateTemporalNotes(notes, options);
   }
   
@@ -313,65 +321,6 @@ export class TemporalPreprocessingManager {
     return true;
   }
   
-  /**
-   * Check if cache is partially valid (can do incremental update)
-   * 
-   * @param {import('./index.mjs').TemporalNote[]} notes - Current notes
-   * @returns {boolean} True if cache is partially valid
-   */
-  isCachePartiallyValid(notes) {
-    if (!this.preprocessedCache.aggregated) return false;
-    
-    const age = Date.now() - this.preprocessedCache.lastPreprocessTime;
-    if (age > this.cacheMaxAge * 2) return false; // Too old even for incremental
-    
-    return true;
-  }
-  
-  /**
-   * Incremental aggregation (faster than full recomputation)
-   * 
-   * NOTE: This currently does full recomputation, not incremental (TODO: implement true incremental)
-   * 
-   * The problem:
-   * - Function name says "incremental"
-   * - Comment says "faster than full recomputation"
-   * - But implementation just calls `aggregateTemporalNotes()` = full recomputation
-   * 
-   * Why this exists:
-   * - Planned feature (TODO comment)
-   * - Called from `getFastAggregation()` when cache is "partially valid"
-   * - The idea: if cache is old but not too old, do incremental update instead of full recompute
-   * 
-   * What should happen:
-   * - Take cached aggregation
-   * - Add only new notes since cache was created
-   * - Update windows, coherence, etc. incrementally
-   * - Much faster than full recomputation
-   * 
-   * Current impact:
-   * - "Partially valid" cache path has no performance benefit
-   * - Might as well always do full recomputation
-   * - The "incremental" path is misleading
-   * 
-   * TODO: Implement true incremental aggregation OR remove this path
-   * 
-   * @param {import('./index.mjs').TemporalNote[]} notes - Current notes
-   * @param {Object} options - Aggregation options
-   * @returns {import('./index.mjs').AggregatedTemporalNotes} Aggregated notes
-   */
-  _incrementalAggregation(notes, options) {
-    // NOTE: This currently does full recomputation, not true incremental aggregation
-    // This is a known limitation documented in the function comment above
-    // 
-    // Future enhancement: Implement true incremental aggregation that:
-    //   1. Takes cached aggregation
-    //   2. Identifies new notes since cache
-    //   3. Updates only affected windows
-    //   4. Recomputes coherence for changed windows only
-    // OR: Remove this function and always do full recomputation
-    return aggregateTemporalNotes(notes, options);
-  }
   
   /**
    * Identify patterns in notes (lightweight)

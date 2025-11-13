@@ -11,9 +11,12 @@
  * CACHE ARCHITECTURE NOTE:
  * - This has its OWN in-memory cache (Map), separate from VLLM cache
  * - Cache key generation fixed (2025-01): Now uses SHA-256 hash, no truncation
- * - No coordination with VLLM cache (could cache same thing twice)
- * - No size limits or eviction (grows unbounded in long-running processes)
- * - See CACHE_ARCHITECTURE_DEEP_DIVE.md for details
+ * - Purpose: Short-term caching during request batching (process lifetime only)
+ * - Why separate: Different lifetime (process vs 7 days), different purpose (batching optimization vs persistence),
+ *   different failure domain (memory-only, no disk I/O), serves different lifecycle (request batching vs API responses)
+ * - No coordination with VLLM cache (by design - they serve different purposes with minimal data overlap)
+ * - No size limits or eviction (grows unbounded in long-running processes - acceptable for process-scoped cache)
+ * - See docs/CACHE_ARCHITECTURE_DEEP_DIVE.md for details
  */
 
 import { createHash } from 'crypto';

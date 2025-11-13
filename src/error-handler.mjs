@@ -10,8 +10,18 @@ import { error } from './logger.mjs';
 /**
  * Initialize global error handlers
  * 
+ * **Opt-in**: This function is exported but not automatically called.
+ * Users must explicitly call `initErrorHandlers()` if they want global
+ * error handling for unhandled rejections and uncaught exceptions.
+ * 
  * Should be called early in application startup.
  * Only call once per process.
+ * 
+ * @example
+ * ```javascript
+ * import { initErrorHandlers } from 'ai-visual-test';
+ * initErrorHandlers(); // Opt-in to global error handling
+ * ```
  */
 export function initErrorHandlers() {
   // Handle unhandled promise rejections
@@ -39,9 +49,10 @@ export function initErrorHandlers() {
       name: err.name
     });
     
-    // Uncaught exceptions are usually fatal
-    // Exit process after logging (let process manager restart)
-    process.exit(1);
+    // NOTE: Libraries should not call process.exit()
+    // Let the application decide how to handle uncaught exceptions.
+    // Users can add their own process.exit(1) if needed, or use a process manager
+    // that handles restarts automatically.
   });
   
   // Handle warnings

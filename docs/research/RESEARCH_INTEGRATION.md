@@ -9,16 +9,16 @@ This document tracks research paper references and their integration into the co
 ### 1. Temporal Decision-Making
 
 **Papers:**
-- **Efficient Sequential Decision Making** (arXiv:2406.12125)
-- **Human Time Perception** (PMC research)
-- **Powers of 10: Time Scales in UX** (NN/g)
+- **Efficient Sequential Decision Making** (arXiv:2406.12125) - *Loosely related*: Uses temporal dependency concepts, not the core online model selection algorithm
+- **Human Time Perception** (PMC research) - *Inspired by*: Human perception time scales
+- **Powers of 10: Time Scales in UX** (NN/g) - *Inspired by*: Multi-scale time windows
 
 **Implementation:**
-- `src/temporal-decision.mjs` - Multi-scale temporal aggregation
+- `src/temporal-decision.mjs` - Multi-scale temporal aggregation (inspired by temporal aspects)
 - `src/temporal-constants.mjs` - Research-based time scales
-- `src/temporal-batch-optimizer.mjs` - Sequential decision context
+- `src/temporal-batch-optimizer.mjs` - Sequential decision context (loosely related to sequential decision concepts)
 
-**Status:** ✅ Integrated with citations
+**Status:** ✅ Integrated with citations (clarified as "inspired by" / "loosely related" where appropriate)
 
 ### 2. Explicit Rubrics
 

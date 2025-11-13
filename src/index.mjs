@@ -19,16 +19,6 @@ loadEnv();
 
 import { VLLMJudge, validateScreenshot as _validateScreenshot } from './judge.mjs';
 
-// Initialize global error handlers (only in Node.js environment)
-// Use dynamic import to avoid top-level await (compatibility)
-if (typeof process !== 'undefined' && process.on) {
-  import('./error-handler.mjs')
-    .then(({ initErrorHandlers }) => initErrorHandlers())
-    .catch(() => {
-      // Silently fail if error handler can't be loaded (e.g., in browser)
-    });
-}
-
 export { VLLMJudge, _validateScreenshot as validateScreenshot };
 
 /**
@@ -302,5 +292,24 @@ export {
   validateWithRubric,
   BatchValidator
 } from './validators/index.mjs';
+
+// Programmatic validators (fast, deterministic)
+export {
+  getContrastRatio,
+  checkElementContrast,
+  checkAllTextContrast,
+  checkKeyboardNavigation,
+  validateStateProgrammatic,
+  validateElementPosition
+} from './validators/index.mjs';
+
+// Hybrid validators (programmatic + VLLM)
+export {
+  validateAccessibilityHybrid,
+  validateStateHybrid,
+  validateWithProgrammaticContext
+} from './validators/index.mjs';
+
 export { StateMismatchError } from './errors.mjs';
+export { initErrorHandlers } from './error-handler.mjs';
 

@@ -35,13 +35,14 @@ Set `GEMINI_API_KEY` or `OPENAI_API_KEY` in your environment. Works with Gemini 
 
 ## What it's good for
 
-- **Semantic validation** - Understands UI meaning, not just pixels
+- **Semantic validation** - Understands UI meaning, not just pixels (VLLM-based)
 - **Dynamic content** - Handles feeds, timestamps, user data gracefully
-- **Accessibility checks** - AI can spot contrast issues, missing labels
+- **Accessibility checks** - AI can spot contrast issues, missing labels (VLLM) or fast programmatic checks
 - **Design principles** - Validates brutalist, minimal, or other design styles
 - **Temporal testing** - Analyzes animations and gameplay over time
-- **State validation** - Validates game state, UI state, form state matches visual representation
+- **State validation** - Validates game state, UI state, form state matches visual representation (VLLM or programmatic)
 - **Rubric-based evaluation** - Uses explicit rubrics for consistent, reliable scoring
+- **Fast programmatic checks** - Deterministic contrast, state, and position validation (<100ms, no API calls)
 
 ## What it's not good for
 
@@ -191,6 +192,105 @@ console.log('Cost:', stats.costStats);
 console.log('Performance:', stats.performance);
 ```
 
+## Programmatic Validators
+
+Fast, deterministic validators for when you have Playwright page access. Use these for fast feedback (<100ms) instead of VLLM when possible.
+
+### Accessibility (Programmatic)
+
+Fast contrast and keyboard navigation checks:
+
+```javascript
+import { checkElementContrast, checkAllTextContrast, checkKeyboardNavigation } from 'ai-visual-test';
+
+// Check single element contrast
+const result = await checkElementContrast(page, '#my-button', 4.5);
+if (!result.passes) {
+  console.log(`Contrast ratio: ${result.ratio}:1 (required: 4.5:1)`);
+}
+
+// Check all text elements
+const allText = await checkAllTextContrast(page, 21.0); // Brutalist 21:1 requirement
+console.log(`${allText.failing} elements fail contrast`);
+
+// Check keyboard navigation
+const keyboard = await checkKeyboardNavigation(page);
+console.log(`${keyboard.focusableElements} focusable elements`);
+```
+
+### State Validation (Programmatic)
+
+Fast state validation using direct state access:
+
+```javascript
+import { validateStateProgrammatic, validateElementPosition } from 'ai-visual-test';
+
+// Validate game state matches visual representation
+const result = await validateStateProgrammatic(page, {
+  ball: { x: 100, y: 200 },
+  paddle: { x: 150 }
+}, {
+  selectors: {
+    ball: '#game-ball',
+    paddle: '#game-paddle'
+  },
+  tolerance: 5
+});
+
+if (!result.matches) {
+  console.log('Discrepancies:', result.discrepancies);
+}
+
+// Validate element position
+const position = await validateElementPosition(
+  page,
+  '#my-element',
+  { x: 100, y: 200 },
+  5 // tolerance
+);
+```
+
+**When to use programmatic vs VLLM validators:**
+
+- **Programmatic**: Fast (<100ms), deterministic, works offline, use when you have page access
+- **VLLM-based**: Semantic understanding, works with screenshots only, use for design principles, context-aware checks
+- **Hybrid**: Best of both - programmatic data provides ground truth, VLLM evaluates semantically
+
+### Hybrid Validators
+
+Combine programmatic validation with VLLM evaluation for the best results:
+
+```javascript
+import { validateAccessibilityHybrid, validateStateHybrid } from 'ai-visual-test';
+
+// Hybrid accessibility: programmatic contrast + VLLM semantic evaluation
+const a11yResult = await validateAccessibilityHybrid(
+  page,
+  'screenshot.png',
+  21.0, // minContrast
+  { testType: 'accessibility' }
+);
+// Result includes both programmatic data and VLLM evaluation
+
+// Hybrid state: programmatic state + VLLM visual consistency
+const stateResult = await validateStateHybrid(
+  page,
+  'screenshot.png',
+  { ball: { x: 100, y: 200 } },
+  {
+    selectors: { ball: '#game-ball' },
+    tolerance: 5
+  }
+);
+// Result includes both programmatic state and VLLM evaluation
+```
+
+**Why hybrid?**
+- Programmatic data provides **ground truth** (avoids hallucinations)
+- VLLM provides **semantic reasoning** (context, criticality, usability)
+- Combined: More reliable than pure VLLM, more nuanced than pure programmatic
+```
+
 ## Persona-based testing
 
 Test from different user perspectives:
@@ -235,7 +335,7 @@ Validates a screenshot using vision language models.
 - `provider` (string): Which AI provider was used
 - `estimatedCost` (object): Cost estimate
 
-See [docs/API_ESSENTIALS.md](docs/API_ESSENTIALS.md) for API essentials and [docs/API_REVIEW_AND_ALIGNMENT.md](docs/API_REVIEW_AND_ALIGNMENT.md) for detailed API reference.
+See [docs/api/API_ESSENTIALS.md](docs/api/API_ESSENTIALS.md) for API essentials and [docs/api/API_REVIEW_AND_ALIGNMENT.md](docs/api/API_REVIEW_AND_ALIGNMENT.md) for detailed API reference.
 
 ## Configuration
 
@@ -281,7 +381,7 @@ This package implements research-backed practices:
 - **Ensemble judging** - Multiple providers for consensus
 - **Temporal aggregation** - Coherence checking over time
 
-See [docs/RESEARCH_UPDATE_2025.md](docs/RESEARCH_UPDATE_2025.md) for research papers and citations.
+Note: Some research citations are conceptual inspirations rather than exact implementations. See [docs/research/RESEARCH_INTEGRATION.md](docs/research/RESEARCH_INTEGRATION.md) for detailed implementation status and [docs/research/RESEARCH_UPDATE_2025.md](docs/research/RESEARCH_UPDATE_2025.md) for research papers and citations.
 
 ## Comparison
 

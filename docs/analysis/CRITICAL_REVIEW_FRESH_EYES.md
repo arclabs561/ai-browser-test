@@ -343,8 +343,8 @@ if (context.aggregated) {
 - No clear entry points
 
 **Fix**: 
-- Group exports by category
-- Create subpath exports for advanced features
+- All exports available from main entry point (`import { ... } from 'ai-visual-test'`)
+- Exports are well-organized in source code, re-exported through main index
 - Document main entry points clearly
 
 ### 6.2 Circular Dependency Risk ⚠️ LOW

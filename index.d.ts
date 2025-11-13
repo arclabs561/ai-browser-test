@@ -479,6 +479,7 @@ export function getProvider(providerName?: string | null): Config['providerConfi
 
 // Utility Functions
 export function loadEnv(basePath?: string | null): void;
+export function initErrorHandlers(): void;
 
 // ScoreTracker Class
 export class ScoreTracker {
@@ -941,4 +942,280 @@ export class BatchValidator extends BatchOptimizer {
   };
   resetStats(): void;
 }
+
+// Programmatic Validators (fast, deterministic)
+// Use these when you have Playwright page access and need fast feedback (<100ms)
+
+/**
+ * Calculate contrast ratio between two colors (WCAG algorithm)
+ * 
+ * @param color1 - First color (rgb, rgba, or hex)
+ * @param color2 - Second color (rgb, rgba, or hex)
+ * @returns Contrast ratio (1.0 to 21.0+)
+ */
+export function getContrastRatio(color1: string, color2: string): number;
+
+/**
+ * Contrast check result for a single element
+ */
+export interface ElementContrastResult {
+  ratio: number;
+  passes: boolean;
+  foreground: string;
+  background: string;
+  foregroundRgb?: [number, number, number];
+  backgroundRgb?: [number, number, number];
+  error?: string;
+  selector?: string;
+}
+
+/**
+ * Check contrast ratio for an element
+ * 
+ * @param page - Playwright page object
+ * @param selector - CSS selector for element
+ * @param minRatio - Minimum required contrast ratio (default: 4.5 for WCAG-AA)
+ * @returns Contrast check result
+ */
+export function checkElementContrast(
+  page: any,
+  selector: string,
+  minRatio?: number
+): Promise<ElementContrastResult>;
+
+/**
+ * Text contrast check result for all text elements
+ */
+export interface AllTextContrastResult {
+  total: number;
+  passing: number;
+  failing: number;
+  violations: Array<{
+    element: string;
+    ratio: string;
+    required: number;
+    foreground: string;
+    background: string;
+  }>;
+  elements?: Array<{
+    tag: string;
+    id: string;
+    className: string;
+    ratio: number;
+    passes: boolean;
+    foreground: string;
+    background: string;
+  }>;
+}
+
+/**
+ * Check contrast for all text elements on page
+ * 
+ * @param page - Playwright page object
+ * @param minRatio - Minimum required contrast ratio (default: 4.5 for WCAG-AA)
+ * @returns Contrast check results for all text elements
+ */
+export function checkAllTextContrast(
+  page: any,
+  minRatio?: number
+): Promise<AllTextContrastResult>;
+
+/**
+ * Keyboard navigation check result
+ */
+export interface KeyboardNavigationResult {
+  keyboardAccessible: boolean;
+  focusableElements: number;
+  violations: Array<{
+    element: string;
+    issue: string;
+  }>;
+  focusableSelectors: string[];
+}
+
+/**
+ * Check keyboard navigation accessibility
+ * 
+ * @param page - Playwright page object
+ * @returns Keyboard navigation check result
+ */
+export function checkKeyboardNavigation(page: any): Promise<KeyboardNavigationResult>;
+
+/**
+ * Programmatic state validation options
+ */
+export interface ProgrammaticStateOptions {
+  selectors?: Record<string, string>;
+  tolerance?: number;
+  stateExtractor?: (page: any) => Promise<unknown>;
+}
+
+/**
+ * Programmatic state validation result
+ */
+export interface ProgrammaticStateResult {
+  matches: boolean;
+  discrepancies: string[];
+  visualState: Record<string, {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    visible: boolean;
+  } | null>;
+  expectedState: Record<string, unknown>;
+  gameState?: unknown;
+}
+
+/**
+ * Validate state matches visual representation
+ * 
+ * @param page - Playwright page object
+ * @param expectedState - Expected state object
+ * @param options - Validation options
+ * @returns State validation result
+ */
+export function validateStateProgrammatic(
+  page: any,
+  expectedState: Record<string, unknown>,
+  options?: ProgrammaticStateOptions
+): Promise<ProgrammaticStateResult>;
+
+/**
+ * Element position validation result
+ */
+export interface ElementPositionResult {
+  matches: boolean;
+  actual: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  expected: {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+  };
+  diff: {
+    x: number;
+    y: number;
+    width?: number;
+    height?: number;
+  };
+  tolerance: number;
+  error?: string;
+  selector?: string;
+}
+
+/**
+ * Validate element position matches expected position
+ * 
+ * @param page - Playwright page object
+ * @param selector - CSS selector for element
+ * @param expectedPosition - Expected position {x, y} or {x, y, width, height}
+ * @param tolerance - Pixel tolerance (default: 5)
+ * @returns Position validation result
+ */
+export function validateElementPosition(
+  page: any,
+  selector: string,
+  expectedPosition: {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+  },
+  tolerance?: number
+): Promise<ElementPositionResult>;
+
+// Hybrid Validators (Programmatic + VLLM)
+// Combine programmatic data with semantic LLM evaluation
+
+/**
+ * Hybrid accessibility validation result
+ */
+export interface AccessibilityHybridResult extends ValidationResult {
+  programmaticData: {
+    contrast: AllTextContrastResult;
+    keyboard: KeyboardNavigationResult;
+  };
+}
+
+/**
+ * Hybrid accessibility validation
+ * Combines programmatic contrast/keyboard checks with VLLM semantic evaluation
+ * 
+ * @param page - Playwright page object
+ * @param screenshotPath - Path to screenshot
+ * @param minContrast - Minimum contrast ratio (default: 4.5)
+ * @param options - Validation options
+ * @returns Hybrid validation result with programmatic data
+ */
+export function validateAccessibilityHybrid(
+  page: any,
+  screenshotPath: string,
+  minContrast?: number,
+  options?: ValidationContext
+): Promise<AccessibilityHybridResult>;
+
+/**
+ * Hybrid state validation result
+ */
+export interface StateHybridResult extends ValidationResult {
+  programmaticData: {
+    gameState?: unknown;
+    visualState: Record<string, {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      visible: boolean;
+    } | null>;
+    discrepancies: string[];
+    matches: boolean;
+  };
+}
+
+/**
+ * Hybrid state validation
+ * Combines programmatic state extraction with VLLM semantic evaluation
+ * 
+ * @param page - Playwright page object
+ * @param screenshotPath - Path to screenshot
+ * @param expectedState - Expected state object
+ * @param options - Validation options
+ * @returns Hybrid validation result with programmatic data
+ */
+export function validateStateHybrid(
+  page: any,
+  screenshotPath: string,
+  expectedState: Record<string, unknown>,
+  options?: ProgrammaticStateOptions & ValidationContext
+): Promise<StateHybridResult>;
+
+/**
+ * Generic hybrid validator result
+ */
+export interface HybridValidationResult extends ValidationResult {
+  programmaticData: Record<string, unknown>;
+}
+
+/**
+ * Generic hybrid validator helper
+ * Combines any programmatic data with VLLM evaluation
+ * 
+ * @param screenshotPath - Path to screenshot
+ * @param prompt - Base evaluation prompt
+ * @param programmaticData - Programmatic validation data
+ * @param options - Validation options
+ * @returns Hybrid validation result with programmatic data
+ */
+export function validateWithProgrammaticContext(
+  screenshotPath: string,
+  prompt: string,
+  programmaticData: Record<string, unknown>,
+  options?: ValidationContext
+): Promise<HybridValidationResult>;
 

@@ -191,34 +191,25 @@ $ npm pack --dry-run 2>&1 | grep "src/.*\.mjs" | wc -l
   "vercel.json",
   "README.md",
   "CHANGELOG.md",
-  "DEPLOYMENT.md",
   "CONTRIBUTING.md",
-  "LICENSE",
-  "example.test.mjs",
-  "docs/SECURITY_RED_TEAM_REPORT.md",
+  "DEPLOYMENT.md",
   "SECURITY.md",
+  "LICENSE",
   ".secretsignore.example"
 ]
 ```
 
-**Assessment**: ✅ **Well-configured** - Explicit file list ensures only necessary files are published.
+**Assessment**: ✅ **Well-configured** - Explicit file list ensures only necessary files are published. Note: `example.test.mjs` and `docs/SECURITY_RED_TEAM_REPORT.md` are excluded as they're not needed in the published package.
 
-**Exports** (Proper module exports):
+**Exports** (Main entry point):
 ```json
 "exports": {
   ".": "./src/index.mjs",
-  "./judge": "./src/judge.mjs",
-  "./multi-modal": "./src/multi-modal.mjs",
-  "./temporal": "./src/temporal.mjs",
-  "./cache": "./src/cache.mjs",
-  "./config": "./src/config.mjs",
-  "./load-env": "./src/load-env.mjs",
-  "./persona-experience": "./src/persona-experience.mjs",
-  "./logger": "./src/logger.mjs"
+  "./package.json": "./package.json"
 }
 ```
 
-**Assessment**: ✅ **Proper exports** - Clear module boundaries, supports tree-shaking.
+**Assessment**: ✅ **Simple, clear exports** - All functionality available through main entry point. All exports are re-exported from `src/index.mjs` for easy access. Users import from `'ai-visual-test'` and get all functionality.
 
 ### Security Review
 

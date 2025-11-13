@@ -10,6 +10,14 @@ All notable changes to ai-visual-test will be documented in this file.
   - All imports updated: `import { ... } from 'ai-visual-test'`
   - Repository URL updated to `arclabs561/ai-visual-test`
   - **Breaking change**: Users must update imports and package.json
+- **Dependencies**: Moved `@playwright/test` to peerDependencies (optional)
+  - Reduces package size for users who don't need Playwright
+  - Added `@arclabs561/llm-utils` as optional peer dependency (required for LLM extraction features)
+- **Error Handler**: Made global error handler opt-in instead of auto-initializing
+  - **Breaking change**: `initErrorHandlers()` is no longer called automatically on import
+  - Users must explicitly call `initErrorHandlers()` if they want global error handling
+  - Removed `process.exit(1)` from error handler (libraries shouldn't control process lifecycle)
+  - Export `initErrorHandlers` for opt-in usage
 
 ### Added
 - **Documentation for Complex Algorithms**
@@ -34,6 +42,16 @@ All notable changes to ai-visual-test will be documented in this file.
 - Fixed test failure by renaming variables to avoid "CRITICAL" in names (test requirement)
 - Fixed batch optimizer cache key generation (truncation → SHA-256 hash to prevent collisions)
 - Improved documentation of complex reasoning to prevent future breakage
+- Removed `process.exit(1)` from error handler (libraries shouldn't control process lifecycle)
+- Made error handler opt-in instead of auto-initializing on import (no side effects)
+
+### Added
+- **Library Best Practices Tests** (`test/library-best-practices.test.mjs`)
+  - Tests verify no side effects on import
+  - Tests verify no `process.exit()` calls
+  - Tests verify opt-in error handler pattern
+  - Tests verify optional peer dependency handling
+  - Tests verify no global state pollution
 
 ## [0.3.1] - 2025-11-11
 

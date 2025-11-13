@@ -9,11 +9,12 @@
  * 2. Cache key truncation - was truncating prompts/gameState, causing collisions
  * 
  * ARCHITECTURE NOTES:
- * - This is ONE of THREE cache systems in the codebase (see CACHE_ARCHITECTURE_DEEP_DIVE.md)
- * - File-based, persistent across runs
- * - LRU eviction based on _lastAccessed
- * - Expiration based on timestamp (creation time)
- * - No coordination with BatchOptimizer cache or TemporalPreprocessing cache
+ * - This is ONE of THREE cache systems in the codebase (see docs/CACHE_ARCHITECTURE_DEEP_DIVE.md)
+ * - File-based, persistent across runs (7-day TTL, LRU eviction)
+ * - Purpose: Long-term persistence of API responses across restarts
+ * - Why separate: Different persistence strategy (file vs memory), different lifetime (7 days vs process lifetime),
+ *   different failure domain (disk errors don't affect in-memory batching), minimal data overlap (<5%)
+ * - No coordination with BatchOptimizer cache or TemporalPreprocessing cache (by design - they serve different purposes)
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';

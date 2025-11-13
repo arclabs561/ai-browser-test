@@ -8,6 +8,20 @@
     ".": "./src/index.mjs",
     "./package.json": "./package.json"
   },
+  "files": [
+    "src/**/*.mjs",
+    "index.d.ts",
+    "api/**/*.js",
+    "public/**/*.html",
+    "vercel.json",
+    "README.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "DEPLOYMENT.md",
+    "SECURITY.md",
+    "LICENSE",
+    ".secretsignore.example"
+  ],
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "test:validation": "node --test test/validation-*.test.mjs",
@@ -34,11 +48,22 @@
     "ui-testing",
     "screenshot-validation"
   ],
-  "author": "",
+  "author": "arclabs561 <henry@henrywallace.io>",
   "license": "MIT",
   "dependencies": {
-    "@playwright/test": "^1.48.0",
     "dotenv": "^16.4.5"
+  },
+  "peerDependencies": {
+    "@arclabs561/llm-utils": "*",
+    "@playwright/test": "^1.48.0"
+  },
+  "peerDependenciesMeta": {
+    "@arclabs561/llm-utils": {
+      "optional": true
+    },
+    "@playwright/test": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^22.10.1"

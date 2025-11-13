@@ -51,7 +51,7 @@ export default {
   documentation: {
     enabled: true,
     blocking: false,
-    maxRootFiles: 6,  // Allow essential docs: README, CHANGELOG, CONTRIBUTING, DEPLOYMENT, SECURITY, plus publishing/annotation guides
+    maxRootFiles: 10,  // Essential docs: README, CHANGELOG, CONTRIBUTING, DEPLOYMENT, SECURITY, plus publishing/annotation guides (10 actual files)
     // Custom archive patterns based on this repo's experience
     archivePatterns: [
       // Analysis/summary patterns (very common in this repo)
@@ -93,8 +93,6 @@ export default {
       'NPM_PACKAGE_SECURITY_ASSESSMENT.md',
       // Annotation README is essential
       'README_ANNOTATION.md',
-      // Start here guide is essential
-      'START_HERE.md',
       // Human invocation ready is essential
       'HUMAN_INVOCATION_READY.md',
     ],
