@@ -777,12 +777,12 @@ export interface StateValidationResult<T = unknown> extends ValidationResult {
 export class StateValidator<T = unknown> {
   constructor(options?: StateValidatorOptions<T>);
   static validate<T = unknown>(
-    screenshotPath: string,
+    screenshotPath: string | string[],
     expectedState: T,
     options?: StateValidationOptions<T>
   ): Promise<StateValidationResult<T>>;
   validateState(
-    screenshotPath: string,
+    screenshotPath: string | string[],
     expectedState: T,
     options?: StateValidationOptions<T>
   ): Promise<StateValidationResult<T>>;
@@ -822,11 +822,11 @@ export interface AccessibilityResult extends ValidationResult {
 export class AccessibilityValidator {
   constructor(options?: AccessibilityValidatorOptions);
   static validate(
-    screenshotPath: string,
+    screenshotPath: string | string[],
     options?: AccessibilityOptions
   ): Promise<AccessibilityResult>;
   validateAccessibility(
-    screenshotPath: string,
+    screenshotPath: string | string[],
     options?: AccessibilityOptions
   ): Promise<AccessibilityResult>;
   buildAccessibilityPrompt(options?: AccessibilityOptions): string;
