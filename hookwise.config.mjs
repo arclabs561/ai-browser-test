@@ -38,7 +38,8 @@ export default {
         enabled: true,
         severity: 'warning',
         requireContext: true,
-        exclude: ['*.test.*', 'test/**'],  // Allow TODOs in tests with context
+        // Note: TODOs in test files are allowed with context
+        exclude: ['*.test.*', 'test/**'],
       },
       testAntiPatterns: {
         enabled: true,

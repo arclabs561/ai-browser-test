@@ -1,18 +1,18 @@
 /**
  * Dynamic Prompt Generation for UX and Gameplay Testing
- * 
+ *
  * Generates context-aware prompts based on:
  * - Page state (initial load, form filled, game active, etc.)
  * - User interactions (click, type, scroll, etc.)
  * - Testing goals (UX improvement, gameplay validation, accessibility, etc.)
  * - Persona perspectives
- * 
+ *
  * Prompts adapt to the current context for more relevant and actionable feedback.
  */
 
 /**
  * Generate dynamic prompt based on context
- * 
+ *
  * @param {Object} context - Testing context
  * @param {string} context.stage - Current stage ('initial', 'form', 'payment', 'gameplay', etc.)
  * @param {Object} context.interaction - Last interaction (if any)
@@ -83,7 +83,7 @@ function buildBasePrompt(stage, testingGoal) {
     }
   };
 
-  return stagePrompts[stage]?.[testingGoal] || 
+  return stagePrompts[stage]?.[testingGoal] ||
          `Evaluate the ${stage} stage from a ${testingGoal} perspective.`;
 }
 
@@ -221,14 +221,14 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}`;
 
 /**
  * Generate prompt variations for A/B testing different perspectives
- * 
+ *
  * @param {Object} context - Testing context
  * @param {Array} variations - Array of variation configs
  * @returns {Array} Array of prompt variations
  */
 /**
  * Generate multiple prompt variations for testing
- * 
+ *
  * @param {Record<string, unknown>} context - Testing context
  * @param {Array<{ testingGoal?: string; focus?: string }>} [variations=[]] - Array of variation configs
  * @returns {string[]} Array of prompt variations
@@ -255,7 +255,7 @@ export function generatePromptVariations(context, variations = []) {
 
 /**
  * Generate interaction-specific prompt
- * 
+ *
  * @param {Record<string, unknown>} interaction - Interaction details
  * @param {Record<string, unknown>} beforeState - State before interaction
  * @param {Record<string, unknown>} afterState - State after interaction
@@ -286,16 +286,16 @@ QUESTIONS:
 2. Was there clear visual feedback?
 3. Did the state change as expected?
 4. Was there any delay or lag?
-5. ${testingGoal === 'ux-improvement' ? 'How could this interaction be improved?' : 
-   testingGoal === 'accessibility' ? 'Was this interaction accessible?' : 
+5. ${testingGoal === 'ux-improvement' ? 'How could this interaction be improved?' :
+   testingGoal === 'accessibility' ? 'Was this interaction accessible?' :
    'Was this interaction responsive?'}`;
 }
 
 /**
  * Generate gameplay-specific prompt
- * 
+ *
  * Now supports variable goals/prompts via game-goal-prompts.mjs
- * 
+ *
  * @param {Record<string, unknown>} gameState - Current game state
  * @param {Record<string, unknown> | null} [previousState=null] - Previous game state (optional)
  * @param {string | Object | Array | Function} [goalOrPrompt='mechanics'] - Goal, prompt, or focus area
@@ -312,7 +312,7 @@ export async function generateGameplayPrompt(gameState, previousState = null, go
     // Fallback if module not available
     generateGamePrompt = null;
   }
-  
+
   // If variable goal system available and goalOrPrompt is not a simple string focus
   if (generateGamePrompt && (typeof goalOrPrompt !== 'string' || !['mechanics', 'visuals', 'feedback', 'balance'].includes(goalOrPrompt))) {
     return generateGamePrompt(goalOrPrompt, {
@@ -321,7 +321,7 @@ export async function generateGameplayPrompt(gameState, previousState = null, go
       ...context
     });
   }
-  
+
   // Legacy support for simple focus strings
   const focusPrompts = {
     mechanics: `Evaluate gameplay mechanics. Are controls responsive? Is collision detection accurate? Is the game balanced?`,

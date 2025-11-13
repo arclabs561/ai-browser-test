@@ -1,13 +1,13 @@
 /**
  * VLLM Cache
- * 
+ *
  * Provides persistent caching for VLLM API calls to reduce costs and improve performance.
  * Uses file-based storage for cache persistence across test runs.
- * 
+ *
  * BUGS FIXED (2025-01):
  * 1. Timestamp reset on save - was resetting ALL timestamps to `now`, breaking 7-day expiration
  * 2. Cache key truncation - was truncating prompts/gameState, causing collisions
- * 
+ *
  * ARCHITECTURE NOTES:
  * - This is ONE of THREE cache systems in the codebase (see docs/CACHE_ARCHITECTURE_DEEP_DIVE.md)
  * - File-based, persistent across runs (7-day TTL, LRU eviction)
@@ -43,7 +43,7 @@ let cacheWriteLock = false;
 
 /**
  * Initialize cache with directory
- * 
+ *
  * @param {string | undefined} [cacheDir] - Cache directory path, or undefined for default
  * @returns {void}
  */
@@ -60,17 +60,17 @@ export function initCache(cacheDir) {
     CACHE_DIR = join(__dirname, '..', '..', '..', 'test-results', 'vllm-cache');
   }
   CACHE_FILE = join(CACHE_DIR, 'cache.json');
-  
+
   if (!existsSync(CACHE_DIR)) {
     mkdirSync(CACHE_DIR, { recursive: true });
   }
-  
+
   cacheInstance = null; // Reset instance to reload
 }
 
 /**
  * Generate cache key from image path, prompt, and context
- * 
+ *
  * @param {string} imagePath - Path to image file
  * @param {string} prompt - Validation prompt
  * @param {import('./index.mjs').ValidationContext} [context={}] - Validation context
@@ -78,14 +78,14 @@ export function initCache(cacheDir) {
  */
 export function generateCacheKey(imagePath, prompt, context = {}) {
   // NOTE: Don't truncate cache keys - it causes collisions!
-  // 
+  //
   // The bug: Truncating prompt (1000 chars) and gameState (500 chars) means:
   // - Different prompts with same first 1000 chars = same cache key = wrong cache hit
   // - Different game states with same first 500 chars = same cache key = wrong cache hit
-  // 
+  //
   // The fix: Hash the FULL content, don't truncate
   // SHA-256 handles arbitrary length, so there's no reason to truncate
-  // 
+  //
   // Why truncation existed: Probably to keep keys "manageable", but it's dangerous
   // Better approach: Hash full content, collisions are cryptographically unlikely
   const keyData = {
@@ -97,17 +97,17 @@ export function generateCacheKey(imagePath, prompt, context = {}) {
     viewport: context.viewport ? JSON.stringify(context.viewport) : '',
     gameState: context.gameState ? JSON.stringify(context.gameState) : '' // Full game state, not truncated
   };
-  
+
   const keyString = JSON.stringify(keyData);
   return createHash('sha256').update(keyString).digest('hex');
 }
 
 /**
  * Load cache from file
- * 
+ *
  * NOTE: Preserves original timestamps from file for expiration logic.
  * We need the original timestamp to check if entries are older than MAX_CACHE_AGE (7 days).
- * 
+ *
  * The cache file format is: { key: { data: {...}, timestamp: number } }
  * - `timestamp`: When the entry was created (used for expiration)
  * - `data._lastAccessed`: When the entry was last accessed (used for LRU eviction)
@@ -116,7 +116,7 @@ function loadCache() {
   if (!CACHE_FILE || !existsSync(CACHE_FILE)) {
     return new Map();
   }
-  
+
   try {
     let cacheData;
     try {
@@ -129,7 +129,7 @@ function loadCache() {
     }
     const cache = new Map();
     const now = Date.now();
-    
+
     // Filter out expired entries based on ORIGINAL timestamp
     // IMPORTANT: We preserve the original timestamp from the file
     // This allows 7-day expiration to work correctly
@@ -145,7 +145,7 @@ function loadCache() {
         cache.set(key, entry);
       }
     }
-    
+
     return cache;
   } catch (error) {
     warn(`[VLLM Cache] Failed to load cache: ${error.message}`);
@@ -158,31 +158,31 @@ function loadCache() {
  */
 function saveCache(cache) {
   if (!CACHE_FILE) return;
-  
+
   // Prevent concurrent writes (simple lock mechanism)
   if (cacheWriteLock) {
     warn('[VLLM Cache] Cache write already in progress, skipping save');
     return;
   }
-  
+
   cacheWriteLock = true;
-  
+
   try {
     const cacheData = {};
     const now = Date.now();
     let totalSize = 0;
-    
+
     // BUG FIX (2025-01): Don't reset timestamps on save!
-    // 
+    //
     // The bug was: `timestamp: now` for ALL entries
     // This broke 7-day expiration because old entries got new timestamps
-    // 
+    //
     // The fix: Preserve original timestamp for existing entries, use `now` only for new entries
-    // 
+    //
     // Two timestamps serve different purposes:
     // - `timestamp`: Creation time (for expiration - 7 days)
     // - `_lastAccessed`: Access time (for LRU eviction - least recently used)
-    // 
+    //
     // Convert to array and sort by _lastAccessed (LRU: oldest access first)
     const entries = Array.from(cache.entries())
       .map(([key, value]) => {
@@ -190,7 +190,7 @@ function saveCache(cache) {
         const originalTimestamp = value._originalTimestamp || now;
         // Remove _originalTimestamp from data before saving (it's metadata, not part of result)
         const { _originalTimestamp, ...dataWithoutMetadata } = value;
-        
+
         return {
           key,
           value: dataWithoutMetadata,
@@ -202,26 +202,26 @@ function saveCache(cache) {
         // Sort by access time for LRU eviction (oldest access = evict first)
         return a.lastAccessed - b.lastAccessed;
       });
-    
+
     // Apply size limits (LRU eviction: keep most recently accessed)
     const entriesToKeep = entries.slice(-MAX_CACHE_SIZE);
-    
+
     for (const { key, value, timestamp } of entriesToKeep) {
       const entry = {
         data: value,
         timestamp // Original timestamp preserved for expiration
       };
       const entrySize = JSON.stringify(entry).length;
-      
+
       // Check total size limit
       if (totalSize + entrySize > MAX_CACHE_SIZE_BYTES) {
         break; // Stop adding entries if we exceed size limit
       }
-      
+
       cacheData[key] = entry;
       totalSize += entrySize;
     }
-    
+
     // Update in-memory cache to match saved entries
     // IMPORTANT: Restore _originalTimestamp for expiration checks
     cache.clear();
@@ -232,7 +232,7 @@ function saveCache(cache) {
       };
       cache.set(key, entryWithMetadata);
     }
-    
+
     writeFileSync(CACHE_FILE, JSON.stringify(cacheData, null, 2), 'utf8');
   } catch (error) {
     warn(`[VLLM Cache] Failed to save cache: ${error.message}`);
@@ -256,7 +256,7 @@ function getCache() {
 
 /**
  * Get cached result
- * 
+ *
  * @param {string} imagePath - Path to image file
  * @param {string} prompt - Validation prompt
  * @param {import('./index.mjs').ValidationContext} [context={}] - Validation context
@@ -266,12 +266,12 @@ export function getCached(imagePath, prompt, context = {}) {
   const cache = getCache();
   const key = generateCacheKey(imagePath, prompt, context);
   const cached = cache.get(key);
-  
+
   if (cached) {
     // Update access time for LRU eviction
     // This is separate from timestamp (creation time) which is used for expiration
     cached._lastAccessed = Date.now();
-    
+
     // Check expiration based on original timestamp
     // If entry is older than MAX_CACHE_AGE, remove it and return null
     const originalTimestamp = cached._originalTimestamp || cached._lastAccessed;
@@ -281,13 +281,13 @@ export function getCached(imagePath, prompt, context = {}) {
       return null;
     }
   }
-  
+
   return cached || null;
 }
 
 /**
  * Set cached result
- * 
+ *
  * @param {string} imagePath - Path to image file
  * @param {string} prompt - Validation prompt
  * @param {import('./index.mjs').ValidationContext} context - Validation context
@@ -298,11 +298,11 @@ export function setCached(imagePath, prompt, context, result) {
   const cache = getCache();
   const key = generateCacheKey(imagePath, prompt, context);
   const now = Date.now();
-  
+
   // Check if this is a new entry or updating existing
   const existing = cache.get(key);
   const originalTimestamp = existing?._originalTimestamp || now; // Preserve if exists, else new
-  
+
   // Add metadata for cache management
   // - _lastAccessed: For LRU eviction (when was it last used)
   // - _originalTimestamp: For expiration (when was it created)
@@ -311,9 +311,9 @@ export function setCached(imagePath, prompt, context, result) {
     _lastAccessed: now, // Update access time
     _originalTimestamp: originalTimestamp // Preserve creation time
   };
-  
+
   cache.set(key, resultWithMetadata);
-  
+
   // Always save cache (saveCache handles size limits and LRU eviction)
   // The if/else was redundant - both branches did the same thing
   saveCache(cache);
@@ -321,7 +321,7 @@ export function setCached(imagePath, prompt, context, result) {
 
 /**
  * Clear cache
- * 
+ *
  * @returns {void}
  */
 export function clearCache() {
@@ -332,7 +332,7 @@ export function clearCache() {
 
 /**
  * Get cache statistics
- * 
+ *
  * @returns {import('./index.mjs').CacheStats} Cache statistics
  */
 export function getCacheStats() {

@@ -1,8 +1,8 @@
 /**
  * State Validator
- * 
+ *
  * Generic state validation for any structured state (game state, UI state, form state, etc.)
- * 
+ *
  * Provides:
  * - Configurable state extraction
  * - Deep comparison with tolerance
@@ -31,7 +31,7 @@ export class StateValidator {
     } else {
       this.tolerance = 5; // pixels for position-based validation
     }
-    
+
     this.validateScreenshot = options.validateScreenshot || validateScreenshot;
     this.stateExtractor = options.stateExtractor || this.defaultStateExtractor.bind(this);
     this.stateComparator = options.stateComparator || this.defaultStateComparator.bind(this);
@@ -39,7 +39,7 @@ export class StateValidator {
 
   /**
    * Static method for quick validation without instantiation
-   * 
+   *
    * @param {string} screenshotPath - Path to screenshot
    * @param {object} expectedState - Expected state object
    * @param {object} options - Validation options (tolerance, testType, etc.)
@@ -52,7 +52,7 @@ export class StateValidator {
 
   /**
    * Validate state matches visual representation
-   * 
+   *
    * @param {string | string[]} screenshotPath - Path to screenshot(s) - supports multi-image for comparison
    * @param {object} expectedState - Expected state object
    * @param {object} options - Validation options
@@ -71,18 +71,18 @@ export class StateValidator {
       });
     }
     assertObject(expectedState, 'expectedState');
-    
+
     if (!expectedState || typeof expectedState !== 'object') {
       throw new ValidationError(
         'expectedState must be a non-null object',
         { received: typeof expectedState, value: expectedState }
       );
     }
-    
-    const prompt = options.promptBuilder 
+
+    const prompt = options.promptBuilder
       ? options.promptBuilder(expectedState, { tolerance: this.tolerance, ...options })
       : this.buildStatePrompt(expectedState, options);
-    
+
     try {
       // Pass through all validateScreenshot options (useCache, timeout, provider, viewport, etc.)
       const screenshotOptions = {
@@ -95,21 +95,21 @@ export class StateValidator {
         provider: options.provider || options.context?.provider,
         viewport: options.viewport || options.context?.viewport
       };
-      
+
       // Support multi-image (array of screenshots) for comparison
       const result = await this.validateScreenshot(screenshotPath, prompt, screenshotOptions);
 
       // Extract state from result
       const extractedState = this.stateExtractor(result, expectedState);
-      
+
       // Compare with expected
       const validation = this.stateComparator(extractedState, expectedState, {
         tolerance: this.tolerance,
         ...options
       });
-      
+
       const matches = validation.discrepancies.length === 0;
-      
+
       // Throw StateMismatchError if validation fails and throwOnMismatch is enabled
       if (!matches && options.throwOnMismatch !== false) {
         throw new StateMismatchError(
@@ -118,7 +118,7 @@ export class StateValidator {
           expectedState
         );
       }
-      
+
       return {
         ...result,
         extractedState,
@@ -148,7 +148,7 @@ export class StateValidator {
       'Compare with expected state',
       'Report discrepancies'
     ];
-    
+
     return `Extract ${stateDescription} from screenshot with precision:
 
 EXPECTED STATE:
@@ -176,7 +176,7 @@ Return structured data with extracted state and validation results.`;
         return result.structuredData;
       }
     }
-    
+
     // Try to parse from reasoning/assessment
     const text = result.reasoning || result.assessment || '';
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -191,7 +191,7 @@ Return structured data with extracted state and validation results.`;
         // Fall through - extraction failed
       }
     }
-    
+
     // Return null to indicate extraction failed
     // Note: null might be a valid state value, but this is the best we can do
     // without a sentinel value. Callers should check if extraction succeeded.
@@ -211,10 +211,10 @@ Return structured data with extracted state and validation results.`;
 
     const discrepancies = [];
     const tolerance = options.tolerance || this.tolerance;
-    
+
     // Recursive comparison
     this.compareObjects(extracted, expected, '', discrepancies, tolerance);
-    
+
     return {
       matches: discrepancies.length === 0,
       discrepancies
@@ -231,7 +231,7 @@ Return structured data with extracted state and validation results.`;
       discrepancies.push(`${path}: Maximum comparison depth (100) exceeded - possible circular reference or extremely deep nesting`);
       return;
     }
-    
+
     if (typeof expected !== typeof extracted) {
       discrepancies.push(`${path}: Type mismatch (expected ${typeof expected}, got ${typeof extracted})`);
       return;
@@ -270,7 +270,7 @@ Return structured data with extracted state and validation results.`;
         }
         return;
       }
-      
+
       // Handle Infinity values
       if (!isFinite(expected) || !isFinite(extracted)) {
         if (expected !== extracted) {
@@ -278,7 +278,7 @@ Return structured data with extracted state and validation results.`;
         }
         return;
       }
-      
+
       const diff = Math.abs(extracted - expected);
       if (diff > tolerance) {
         discrepancies.push(`${path}: Value differs by ${diff} (expected ${expected}, got ${extracted}, tolerance: ${tolerance})`);

@@ -1,14 +1,14 @@
 /**
  * Context Compressor
- * 
+ *
  * Compresses historical context to reduce token usage while maintaining accuracy.
- * 
+ *
  * General-purpose utility - no domain-specific logic.
  */
 
 /**
  * Compress context by aggregating notes and extracting key insights
- * 
+ *
  * @param {import('./index.mjs').TemporalNote[]} notes - Array of temporal notes to compress
  * @param {{
  *   maxTokens?: number;
@@ -41,9 +41,9 @@ export function compressContext(notes, options = {}) {
   const sortedNotes = [...notes].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
   // Extract key events (bugs, state changes, critical observations)
-  const keyEvents = sortedNotes.filter(note => 
-    note.step?.includes('bug') || 
-    note.step?.includes('error') || 
+  const keyEvents = sortedNotes.filter(note =>
+    note.step?.includes('bug') ||
+    note.step?.includes('error') ||
     note.step?.includes('critical') ||
     note.severity === 'CRITICAL' ||
     note.reflection?.score !== undefined
@@ -51,12 +51,12 @@ export function compressContext(notes, options = {}) {
 
   // Select notes based on strategy
   let selectedNotes = [];
-  
+
   if (aggregationStrategy === 'temporal') {
     // Temporal: Include most recent + key events
     const recentNotes = includeRecent ? sortedNotes.slice(0, Math.floor(maxNotes * 0.7)) : [];
     const keyEventNotes = includeKeyEvents ? keyEvents.slice(0, Math.floor(maxNotes * 0.3)) : [];
-    
+
     // Combine and deduplicate
     const combined = [...recentNotes, ...keyEventNotes];
     const seen = new Set();
@@ -98,7 +98,7 @@ export function compressContext(notes, options = {}) {
 function selectSemanticRepresentatives(notes, maxNotes, keyEvents) {
   // Simple semantic grouping by step type
   const groups = new Map();
-  
+
   notes.forEach(note => {
     const groupKey = note.step?.split('_')[0] || 'other';
     if (!groups.has(groupKey)) {
@@ -132,25 +132,25 @@ function selectByImportance(notes, maxNotes, keyEvents) {
   // Score notes by importance
   const scored = notes.map(note => {
     let score = 0;
-    
+
     // Key events get high score
     if (keyEvents.includes(note)) score += 10;
-    
+
     // Recent notes get higher score
     const age = Date.now() - (note.timestamp || 0);
     const ageScore = Math.max(0, 10 - (age / 1000)); // Decay over 10 seconds
     score += ageScore;
-    
+
     // Critical severity gets high score
     if (note.severity === 'CRITICAL') score += 5;
     if (note.severity === 'HIGH') score += 3;
-    
+
     // Reflections get higher score
     if (note.reflection) score += 2;
-    
+
     // State changes get higher score
     if (note.gameState || note.state) score += 1;
-    
+
     return { note, score };
   });
 
@@ -168,7 +168,7 @@ function generateSummary(selectedNotes, allNotes) {
   }
 
   const parts = [];
-  
+
   // Count by type
   const typeCounts = {};
   selectedNotes.forEach(note => {
@@ -177,12 +177,12 @@ function generateSummary(selectedNotes, allNotes) {
   });
 
   parts.push(`Summary: ${selectedNotes.length} key observations from ${allNotes.length} total notes.`);
-  
+
   // Key statistics
   const bugs = selectedNotes.filter(n => n.step?.includes('bug')).length;
   const reflections = selectedNotes.filter(n => n.reflection).length;
   const critical = selectedNotes.filter(n => n.severity === 'CRITICAL').length;
-  
+
   if (bugs > 0) parts.push(`${bugs} bug detection(s)`);
   if (reflections > 0) parts.push(`${reflections} reflection(s)`);
   if (critical > 0) parts.push(`${critical} critical issue(s)`);
@@ -203,7 +203,7 @@ function generateSummary(selectedNotes, allNotes) {
  */
 function estimateTokens(notes, summary = '') {
   // Rough estimate: 1 token ≈ 4 characters
-  const noteText = notes.map(n => 
+  const noteText = notes.map(n =>
     `${n.step || ''} ${n.observation || ''} ${JSON.stringify(n.gameState || n.state || {})}`
   ).join(' ');
   const totalText = noteText + ' ' + summary;
@@ -212,7 +212,7 @@ function estimateTokens(notes, summary = '') {
 
 /**
  * Compress state history by keeping important transitions
- * 
+ *
  * @param {Array<Record<string, unknown>>} stateHistory - Array of state objects
  * @param {{
  *   maxLength?: number;
@@ -237,24 +237,24 @@ export function compressStateHistory(stateHistory, options = {}) {
   }
 
   const states = Array.isArray(stateHistory) ? stateHistory : [stateHistory];
-  
+
   // Select key states
   let selectedStates = [];
-  
+
   if (includeFirst && states.length > 0) {
     selectedStates.push(states[0]);
   }
-  
+
   if (includeLast && states.length > 1 && states[states.length - 1] !== states[0]) {
     selectedStates.push(states[states.length - 1]);
   }
-  
+
   // Find key transitions (significant changes)
   if (includeKeyTransitions && states.length > 2) {
     const transitions = findKeyTransitions(states);
     selectedStates.push(...transitions);
   }
-  
+
   // Deduplicate and limit
   const seen = new Set();
   const unique = selectedStates.filter(state => {
@@ -288,30 +288,30 @@ export function compressStateHistory(stateHistory, options = {}) {
  */
 function findKeyTransitions(states) {
   const transitions = [];
-  
+
   for (let i = 1; i < states.length; i++) {
     const prev = states[i - 1];
     const curr = states[i];
-    
+
     // Check for significant changes (general-purpose, not game-specific)
     const hasSignificantChange = Object.keys(curr).some(key => {
       const prevVal = prev[key];
       const currVal = curr[key];
-      
+
       // Numeric changes
       if (typeof prevVal === 'number' && typeof currVal === 'number') {
         return Math.abs(currVal - prevVal) > 10; // Threshold for significant change
       }
-      
+
       // String/boolean changes
       return prevVal !== currVal;
     });
-    
+
     if (hasSignificantChange) {
       transitions.push(curr);
     }
   }
-  
+
   return transitions;
 }
 
@@ -325,14 +325,14 @@ function generateStateSummary(selectedStates, allStates) {
 
   const parts = [];
   parts.push(`${selectedStates.length} key states from ${allStates.length} total`);
-  
+
   if (selectedStates.length > 1) {
     const first = selectedStates[0];
     const last = selectedStates[selectedStates.length - 1];
-    
+
     // Check for any changes (general-purpose)
     const hasChanges = Object.keys(last).some(key => first[key] !== last[key]);
-    
+
     if (hasChanges) parts.push('state changes detected');
   }
 

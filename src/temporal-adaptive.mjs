@@ -1,8 +1,8 @@
 /**
  * Adaptive Temporal Aggregation
- * 
+ *
  * Implements adaptive window sizing based on note frequency and activity type.
- * 
+ *
  * Research context:
  * - "Towards Dynamic Theory of Mind: Evaluating LLM Adaptation to Temporal Evolution of Human States"
  *   (arXiv:2505.17663) - DynToM benchmark, optimal window sizes vary by activity pattern
@@ -13,7 +13,7 @@
  *   * Paper discusses temporal reference points and hierarchical construction
  *   * We use LINEAR frequency-based adjustment, NOT logarithmic compression
  *   * We do NOT implement temporal reference points
- * 
+ *
  * IMPORTANT: This implementation uses LINEAR frequency-based window adjustment, NOT the
  * logarithmic compression (Weber-Fechner law) described in arXiv:2507.15851. We cite
  * the papers for adaptive window concepts, but do NOT implement their specific findings.
@@ -23,7 +23,7 @@ import { aggregateTemporalNotes } from './temporal.mjs';
 
 /**
  * Calculate optimal window size based on note frequency
- * 
+ *
  * @param {import('./index.mjs').TemporalNote[]} notes - Temporal notes
  * @param {{
  *   minWindow?: number;
@@ -38,24 +38,24 @@ export function calculateOptimalWindowSize(notes, options = {}) {
     maxWindow = 30000,
     defaultWindow = 10000
   } = options;
-  
+
   if (notes.length < 2) {
     return defaultWindow;
   }
-  
+
   // Calculate note frequency (notes per second)
   const timeSpan = notes[notes.length - 1].timestamp - notes[0].timestamp;
   if (timeSpan <= 0) {
     return defaultWindow;
   }
-  
+
   const frequency = notes.length / (timeSpan / 1000); // notes per second
-  
+
   // Adaptive logic based on frequency
   // High frequency (>2 notes/sec): use smaller windows
   // Low frequency (<0.5 notes/sec): use larger windows
   // Medium frequency: use default window
-  
+
   if (frequency > 2) {
     return Math.max(minWindow, defaultWindow * 0.5); // 5s for high frequency
   } else if (frequency < 0.5) {
@@ -67,7 +67,7 @@ export function calculateOptimalWindowSize(notes, options = {}) {
 
 /**
  * Detect activity pattern from notes
- * 
+ *
  * @param {import('./index.mjs').TemporalNote[]} notes - Temporal notes
  * @returns {'fastChange' | 'slowChange' | 'consistent' | 'erratic'} Activity pattern
  */
@@ -75,23 +75,23 @@ export function detectActivityPattern(notes) {
   if (notes.length < 3) {
     return 'consistent';
   }
-  
+
   // Calculate change rate
   const timeSpan = notes[notes.length - 1].timestamp - notes[0].timestamp;
   const avgTimeBetween = timeSpan / (notes.length - 1);
-  
+
   // Calculate score variance
   const scores = notes
     .map(n => n.gameState?.score || 0)
     .filter(s => typeof s === 'number');
-  
+
   if (scores.length < 2) {
     return 'consistent';
   }
-  
+
   const meanScore = scores.reduce((a, b) => a + b, 0) / scores.length;
   const variance = scores.reduce((sum, score) => sum + Math.pow(score - meanScore, 2), 0) / scores.length;
-  
+
   // Detect direction changes
   let directionChanges = 0;
   for (let i = 1; i < scores.length; i++) {
@@ -102,7 +102,7 @@ export function detectActivityPattern(notes) {
       directionChanges++;
     }
   }
-  
+
   // Classify pattern
   if (avgTimeBetween < 1000 && variance > meanScore * 0.5) {
     return 'fastChange';
@@ -117,7 +117,7 @@ export function detectActivityPattern(notes) {
 
 /**
  * Aggregate temporal notes with adaptive window sizing
- * 
+ *
  * @param {import('./index.mjs').TemporalNote[]} notes - Temporal notes
  * @param {{
  *   adaptive?: boolean;
@@ -134,13 +134,13 @@ export function aggregateTemporalNotesAdaptive(notes, options = {}) {
     decayFactor = 0.9,
     coherenceThreshold = 0.7
   } = options;
-  
+
   let finalWindowSize = windowSize;
-  
+
   if (adaptive && !windowSize) {
     // Calculate optimal window size based on note frequency
     finalWindowSize = calculateOptimalWindowSize(notes);
-    
+
     // Adjust based on activity pattern
     const pattern = detectActivityPattern(notes);
     if (pattern === 'fastChange') {
@@ -151,7 +151,7 @@ export function aggregateTemporalNotesAdaptive(notes, options = {}) {
   } else if (!finalWindowSize) {
     finalWindowSize = 10000; // Default
   }
-  
+
   return aggregateTemporalNotes(notes, {
     windowSize: finalWindowSize,
     decayFactor,

@@ -1,17 +1,17 @@
 /**
  * Enhanced Persona Structure
- * 
+ *
  * Adds rich context to personas based on research findings:
  * - Workflows, frustrations, usage patterns
  * - Temporal evolution tracking
  * - Consistency metrics
- * 
+ *
  * Research:
  * - "Can LLM be a Personalized Judge?" - Persona-based LLM judging with uncertainty estimation
  * - "The Prompt Makes the Person(a)" - Systematic evaluation of sociodemographic persona prompting
  * - "Persona-judge: Personalized Alignment of Large Language Models" - Personalized alignment
  * - "PERSONA: Evaluating Pluralistic Alignment in LLMs" - Pluralistic alignment with personas
- * 
+ *
  * Note: Research shows direct persona-based judging has low reliability, but uncertainty
  * estimation improves performance to >80% agreement on high-certainty samples. LLMs struggle
  * to authentically simulate marginalized groups. Multi-agent debate can amplify bias.
@@ -21,7 +21,7 @@ import { experiencePageAsPersona } from './persona-experience.mjs';
 
 /**
  * Enhanced persona structure with rich context
- * 
+ *
  * @typedef {Object} EnhancedPersona
  * @property {string} name - Persona name
  * @property {string} device - Device type
@@ -35,7 +35,7 @@ import { experiencePageAsPersona } from './persona-experience.mjs';
 
 /**
  * Create enhanced persona with rich context
- * 
+ *
  * @param {Object} basePersona - Base persona (name, device, goals, concerns)
  * @param {{
  *   workflows?: Object;
@@ -69,7 +69,7 @@ export function createEnhancedPersona(basePersona, context = {}) {
 
 /**
  * Calculate consistency metrics for persona observations
- * 
+ *
  * @param {Array} observations - Array of observations from persona
  * @returns {Object} Consistency metrics
  */
@@ -81,7 +81,7 @@ export function calculatePersonaConsistency(observations) {
       overall: 1.0
     };
   }
-  
+
   // Extract keywords from each observation
   const keywordSets = observations.map(obs => {
     const text = typeof obs === 'string' ? obs : obs.observation || '';
@@ -91,7 +91,7 @@ export function calculatePersonaConsistency(observations) {
       .filter(w => !['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can'].includes(w));
     return new Set(words);
   });
-  
+
   // Calculate prompt-to-line consistency (first vs all others)
   const firstKeywords = keywordSets[0];
   let promptToLineMatches = 0;
@@ -102,7 +102,7 @@ export function calculatePersonaConsistency(observations) {
     promptToLineMatches += similarity;
   }
   const promptToLine = promptToLineMatches / Math.max(1, keywordSets.length - 1);
-  
+
   // Calculate line-to-line consistency (adjacent observations)
   let lineToLineMatches = 0;
   for (let i = 1; i < keywordSets.length; i++) {
@@ -114,10 +114,10 @@ export function calculatePersonaConsistency(observations) {
     lineToLineMatches += similarity;
   }
   const lineToLine = lineToLineMatches / Math.max(1, keywordSets.length - 1);
-  
+
   // Overall consistency (weighted average)
   const overall = (promptToLine * 0.4 + lineToLine * 0.6);
-  
+
   return {
     promptToLine,
     lineToLine,
@@ -128,7 +128,7 @@ export function calculatePersonaConsistency(observations) {
 
 /**
  * Experience page with enhanced persona
- * 
+ *
  * @param {any} page - Playwright page object
  * @param {EnhancedPersona} persona - Enhanced persona
  * @param {Object} options - Experience options
@@ -137,13 +137,13 @@ export function calculatePersonaConsistency(observations) {
 export async function experiencePageWithEnhancedPersona(page, persona, options = {}) {
   // Use base experience function
   const experience = await experiencePageAsPersona(page, persona, options);
-  
+
   // Extract observations
   const observations = experience.notes.map(n => n.observation || '');
-  
+
   // Calculate consistency metrics
   const consistency = calculatePersonaConsistency(observations);
-  
+
   // Add persona context to experience
   return {
     ...experience,
@@ -160,7 +160,7 @@ export async function experiencePageWithEnhancedPersona(page, persona, options =
 
 /**
  * Compare persona observations for diversity
- * 
+ *
  * @param {Array} personaExperiences - Array of persona experience results
  * @returns {Object} Diversity metrics
  */
@@ -172,7 +172,7 @@ export function calculatePersonaDiversity(personaExperiences) {
       totalKeywords: 0
     };
   }
-  
+
   // Extract all keywords from all personas
   const allKeywords = personaExperiences.flatMap(exp => {
     const observations = exp.observations || exp.notes?.map(n => n.observation || '') || [];
@@ -184,10 +184,10 @@ export function calculatePersonaDiversity(personaExperiences) {
       return words;
     });
   });
-  
+
   const uniqueKeywords = new Set(allKeywords);
   const diversityRatio = uniqueKeywords.size / Math.max(1, allKeywords.length);
-  
+
   return {
     diversityRatio,
     uniqueKeywords: uniqueKeywords.size,

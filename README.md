@@ -365,8 +365,8 @@ VLM_PROVIDER=gemini  # or 'openai', 'claude'
 Comprehensive documentation is available in the [`docs/`](./docs/) directory:
 
 - **[Documentation Index](./docs/README.md)** - Complete guide to all documentation with summaries and connections
-- **[API Essentials](./docs/API_ESSENTIALS.md)** - Quick start and API essentials
-- **[Research Integration](./docs/RESEARCH_INTEGRATION.md)** - Research papers and implementation status
+- **[API Essentials](./docs/api/API_ESSENTIALS.md)** - Quick start and API essentials
+- **[Research Integration](./docs/research/RESEARCH_INTEGRATION.md)** - Research papers and implementation status
 - **[Standalone Usage](./docs/STANDALONE_USAGE.md)** - How to use the library
 - **[Human Validation](./docs/HUMAN_VALIDATION_INTEGRATION.md)** - Human feedback and calibration system
 

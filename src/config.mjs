@@ -1,6 +1,6 @@
 /**
  * Configuration System
- * 
+ *
  * Handles provider selection, API keys, and settings.
  * Designed to be flexible and extensible.
  */
@@ -66,7 +66,7 @@ const PROVIDER_CONFIGS = {
 
 /**
  * Create configuration from environment or options
- * 
+ *
  * @param {import('./index.mjs').ConfigOptions} [options={}] - Configuration options
  * @returns {import('./index.mjs').Config} Configuration object
  */
@@ -104,7 +104,7 @@ export function createConfig(options = {}) {
 
   // Get provider config
   let providerConfig = { ...PROVIDER_CONFIGS[selectedProvider] || PROVIDER_CONFIGS.gemini };
-  
+
   // Override model if specified
   if (model) {
     providerConfig.model = model;
@@ -165,8 +165,8 @@ function detectProvider(env) {
     })
     .sort((a, b) => a.priority - b.priority); // Lower priority number = higher priority
 
-  return availableProviders.length > 0 
-    ? availableProviders[0].name 
+  return availableProviders.length > 0
+    ? availableProviders[0].name
     : 'gemini'; // Default to gemini (cheapest)
 }
 
@@ -179,19 +179,19 @@ function getApiKey(provider, env) {
   if (providerKey) {
     return providerKey;
   }
-  
+
   // Special case: Anthropic uses ANTHROPIC_API_KEY (not CLAUDE_API_KEY)
   if (provider === 'claude' && env.ANTHROPIC_API_KEY) {
     return env.ANTHROPIC_API_KEY;
   }
-  
+
   // Fallback to generic API_KEY
   return env.API_KEY || null;
 }
 
 /**
  * Get current configuration (singleton)
- * 
+ *
  * @returns {import('./index.mjs').Config} Current configuration
  */
 let configInstance = null;
@@ -205,7 +205,7 @@ export function getConfig() {
 
 /**
  * Set configuration (useful for testing)
- * 
+ *
  * @param {import('./index.mjs').Config} config - Configuration to set
  * @returns {void}
  */
@@ -215,7 +215,7 @@ export function setConfig(config) {
 
 /**
  * Get provider configuration
- * 
+ *
  * @param {string | null} [providerName=null] - Provider name, or null to use default
  * @returns {import('./index.mjs').Config['providerConfig']} Provider configuration
  */
