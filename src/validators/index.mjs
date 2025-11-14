@@ -1,18 +1,12 @@
 /**
- * Validators
+ * Validators Sub-Module
  * 
- * Re-export all validators
+ * All validation-related functionality grouped together.
  * 
- * VLLM-based validators (semantic validation):
- * - StateValidator - Extracts state from screenshots using VLLM
- * - AccessibilityValidator - Evaluates accessibility using VLLM
- * 
- * Programmatic validators (fast, deterministic):
- * - checkElementContrast, checkAllTextContrast, checkKeyboardNavigation - Fast accessibility checks
- * - validateStateProgrammatic, validateElementPosition - Fast state validation
+ * Import from 'ai-visual-test/validators'
  */
 
-// VLLM-based validators (semantic validation)
+// Re-export everything from validators
 export { StateValidator } from './state-validator.mjs';
 export { AccessibilityValidator } from './accessibility-validator.mjs';
 export { PromptBuilder } from './prompt-builder.mjs';
@@ -38,4 +32,3 @@ export {
   validateStateHybrid,
   validateWithProgrammaticContext
 } from './hybrid-validator.mjs';
-

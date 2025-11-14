@@ -77,3 +77,19 @@ test-performance-report.json
 PRIVATE_*.md
 PUBLIC_*.md
 evaluation/datasets/human-annotated/visual-ui-understanding/webui-repo
+
+# Temporary improvement/review docs (moved to archive)
+IMPROVEMENTS_*.md
+FINAL_*.md
+COMPLETE_*.md
+REVIEW_*.md
+QUICK_START_*.md
+
+# Dataset cache files
+evaluation/datasets/.webui-cache.json
+evaluation/datasets/*-ground-truth.json
+evaluation/datasets/parsing-summary.json
+evaluation/datasets/download-summary.json
+
+# OpenMemory - IDE/Assistant specific rules
+.cursor/rules/openmemory.mdc

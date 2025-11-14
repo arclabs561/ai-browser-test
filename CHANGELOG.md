@@ -5,6 +5,49 @@ All notable changes to ai-visual-test will be documented in this file.
 ## [0.5.0] - 2025-11-13
 
 ### Added
+- **API Sub-Modules** - Organized API into logical sub-modules for better tree-shaking
+  - `ai-visual-test/validators` - All validation functionality
+  - `ai-visual-test/temporal` - Temporal aggregation and decision-making
+  - `ai-visual-test/multi-modal` - Multi-modal validation features
+  - `ai-visual-test/ensemble` - Ensemble judging and bias detection
+  - `ai-visual-test/persona` - Persona-based testing
+  - `ai-visual-test/specs` - Natural language specifications
+  - `ai-visual-test/utils` - Utility functions and infrastructure
+  - Main export (`ai-visual-test`) still works for backward compatibility
+- **Playwright Helpers** - Easy Playwright installation and management
+  - `npm run playwright:check` - Check if Playwright is installed
+  - `npm run playwright:install` - Install Playwright package
+  - `npm run playwright:setup` - Install Playwright + browser binaries
+  - `src/helpers/playwright.mjs` - Helper utilities with graceful fallbacks
+- **Dataset Management** - Unified dataset parsing and downloading
+  - `npm run datasets:download` - Download all available datasets
+  - `npm run datasets:parse` - Parse datasets to ground truth format
+  - `npm run datasets:setup` - Download + parse in one command
+  - Supports WCAG test cases, WebUI dataset, and accessibility datasets
+- **Dataset-Based Tests** - Tests using real datasets
+  - `test/dataset-webui.test.mjs` - WebUI dataset tests
+  - `test/dataset-wcag.test.mjs` - WCAG test case tests
+  - `test/dataset-integration.test.mjs` - Integration tests
+  - `npm run test:datasets` - Run all dataset tests
+
+### Improved
+- **API Organization** - Better tree-shaking and discoverability
+  - Sub-module imports reduce bundle size
+  - Related functionality grouped together
+  - Maintains full backward compatibility
+- **Developer Experience** - Easier setup and management
+  - Playwright installation simplified
+  - Dataset management streamlined
+  - Better error messages and fallbacks
+
+### Documentation
+- Added `docs/API_SUBMODULES.md` - Sub-module usage guide
+- Added `docs/API_SURFACE_ORGANIZATION.md` - API organization plan
+- Added comprehensive dataset management documentation
+
+## [0.5.0] - 2025-11-13
+
+### Added
 - **Smart Validators** - Automatically select the best validator type based on available context
   - `validateSmart()` - Universal smart validator that auto-selects best method
   - `validateAccessibilitySmart()` - Smart accessibility validation (programmatic/VLLM/hybrid)

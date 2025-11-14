@@ -22,7 +22,8 @@ describe('Natural Language Specs', () => {
       Context: viewport=1280x720, device=desktop, fps: 2, duration: 10 seconds
     `;
     
-    const parsed = await parseSpec(spec);
+    // Use regex fallback for tests (no API key required)
+    const parsed = await parseSpec(spec, { useLLM: false });
     
     assert.ok(parsed.context);
     assert.strictEqual(parsed.context.url, 'https://queeraoke.fyi');

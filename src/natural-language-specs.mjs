@@ -232,7 +232,7 @@ function extractContextFromSpecRegex(spec) {
   // Extract selector
   const selectorPatterns = [
     /selector[=:]\s*(#[a-z0-9-]+|\.?[a-z0-9-]+|\w+)/i,
-    /(#[a-z0-9-]+)(?:\s|$)/i,
+    /(#[a-z0-9-]+)(?:\s|\)|$)/i, // Match #game-paddle) or #game-paddle
     /selector\s+(#[a-z0-9-]+|\.?[a-z0-9-]+)/i,
     /element[=:]\s*(#[a-z0-9-]+|\.?[a-z0-9-]+)/i
   ];
@@ -240,7 +240,11 @@ function extractContextFromSpecRegex(spec) {
   for (const pattern of selectorPatterns) {
     const selectorMatch = spec.match(pattern);
     if (selectorMatch) {
-      const selector = (selectorMatch[1] || selectorMatch[2]).trim();
+      let selector = (selectorMatch[1] || selectorMatch[2]).trim();
+      // Remove trailing ) if present (from "selector: #game-paddle)")
+      if (selector.endsWith(')')) {
+        selector = selector.slice(0, -1);
+      }
       if (selector.startsWith('#') || selector.startsWith('.') || /^[a-z]/.test(selector)) {
         context.selector = selector;
         if (lower.includes('game') || selector.includes('game')) {
