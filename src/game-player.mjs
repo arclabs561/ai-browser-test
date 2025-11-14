@@ -271,7 +271,7 @@ export async function playGame(page, options = {}) {
  * - Parallel game instances
  * - Checkpointing and state management
  * 
- * Originally motivated by queeraoke (https://queeraoke.fyi), but designed to work
+ * Originally motivated by interactive web applications, but designed to work
  * with any RL algorithm or advanced use case.
  * 
  * @example
