@@ -14,6 +14,14 @@ All notable changes to ai-visual-test will be documented in this file.
   - `ai-visual-test/specs` - Natural language specifications
   - `ai-visual-test/utils` - Utility functions and infrastructure
   - Main export (`ai-visual-test`) still works for backward compatibility
+- **Smart Validators** - Automatically select the best validator type based on available context
+  - `validateSmart()` - Universal smart validator that auto-selects best method
+  - `validateAccessibilitySmart()` - Smart accessibility validation (programmatic/VLLM/hybrid)
+  - `validateStateSmart()` - Smart state validation (programmatic/VLLM/hybrid)
+  - `validateElementSmart()` - Smart element validation
+  - `detectValidationMethod()` - Helper to detect best validation method
+  - Prevents common mistakes (using VLLM for measurable things)
+  - Guides users to faster, more reliable validators when available
 - **Playwright Helpers** - Easy Playwright installation and management
   - `npm run playwright:check` - Check if Playwright is installed
   - `npm run playwright:install` - Install Playwright package
@@ -35,6 +43,11 @@ All notable changes to ai-visual-test will be documented in this file.
   - Sub-module imports reduce bundle size
   - Related functionality grouped together
   - Maintains full backward compatibility
+- **Better API Design** - Smart validators make it easier to use the right tool
+  - Automatically chooses programmatic (fast, free) when page available
+  - Falls back to VLLM (semantic) when only screenshot available
+  - Supports hybrid mode (best of both) when needed
+  - Clear warnings when VLLM is used for measurable things
 - **Developer Experience** - Easier setup and management
   - Playwright installation simplified
   - Dataset management streamlined
@@ -44,27 +57,6 @@ All notable changes to ai-visual-test will be documented in this file.
 - Added `docs/API_SUBMODULES.md` - Sub-module usage guide
 - Added `docs/API_SURFACE_ORGANIZATION.md` - API organization plan
 - Added comprehensive dataset management documentation
-
-## [0.5.0] - 2025-11-13
-
-### Added
-- **Smart Validators** - Automatically select the best validator type based on available context
-  - `validateSmart()` - Universal smart validator that auto-selects best method
-  - `validateAccessibilitySmart()` - Smart accessibility validation (programmatic/VLLM/hybrid)
-  - `validateStateSmart()` - Smart state validation (programmatic/VLLM/hybrid)
-  - `validateElementSmart()` - Smart element validation
-  - `detectValidationMethod()` - Helper to detect best validation method
-  - Prevents common mistakes (using VLLM for measurable things)
-  - Guides users to faster, more reliable validators when available
-
-### Improved
-- **Better API Design** - Smart validators make it easier to use the right tool
-  - Automatically chooses programmatic (fast, free) when page available
-  - Falls back to VLLM (semantic) when only screenshot available
-  - Supports hybrid mode (best of both) when needed
-  - Clear warnings when VLLM is used for measurable things
-
-### Documentation
 - Added "Smart Validators (Recommended)" section to README
 - Updated "What it's good for" to emphasize smart validation
 - Better guidance on when to use each validator type

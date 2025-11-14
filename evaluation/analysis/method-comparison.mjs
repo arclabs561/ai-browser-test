@@ -10,7 +10,7 @@
  */
 
 import { validateScreenshot, createConfig } from '../../src/index.mjs';
-import { calculateCohensKappa } from './metrics.mjs';
+import { calculateCohensKappa } from '../utils/metrics.mjs';
 
 /**
  * Compare results across multiple providers

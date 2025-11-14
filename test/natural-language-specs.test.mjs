@@ -2,7 +2,7 @@
  * Natural Language Specifications Tests
  * 
  * Tests for natural language spec parsing, context extraction, and execution.
- * Based on queeraoke real-world usage patterns.
+ * Based on real-world usage patterns.
  * 
  * Note: Tests requiring Playwright page object are skipped in Node test runner.
  * Use evaluation/e2e/ for full Playwright-based integration tests.
@@ -16,7 +16,7 @@ describe('Natural Language Specs', () => {
   
   test('parseSpec - extracts context from spec text', async () => {
     const spec = `
-      Given I visit queeraoke.fyi
+      Given I visit example.com
       When I activate the easter egg game (press 'g', selector: #game-paddle)
       Then the game should be playable
       Context: viewport=1280x720, device=desktop, fps: 2, duration: 10 seconds
@@ -26,7 +26,7 @@ describe('Natural Language Specs', () => {
     const parsed = await parseSpec(spec, { useLLM: false });
     
     assert.ok(parsed.context);
-    assert.strictEqual(parsed.context.url, 'https://queeraoke.fyi');
+    assert.strictEqual(parsed.context.url, 'https://example.com');
     assert.strictEqual(parsed.context.gameActivationKey, 'g');
     assert.strictEqual(parsed.context.gameSelector, '#game-paddle');
     assert.deepStrictEqual(parsed.context.viewport, { width: 1280, height: 720 });
@@ -37,9 +37,9 @@ describe('Natural Language Specs', () => {
   
   test('parseSpec - extracts URL from various patterns', async () => {
     const patterns = [
-      'Given I visit queeraoke.fyi',
-      'When I open https://queeraoke.fyi',
-      'Navigate to queeraoke.fyi',
+      'Given I visit example.com',
+      'When I open https://example.com',
+      'Navigate to example.com',
       'Go to https://example.com/game'
     ];
     
@@ -92,7 +92,7 @@ describe('Natural Language Specs', () => {
     assert.ok(validation1.suggestions.length > 0);
     
     const spec2 = `
-      Given I visit queeraoke.fyi
+      Given I visit example.com
       When I activate the game
       Then the game should be playable
     `;

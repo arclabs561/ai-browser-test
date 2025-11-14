@@ -33,10 +33,10 @@ function createTestImage(path) {
     mkdirSync(dir, { recursive: true });
   }
   
-  // Use a minimal but valid PNG (1x1 pixel, RGB)
+  // Use a minimal but valid PNG (2x2 pixels minimum for Groq)
   // This is a properly formatted PNG that all VLLM APIs can process
   // Format: PNG signature + IHDR chunk + IDAT chunk + IEND chunk
-  const minimalPngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+  const minimalPngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
   const imageBuffer = Buffer.from(minimalPngBase64, 'base64');
   writeFileSync(path, imageBuffer);
   

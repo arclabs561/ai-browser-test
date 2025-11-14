@@ -27,6 +27,8 @@ export function createMockPage(options = {}) {
       Object.assign(viewport, size);
     },
     
+    url: () => 'https://mock-page.example.com', // Playwright page.url() method
+    
     goto: async (url, options = {}) => {
       // Mock navigation
       return { url, status: 200 };
@@ -88,11 +90,24 @@ export function createMockPage(options = {}) {
               contains: (cls) => false
             }
           },
-          // Make styleSheets iterable (array-like object)
-          styleSheets: (function() {
-            const sheets = [createMockStyleSheet()];
-            // Make it iterable
-            sheets[Symbol.iterator] = Array.prototype[Symbol.iterator];
+          // Add styleSheets for extractRenderedCode
+          styleSheets: (() => {
+            const sheets = [{
+              href: null,
+              cssRules: [{
+                selectorText: 'body',
+                cssText: 'body { color: black; }',
+                style: {
+                  getPropertyValue: (prop) => prop === 'color' ? 'black' : null
+                }
+              }]
+            }];
+            // Make iterable
+            sheets[Symbol.iterator] = function* () {
+              for (let i = 0; i < this.length; i++) {
+                yield this[i];
+              }
+            };
             return sheets;
           })()
         };

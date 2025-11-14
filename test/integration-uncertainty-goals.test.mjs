@@ -19,8 +19,8 @@ function createTestImage(path) {
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
-  // Use base64-encoded minimal PNG (1x1 pixel, more reliable than raw bytes)
-  const minimalPng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+  // Use 2x2 pixel PNG (meets Groq's minimum requirement)
+  const minimalPng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
   writeFileSync(path, minimalPng);
 }
 

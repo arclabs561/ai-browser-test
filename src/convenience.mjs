@@ -24,12 +24,12 @@ import { TEMPORAL_CONSTANTS } from './constants.mjs';
  * Test gameplay with variable goals
  * 
  * Complete workflow for testing games with variable goals/prompts.
- * Originally motivated by queeraoke (https://queeraoke.fyi), an interactive karaoke game
- * that requires real-time validation, variable goals, and temporal understanding.
+ * Originally motivated by interactive web applications that require
+ * real-time validation, variable goals, and temporal understanding.
  * 
  * Handles persona experience, temporal capture, goal evaluation, and consistency checks.
  * 
- * Supports queeraoke-style games:
+ * Supports interactive games:
  * - Games that activate from payment screens (not just standalone games)
  * - Game activation via keyboard shortcuts (e.g., 'g' key)
  * - Game state extraction (window.gameState)
@@ -45,7 +45,7 @@ import { TEMPORAL_CONSTANTS } from './constants.mjs';
  * @param {number} [options.duration] - Duration for temporal capture (ms)
  * @param {boolean} [options.captureCode] - Extract rendered code
  * @param {boolean} [options.checkConsistency] - Check cross-modal consistency
- * @param {string} [options.gameActivationKey] - Keyboard key to activate game (e.g., 'g' for queeraoke)
+ * @param {string} [options.gameActivationKey] - Keyboard key to activate game (e.g., 'g')
  * @param {string} [options.gameSelector] - Selector to wait for game activation (e.g., '#game-paddle')
  * @param {boolean} [options.useTemporalPreprocessing] - Use temporal preprocessing for better performance
  * @param {boolean} [options.play] - If true, actually play the game (uses playGame() internally)
@@ -61,8 +61,8 @@ export async function testGameplay(page, options = {}) {
     duration = 5000,
     captureCode = true,
     checkConsistency = true,
-    gameActivationKey = null, // e.g., 'g' for queeraoke
-    gameSelector = null, // e.g., '#game-paddle' for queeraoke
+    gameActivationKey = null, // e.g., 'g' to activate game
+    gameSelector = null, // e.g., '#game-paddle' selector
     useTemporalPreprocessing = false,
     play = false // NEW: Option to actually play the game
   } = options;
@@ -104,7 +104,7 @@ export async function testGameplay(page, options = {}) {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForLoadState('networkidle');
 
-    // Activate game if needed (originally for queeraoke-style games that activate from payment screens)
+    // Activate game if needed (for games that activate from other screens)
     if (gameActivationKey) {
       log(`[Convenience] Activating game with key: ${gameActivationKey}`);
       await page.keyboard.press(gameActivationKey);
@@ -127,7 +127,7 @@ export async function testGameplay(page, options = {}) {
       trackPropagation('capture', { renderedCode }, 'Captured HTML/CSS for gameplay test');
     }
 
-    // Extract game state (handles queeraoke's gameState structure and other games)
+    // Extract game state (handles window.gameState structure and other games)
     const gameState = await page.evaluate(() => {
       const state = window.gameState || {};
       return {
@@ -527,7 +527,7 @@ export async function testBrowserExperience(page, options = {}) {
  * Simplified API for validating screenshots with variable goals/prompts.
  * Supports string goals, goal objects, arrays, and functions.
  * 
- * Originally motivated by queeraoke (https://queeraoke.fyi), an interactive karaoke game
+ * Originally motivated by interactive web applications
  * that requires real-time validation, variable goals, and temporal understanding.
  * 
  * Supports:

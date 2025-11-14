@@ -59,6 +59,8 @@
     "check:commit": "node node_modules/@arclabs561/hookwise/src/hooks/commit-msg.mjs .git/COMMIT_EDITMSG || echo 'Hookwise not available'",
     "check:all": "npm run check:secrets && npx hookwise garden && npm run check:test-performance",
     "garden": "npx hookwise garden",
+    "garden:enhanced": "node scripts/enhanced-garden.mjs",
+    "deprecate:old": "node scripts/deprecate-old-package.mjs",
     "garden:watch": "node scripts/watch-garden.mjs",
     "test:performance": "npm run check:test-performance",
     "test:slow": "npm test 2>&1 | grep -E '✔.*\\([0-9]+\\.[0-9]+ms\\)' | sort -t'(' -k2 -nr | head -20"

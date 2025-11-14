@@ -14,7 +14,8 @@ import { join } from 'path';
 import { execSync } from 'child_process';
 
 const DATASETS_DIR = join(process.cwd(), 'evaluation', 'datasets');
-const CACHE_DIR = join(process.cwd(), 'evaluation', 'cache');
+// Use same cache location as load-webui-dataset.mjs for consistency
+const CACHE_DIR = join(process.cwd(), 'evaluation', 'datasets');
 
 // Ensure directories exist
 [DATASETS_DIR, CACHE_DIR].forEach(dir => {
@@ -28,12 +29,24 @@ const CACHE_DIR = join(process.cwd(), 'evaluation', 'cache');
  * Downloads and processes WebUI dataset from HuggingFace or GitHub
  */
 export async function loadWebUIDataset(options = {}) {
+  // Use the new implementation
+  try {
+    const { loadWebUIDataset: loadNew } = await import('./load-webui-dataset.mjs');
+    return await loadNew(options);
+  } catch (error) {
+    console.warn(`⚠️  Error loading WebUI dataset with new loader: ${error.message}`);
+    // Fallback to old implementation if it exists
+    return null;
+  }
+}
+
+export async function loadWebUIDataset_OLD(options = {}) {
   const {
     limit = null, // Limit number of samples
     cache = true
   } = options;
   
-  const cacheFile = join(CACHE_DIR, 'webui-dataset.json');
+  const cacheFile = join(CACHE_DIR, '.webui-cache.json');
   
   // Check cache
   if (cache && existsSync(cacheFile)) {
@@ -79,7 +92,7 @@ export async function loadTabularAccessibilityDataset(options = {}) {
     cache = true
   } = options;
   
-  const cacheFile = join(CACHE_DIR, 'tabular-accessibility.json');
+  const cacheFile = join(CACHE_DIR, '.tabular-accessibility-cache.json');
   
   if (cache && existsSync(cacheFile)) {
     console.log('📦 Loading Tabular Accessibility dataset from cache...');

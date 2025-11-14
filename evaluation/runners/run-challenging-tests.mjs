@@ -6,9 +6,9 @@
  * Validates system can handle increasingly complex websites.
  */
 
-import { evaluateChallengingWebsites } from './expert-evaluation-scenarios.mjs';
-import { CHALLENGING_WEBSITES, getWebsitesByDifficulty } from './challenging-websites.mjs';
-import { getExpectedResults } from './challenging-websites.mjs';
+import { evaluateChallengingWebsites } from '../utils/expert-evaluation-scenarios.mjs';
+import { CHALLENGING_WEBSITES, getWebsitesByDifficulty } from '../utils/challenging-websites.mjs';
+import { getExpectedResults } from '../utils/challenging-websites.mjs';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 

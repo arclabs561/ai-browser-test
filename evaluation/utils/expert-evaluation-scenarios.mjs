@@ -15,9 +15,18 @@
  */
 
 import { validateScreenshot, humanPerceptionTime, SequentialDecisionContext } from '../../src/index.mjs';
-import { chromium } from 'playwright';
 import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
+
+// Dynamically import playwright to handle optional dependency
+async function getChromium() {
+  try {
+    const playwright = await import('playwright');
+    return playwright.chromium;
+  } catch (e) {
+    throw new Error('Playwright is required for browser-based evaluations. Install it with: npm install playwright');
+  }
+}
 
 // Import challenging websites for progressive testing
 import { CHALLENGING_WEBSITES, getAllWebsitesSorted } from './challenging-websites.mjs';
@@ -225,6 +234,7 @@ async function evaluateExpertScenarios() {
   console.log('🎯 Expert Evaluation Scenarios\n');
   console.log('Testing temporal decision-making on complex, opinionated websites\n');
   
+  const chromium = await getChromium();
   const browser = await chromium.launch();
   const context = await browser.newContext({
     viewport: { width: 1920, height: 1080 }
@@ -353,6 +363,7 @@ async function evaluateExpertScenarios() {
  * Evaluate challenging websites (progressive difficulty)
  */
 export async function evaluateChallengingWebsites(options = {}) {
+  const chromium = await getChromium();
   const { maxDifficulty = 'expert', limit = null } = options;
   
   const difficultyOrder = ['medium', 'hard', 'very-hard', 'extreme', 'expert'];

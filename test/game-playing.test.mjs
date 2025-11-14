@@ -2,8 +2,8 @@
  * Game Playing Tests
  * 
  * Tests for game playing functionality (playGame and GameGym).
- * Originally motivated by queeraoke (https://queeraoke.fyi), an interactive
- * karaoke game that requires real-time validation, variable goals, and temporal understanding.
+ * Originally motivated by interactive web applications that require
+ * real-time validation, variable goals, and temporal understanding.
  * 
  * These tests validate that the package can actually play games, not just test them.
  */

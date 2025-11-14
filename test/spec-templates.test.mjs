@@ -14,17 +14,18 @@ import {
   validateTemplate,
   TEMPLATES
 } from '../src/spec-templates.mjs';
+import { validateSpec, parseSpec } from '../src/natural-language-specs.mjs';
 
 describe('Spec Templates', () => {
   
   test('createSpecFromTemplate - basic game template', () => {
     const spec = createSpecFromTemplate('game', {
-      url: 'queeraoke.fyi',
+      url: 'example.com',
       activationKey: 'g',
       selector: ', selector: #game-paddle'
     });
     
-    assert.ok(spec.includes('queeraoke.fyi'));
+    assert.ok(spec.includes('example.com'));
     assert.ok(spec.includes("press 'g'"));
     assert.ok(spec.includes('#game-paddle'));
     assert.ok(spec.includes('Given I visit'));
@@ -179,6 +180,75 @@ describe('Spec Templates', () => {
     for (const [name, template] of Object.entries(TEMPLATES)) {
       const validation = validateTemplate(template);
       assert.strictEqual(validation.valid, true);
+    }
+  });
+  
+  test('template examples generate valid, parseable specs', async () => {
+    for (const [name, template] of Object.entries(TEMPLATES)) {
+      if (!template.examples || template.examples.length === 0) {
+        continue; // Skip templates without examples
+      }
+      
+      for (const example of template.examples) {
+        // Generate spec from example
+        const spec = createSpecFromTemplate(name, example.values);
+        
+        // Validate structure
+        const validation = validateSpec(spec);
+        assert.strictEqual(validation.valid, true,
+          `Template ${name} example "${example.name}" generates invalid spec: ${validation.errors.join(', ')}`);
+        
+        // Parse spec
+        const parsed = await parseSpec(spec, { useLLM: false });
+        assert.ok(parsed.interfaces.length > 0,
+          `Template ${name} example "${example.name}" doesn't map to interfaces`);
+        
+        // Check context extraction (if URL provided)
+        if (example.values.url) {
+          assert.ok(parsed.context?.url,
+            `Template ${name} example "${example.name}" doesn't extract URL`);
+        }
+      }
+    }
+  });
+  
+  describe('All Templates - Systematic Testing', () => {
+    const allTemplates = ['game', 'accessibility', 'browser_experience', 'state_validation', 'temporal', 'property'];
+    
+    for (const templateName of allTemplates) {
+      test(`${templateName} template - generates valid spec`, () => {
+        const spec = createSpecFromTemplate(templateName, {});
+        const validation = validateSpec(spec);
+        
+        assert.strictEqual(validation.valid, true,
+          `Template ${templateName} generates invalid spec: ${validation.errors.join(', ')}`);
+      });
+      
+      test(`${templateName} template - parses correctly`, async () => {
+        const spec = createSpecFromTemplate(templateName, {});
+        const parsed = await parseSpec(spec, { useLLM: false });
+        
+        assert.ok(parsed.interfaces.length > 0,
+          `Template ${templateName} doesn't map to any interfaces`);
+      });
+      
+      test(`${templateName} template - extracts context`, async () => {
+        const spec = createSpecFromTemplate(templateName, {
+          url: 'test.example.com'
+        });
+        const parsed = await parseSpec(spec, { useLLM: false });
+        
+        // Templates that include URL in their spec structure should extract it
+        // Templates like state_validation and temporal don't have URL in their structure
+        const templatesWithUrl = ['game', 'accessibility', 'browser_experience'];
+        if (templatesWithUrl.includes(templateName)) {
+          assert.ok(parsed.context?.url,
+            `Template ${templateName} doesn't extract URL from spec`);
+        }
+        // For other templates, just verify parsing works
+        assert.ok(parsed.context !== undefined,
+          `Template ${templateName} doesn't extract any context`);
+      });
     }
   });
 });

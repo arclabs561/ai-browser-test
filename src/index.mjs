@@ -285,7 +285,7 @@ export {
 } from './convenience.mjs';
 
 // Game playing (optional - requires Playwright)
-// Originally motivated by queeraoke (https://queeraoke.fyi)
+// Originally motivated by interactive web applications
 export {
   playGame,
   GameGym,

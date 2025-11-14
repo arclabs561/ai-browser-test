@@ -257,7 +257,7 @@ async function saveCache(cache) {
       const writeDuration = Date.now() - writeStartTime;
       
       // Track successful atomic writes (for metrics)
-      // CRITICAL FIX: cacheMetrics is now initialized at module level, no need to check
+      // NOTE: cacheMetrics is initialized at module level
       cacheMetrics.atomicWrites++;
       
       // Log in debug mode for verification
@@ -286,7 +286,7 @@ async function saveCache(cache) {
     }
   } catch (error) {
     // VERIFIABLE: Track failures to verify atomic write claim
-    // CRITICAL FIX: cacheMetrics is now initialized at module level, no need to check
+    // NOTE: cacheMetrics is initialized at module level
     cacheMetrics.atomicWriteFailures++;
     
     warn(`[VLLM Cache] Failed to save cache: ${error.message}`);
@@ -420,7 +420,7 @@ export function getCacheStats() {
   };
   
   // VERIFIABLE: Include atomic write metrics to verify "prevents corruption" claim
-  // CRITICAL FIX: cacheMetrics is now always initialized, no need to check
+  // NOTE: cacheMetrics is always initialized at module level
   stats.atomicWrites = cacheMetrics.atomicWrites;
   stats.atomicWriteFailures = cacheMetrics.atomicWriteFailures;
   stats.tempFileCleanups = cacheMetrics.tempFileCleanups;

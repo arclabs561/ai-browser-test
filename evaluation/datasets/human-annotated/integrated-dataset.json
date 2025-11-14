@@ -1,37 +1,25 @@
 {
-  "name": "Integrated Human-Annotated Ground Truth Dataset",
-  "created": "2025-11-12T23:21:44.108Z",
-  "description": "Combined dataset from multiple human-annotated sources",
-  "version": "1.0.0",
+  "timestamp": "2025-01-14T10:30:00.000Z",
+  "status": "partial",
   "datasets": [
     {
-      "name": "WebUI Dataset",
-      "type": "visual-ui-understanding",
-      "source": "https://uimodeling.github.io/",
-      "status": "pending-download",
-      "instructionsPath": "/Users/arc/Documents/dev/ai-visual-test/evaluation/datasets/human-annotated/visual-ui-understanding/DOWNLOAD_INSTRUCTIONS.md"
-    },
-    {
-      "name": "Tabular Accessibility Dataset",
-      "type": "accessibility-auditing",
-      "source": "https://www.mdpi.com/2306-5729/10/9/149",
-      "status": "pending-download",
-      "instructionsPath": "/Users/arc/Documents/dev/ai-visual-test/evaluation/datasets/human-annotated/accessibility-auditing/DOWNLOAD_INSTRUCTIONS.md"
-    },
-    {
       "name": "WCAG Test Cases",
-      "type": "wcag-test-cases",
-      "source": "W3C WCAG Test Cases",
-      "status": "pending-download",
-      "instructionsPath": "/Users/arc/Documents/dev/ai-visual-test/evaluation/datasets/human-annotated/wcag-test-cases/DOWNLOAD_INSTRUCTIONS.md"
+      "source": "W3C",
+      "status": "downloaded",
+      "location": "evaluation/datasets/human-annotated/wcag-test-cases/testcases.json",
+      "format": "HTML/JSON",
+      "samples": [],
+      "note": "Downloaded HTML page - needs parsing to extract test cases"
     },
     {
-      "name": "Apple Screen Recognition Dataset",
-      "type": "ui-element-detection",
-      "source": "Apple Research",
-      "status": "pending-download",
-      "instructionsPath": "/Users/arc/Documents/dev/ai-visual-test/evaluation/datasets/human-annotated/ui-element-detection/DOWNLOAD_INSTRUCTIONS.md"
+      "name": "WebUI Dataset",
+      "source": "GitHub: js0nwu/webui",
+      "status": "extracted",
+      "location": "evaluation/datasets/human-annotated/visual-ui-understanding/webui-dataset/webui-7k",
+      "format": "JSON with screenshots",
+      "samples": [],
+      "note": "Downloaded and extracted 2.70GB webui-7k dataset. Contains ~7000 sample folders with screenshots and metadata."
     }
   ],
-  "samples": []
+  "note": "Datasets downloaded but not yet converted to our ground truth format. Run conversion scripts to integrate."
 }

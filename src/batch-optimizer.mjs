@@ -150,7 +150,7 @@ export class BatchOptimizer {
     }
     
     // If under concurrency limit, process immediately
-    // CRITICAL FIX: Track metrics for immediate processing too (not just queued requests)
+    // NOTE: Track metrics for immediate processing too (not just queued requests)
     // Note: totalQueued counts ALL requests (immediate + queued), totalProcessed counts completed requests
     if (this.activeRequests < this.maxConcurrency) {
       try {
@@ -230,7 +230,7 @@ export class BatchOptimizer {
     
     return new Promise((resolve, reject) => {
       // Set timeout for queued request (prevents indefinite waiting)
-      // CRITICAL FIX: Use a flag to prevent double-counting if request completes just before timeout
+      // NOTE: Use a flag to prevent double-counting if request completes just before timeout
       let timeoutFired = false;
       let queueEntry = null; // Store reference to queue entry for timeout callback
       
@@ -410,7 +410,7 @@ export class BatchOptimizer {
    * @returns {Object} Performance metrics including queue rejections and timeouts
    */
   getPerformanceMetrics() {
-    // CRITICAL FIX: Metrics are now initialized in constructor, but keep this check
+    // NOTE: Metrics are initialized in constructor, but keep this check for safety
     // for defensive programming (in case constructor wasn't called properly)
     if (!this.metrics) {
       this.metrics = {

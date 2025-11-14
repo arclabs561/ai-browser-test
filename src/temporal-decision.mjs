@@ -273,7 +273,7 @@ export class SequentialDecisionContext {
     this.currentState = null;
     this.adaptations = {};
     this.maxHistory = options.maxHistory || 10;
-    // CRITICAL: Default to false based on evaluation data showing sequential context increases variance
+    // NOTE: Default to false based on evaluation data showing sequential context increases variance
     // Evaluation data (data-driven-analysis-1762832349830.json) shows:
     // - Isolated variance: 0.231
     // - Sequential variance: 0.324 (40% increase)
@@ -325,7 +325,7 @@ export class SequentialDecisionContext {
     // Identify patterns in history
     const patterns = this.identifyPatterns();
     
-    // CRITICAL: Check if variance has increased (evaluation data shows sequential context can increase variance)
+    // NOTE: Check if variance has increased (evaluation data shows sequential context can increase variance)
     // If variance tracking is enabled and variance has increased significantly, disable adaptation
     // VERIFIABLE: Variance increase is always logged (not just in verbose mode) and tracked in metrics
     // ENHANCEMENT: Also track variance decreases (improvements) for completeness

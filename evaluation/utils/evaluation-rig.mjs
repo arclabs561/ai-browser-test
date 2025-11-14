@@ -193,11 +193,18 @@ async function runComprehensiveEvaluation(options = {}) {
     try {
       switch (datasetName) {
         case 'webui':
-          dataset = await loadWebUIDataset({ limit, cache: true });
-          if (dataset && dataset.samples) {
-            results = await evaluateDataset(dataset, { limit, provider });
-          } else {
-            console.log('   ⚠️  WebUI dataset not available (requires manual download)');
+          try {
+            const { loadWebUIDataset } = await import('./load-webui-dataset.mjs');
+            dataset = await loadWebUIDataset({ limit, cache: true });
+            if (dataset && dataset.samples && dataset.samples.length > 0) {
+              console.log(`   📊 Loaded ${dataset.samples.length} WebUI samples`);
+              results = await evaluateDataset(dataset, { limit, provider });
+            } else {
+              console.log('   ⚠️  WebUI dataset not available (run: node evaluation/utils/convert-webui-dataset.mjs)');
+              results = [];
+            }
+          } catch (error) {
+            console.log(`   ⚠️  Error loading WebUI dataset: ${error.message}`);
             results = [];
           }
           break;

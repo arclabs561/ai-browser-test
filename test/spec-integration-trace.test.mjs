@@ -24,7 +24,7 @@ describe('Natural Language Specs - Integration with Tracing', () => {
   
   test('parseSpec - extracts context and maps to interfaces (traced)', async () => {
     const spec = `
-      Given I visit queeraoke.fyi
+      Given I visit example.com
       When I activate the easter egg game (press 'g', selector: #game-paddle)
       Then the game should be playable
       Context: viewport=1280x720, device=desktop, fps: 2, duration: 10 seconds
@@ -43,7 +43,7 @@ describe('Natural Language Specs - Integration with Tracing', () => {
     
     assert.ok(parsed.context);
     // URL extraction may vary, so check if it exists or matches pattern
-    assert.ok(parsed.context.url === 'https://queeraoke.fyi' || parsed.context.url?.includes('queeraoke.fyi'));
+    assert.ok(parsed.context.url === 'https://example.com' || parsed.context.url?.includes('example.com'));
     // Game activation key extraction may vary
     if (parsed.context.gameActivationKey) {
       assert.strictEqual(parsed.context.gameActivationKey.toLowerCase(), 'g');

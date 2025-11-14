@@ -4,8 +4,8 @@
  * Optional module for actually playing games (not just testing them).
  * Uses validation to understand game state, then makes decisions and executes actions.
  * 
- * Originally motivated by queeraoke (https://queeraoke.fyi), an interactive karaoke game
- * that requires real-time validation, variable goals, and temporal understanding.
+ * Originally motivated by interactive web applications that require
+ * real-time validation, variable goals, and temporal understanding.
  * 
  * Design: Game playing = validation + decision-making + action execution
  * - Validation: Understand game state from screenshots (we have this)
@@ -134,7 +134,7 @@ export async function executeGameAction(page, action) {
  * This is slower than human gameplay (1-5 FPS for decision-making, not 60 FPS)
  * because VLLM calls take 1-3 seconds.
  * 
- * Originally motivated by queeraoke (https://queeraoke.fyi), but works for any web game.
+ * Originally motivated by interactive web applications, but works for any web game.
  * 
  * @param {import('playwright').Page} page - Playwright page object
  * @param {Object} options - Game playing options

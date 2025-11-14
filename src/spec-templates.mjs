@@ -6,7 +6,7 @@
  * 
  * Based on research findings:
  * - Real-world BDD patterns (Cucumber, SpecFlow, Behave)
- * - Queeraoke usage patterns (200+ tests)
+ * - Real-world usage patterns (200+ tests)
  * - Best practices (scenario independence, domain language, living documentation)
  */
 
@@ -18,7 +18,7 @@ import { log } from './logger.mjs';
 export const TEMPLATES = {
   /**
    * Game Testing Template
-   * Based on queeraoke patterns
+   * Based on real-world interactive game patterns
    */
   game: {
     name: 'Game Testing',
@@ -41,7 +41,7 @@ Context: viewport={viewport}, device={device}{temporal}`,
       {
         name: 'Basic Game',
         values: {
-          url: 'queeraoke.fyi',
+          url: 'example.com',
           activationKey: 'g',
           selector: ', selector: #game-paddle'
         }

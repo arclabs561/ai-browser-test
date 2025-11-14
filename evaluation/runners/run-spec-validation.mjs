@@ -11,8 +11,9 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { runErrorAnalysis, analyzeSpecQuality } from '../utils/spec-error-analysis.mjs';
-import { createSpecFromTemplate, listTemplates } from '../../src/spec-templates.mjs';
+import { createSpecFromTemplate, listTemplates, TEMPLATES } from '../../src/spec-templates.mjs';
 import { validateSpec, parseSpec } from '../../src/natural-language-specs.mjs';
+import { mapToInterfaces } from '../../src/natural-language-specs.mjs';
 
 /**
  * Load spec dataset
@@ -136,6 +137,39 @@ function compareWithExpected(spec, result) {
 }
 
 /**
+ * Validate executeSpec call chain without actual execution
+ * Tests that specs map correctly to interface calls
+ */
+async function validateExecuteSpecMapping(spec) {
+  const specText = typeof spec === 'string' ? spec : (spec.spec || spec.text || '');
+  
+  // Parse spec
+  const parsed = await parseSpec(specText, { useLLM: false });
+  
+  // Map to interfaces (without page, so no execution)
+  const calls = await mapToInterfaces(parsed, {
+    page: null, // No page = no execution
+    options: {}
+  });
+  
+  return {
+    parsed,
+    calls,
+    callCount: calls.length,
+    interfaces: calls.map(c => c.interface),
+    // Validate call structure
+    // Note: validateScreenshot doesn't require page in args, and page can be null for validation
+    valid: calls.every(call => 
+      call.interface && 
+      call.args
+      // Page validation: some interfaces need page, others don't
+      // validateScreenshot doesn't require page, testGameplay/testBrowserExperience do
+      // For validation purposes (page=null), we just check interface and args exist
+    )
+  };
+}
+
+/**
  * Run comprehensive validation
  */
 async function runComprehensiveValidation() {
@@ -211,24 +245,208 @@ async function runComprehensiveValidation() {
   console.log(`  Context: ${summary.matches.context}/${summary.validated}`);
   console.log(`  Quality Score: ${summary.matches.qualityScore}/${summary.validated}\n`);
   
-  // Test templates
-  console.log('🧪 Testing Templates...\n');
-  const templates = listTemplates();
-  console.log(`Available templates: ${templates.length}`);
+  // Validate executeSpec mapping
+  console.log('🔗 Validating executeSpec Mapping...\n');
+  const mappingResults = [];
+  const mappingTestSpecs = specs.slice(0, Math.min(10, specs.length)); // Test first 10 for now
   
-  for (const template of templates.slice(0, 3)) {
+  for (const spec of mappingTestSpecs) {
     try {
-      const spec = createSpecFromTemplate(template.name.toLowerCase().replace(/\s+/g, '_'), {});
-      console.log(`  ✅ ${template.name}: Generated spec (${spec.length} chars)`);
+      const mapping = await validateExecuteSpecMapping(spec);
+      const matchesExpected = spec.expectedInterfaces 
+        ? spec.expectedInterfaces.every(iface => mapping.interfaces.includes(iface))
+        : true;
+      
+      mappingResults.push({
+        specId: spec.id,
+        name: spec.name,
+        valid: mapping.valid && matchesExpected,
+        interfaces: mapping.interfaces,
+        expectedInterfaces: spec.expectedInterfaces,
+        matches: matchesExpected,
+        callCount: mapping.callCount
+      });
     } catch (error) {
-      console.log(`  ❌ ${template.name}: ${error.message}`);
+      mappingResults.push({
+        specId: spec.id,
+        name: spec.name,
+        error: error.message
+      });
     }
   }
+  
+  const mappingPassCount = mappingResults.filter(r => r.valid).length;
+  console.log(`Mapping Validation: ${mappingPassCount}/${mappingResults.length} passed\n`);
+  
+  // Show any failures
+  const mappingFailures = mappingResults.filter(r => !r.valid && !r.error);
+  if (mappingFailures.length > 0) {
+    console.log('Mapping Failures:');
+    for (const failure of mappingFailures.slice(0, 5)) {
+      console.log(`  ⚠️ ${failure.name} (${failure.specId})`);
+      if (failure.expectedInterfaces && !failure.matches) {
+        console.log(`    Expected: ${failure.expectedInterfaces.join(', ')}`);
+        console.log(`    Got: ${failure.interfaces.join(', ')}`);
+      }
+    }
+    if (mappingFailures.length > 5) {
+      console.log(`  ... and ${mappingFailures.length - 5} more`);
+    }
+    console.log();
+  }
+  
+  // Add mapping validation to summary
+  summary.mappingValidation = {
+    tested: mappingResults.length,
+    passed: mappingPassCount,
+    failed: mappingResults.length - mappingPassCount
+  };
+  
+  // Test templates with full validation
+  console.log('🧪 Testing Templates with Examples...\n');
+  const templates = listTemplates();
+  console.log(`Available templates: ${templates.length}\n`);
+  
+  const templateResults = [];
+  for (const template of templates) {
+    const templateName = template.name.toLowerCase().replace(/\s+/g, '_');
+    const templateKey = Object.keys(TEMPLATES).find(k => 
+      TEMPLATES[k].name === template.name
+    ) || templateName;
+    
+    const templateResult = {
+      template: template.name,
+      templateKey,
+      defaultSpec: null,
+      examples: []
+    };
+    
+    // Test 1: Template generates valid spec with defaults
+    try {
+      const defaultSpec = createSpecFromTemplate(templateKey, {});
+      const defaultValidation = validateSpec(defaultSpec);
+      const defaultParsed = await parseSpec(defaultSpec, { useLLM: false });
+      
+      templateResult.defaultSpec = {
+        valid: defaultValidation.valid,
+        parseable: !!defaultParsed.interfaces.length,
+        hasContext: Object.keys(defaultParsed.context || {}).length > 0,
+        interfaces: defaultParsed.interfaces,
+        errors: defaultValidation.errors,
+        warnings: defaultValidation.warnings
+      };
+    } catch (error) {
+      templateResult.defaultSpec = { error: error.message };
+    }
+    
+    // Test 2: Validate all examples
+    if (template.examples && template.examples.length > 0) {
+      for (const example of template.examples) {
+        try {
+          const exampleSpec = createSpecFromTemplate(templateKey, example.values);
+          const exampleValidation = validateSpec(exampleSpec);
+          const exampleParsed = await parseSpec(exampleSpec, { useLLM: false });
+          
+          // Check context extraction matches example expectations
+          let contextMatches = true;
+          if (example.values.url) {
+            const urlValue = example.values.url.replace(/^https?:\/\//, '');
+            contextMatches = exampleParsed.context?.url?.includes(urlValue) || 
+                           exampleParsed.context?.url === `https://${urlValue}` ||
+                           exampleParsed.context?.url === `http://${urlValue}`;
+          }
+          
+          templateResult.examples.push({
+            name: example.name,
+            valid: exampleValidation.valid,
+            parseable: !!exampleParsed.interfaces.length,
+            contextMatches,
+            interfaces: exampleParsed.interfaces,
+            errors: exampleValidation.errors,
+            warnings: exampleValidation.warnings
+          });
+        } catch (error) {
+          templateResult.examples.push({
+            name: example.name,
+            error: error.message
+          });
+        }
+      }
+    }
+    
+    templateResults.push(templateResult);
+  }
+  
+  // Report template validation results
+  console.log('Template Validation Results:\n');
+  let templatePassCount = 0;
+  let templateTotalCount = 0;
+  let examplePassCount = 0;
+  let exampleTotalCount = 0;
+  
+  for (const result of templateResults) {
+    const defaultStatus = result.defaultSpec.error ? '❌' : 
+      (result.defaultSpec.valid && result.defaultSpec.parseable ? '✅' : '⚠️');
+    console.log(`${defaultStatus} ${result.template}`);
+    
+    if (result.defaultSpec.error) {
+      console.log(`  Error: ${result.defaultSpec.error}`);
+    } else {
+      templateTotalCount++;
+      if (result.defaultSpec.valid && result.defaultSpec.parseable) {
+        templatePassCount++;
+      } else {
+        if (result.defaultSpec.errors?.length) {
+          console.log(`  Errors: ${result.defaultSpec.errors.join(', ')}`);
+        }
+        if (result.defaultSpec.warnings?.length) {
+          console.log(`  Warnings: ${result.defaultSpec.warnings.length}`);
+        }
+      }
+    }
+    
+    if (result.examples && result.examples.length > 0) {
+      for (const example of result.examples) {
+        exampleTotalCount++;
+        const exStatus = example.error ? '  ❌' :
+          (example.valid && example.parseable && example.contextMatches ? '  ✅' : '  ⚠️');
+        console.log(`${exStatus}   ${example.name}`);
+        
+        if (example.error) {
+          console.log(`      Error: ${example.error}`);
+        } else {
+          if (example.valid && example.parseable && example.contextMatches) {
+            examplePassCount++;
+          } else {
+            if (example.errors?.length) {
+              console.log(`      Errors: ${example.errors.join(', ')}`);
+            }
+            if (!example.contextMatches && example.values?.url) {
+              console.log(`      Context mismatch: expected URL extraction`);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  console.log(`\nTemplate Summary: ${templatePassCount}/${templateTotalCount} templates pass`);
+  console.log(`Example Summary: ${examplePassCount}/${exampleTotalCount} examples pass\n`);
+  
+  // Add template validation to summary
+  summary.templateValidation = {
+    totalTemplates: templateResults.length,
+    templatesPassed: templatePassCount,
+    templatesTotal: templateTotalCount,
+    examplesPassed: examplePassCount,
+    examplesTotal: exampleTotalCount
+  };
   
   return {
     summary,
     results,
-    errorAnalysis
+    errorAnalysis,
+    templateResults
   };
 }
 
