@@ -23,13 +23,13 @@ describe('Dataset Integration Tests', () => {
         dataset = await loadWebUIDataset({ limit: 5, cache: true });
       } catch (e) {
         console.log(`   ℹ️  Dataset loading failed: ${e.message}`);
-        return; // Skip test if dataset loading fails
+        this.skip(); // Skip test if dataset loading fails
       }
       
       // Gracefully handle missing dataset directory (removed from repo)
       if (!dataset || !dataset.samples || dataset.samples.length === 0) {
         console.log('   ℹ️  No samples available (dataset directory not present)');
-        return; // Skip test if dataset not available
+        this.skip(); // Skip test if dataset not available
       }
       
       assert.ok(dataset.samples.length > 0, 'Should have samples');
@@ -44,13 +44,13 @@ describe('Dataset Integration Tests', () => {
     it('should work with StateValidator', async () => {
       if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
         console.log('   ℹ️  Skipping - no API key available');
-        return;
+        this.skip();
       }
       
       const dataset = await loadWebUIDataset({ limit: 1, cache: true });
       
       if (!dataset || !dataset.samples || dataset.samples.length === 0) {
-        return;
+        this.skip();
       }
       
       const sample = dataset.samples[0];
@@ -76,20 +76,20 @@ describe('Dataset Integration Tests', () => {
     it('should work with AccessibilityValidator', async () => {
       if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
         console.log('   ℹ️  Skipping - no API key available');
-        return;
+        this.skip();
       }
       
       const dataset = await loadWebUIDataset({ limit: 1, cache: true });
       
       if (!dataset || !dataset.samples || dataset.samples.length === 0) {
-        return;
+        this.skip();
       }
       
       const sample = dataset.samples[0];
       const screenshotPath = sample.screenshot || sample.screenshotPath;
       
       if (!screenshotPath || !existsSync(screenshotPath)) {
-        return;
+        this.skip();
       }
       
       const validator = new AccessibilityValidator();
@@ -106,10 +106,10 @@ describe('Dataset Integration Tests', () => {
   });
   
   describe('WCAG Dataset Integration', () => {
-    it('should have valid WCAG test case structure', () => {
+    it('should have valid WCAG test case structure', function() {
       if (!existsSync(WCAG_GROUND_TRUTH)) {
         console.log('   ℹ️  WCAG ground truth not parsed. Run: npm run datasets:parse');
-        return;
+        this.skip();
       }
       
       const groundTruth = JSON.parse(readFileSync(WCAG_GROUND_TRUTH, 'utf-8'));

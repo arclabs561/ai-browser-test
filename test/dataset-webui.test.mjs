@@ -15,13 +15,13 @@ const WEBUI_GROUND_TRUTH = join(process.cwd(), 'evaluation', 'datasets', 'webui-
 
 describe('WebUI Dataset Tests', () => {
   
-  it('should load WebUI dataset', async () => {
+  it('should load WebUI dataset', async function() {
     let dataset;
     try {
       dataset = await loadWebUIDataset({ limit: 10, cache: true });
     } catch (e) {
       console.log(`   ℹ️  Dataset loading failed: ${e.message}`);
-      return; // Skip test if dataset loading fails
+      this.skip(); // Skip test if dataset loading fails
     }
     
     assert.ok(dataset, 'Dataset should be loaded');
@@ -30,7 +30,7 @@ describe('WebUI Dataset Tests', () => {
     // Gracefully handle missing dataset directory (removed from repo)
     if (dataset.samples.length === 0) {
       console.log('   ℹ️  No samples available (dataset directory not present)');
-      return; // Skip test if dataset not available
+      this.skip(); // Skip test if dataset not available
     }
     
     if (dataset.samples.length > 0) {
@@ -40,28 +40,29 @@ describe('WebUI Dataset Tests', () => {
     }
   });
   
-  it('should have ground truth file if parsed', () => {
-    if (existsSync(WEBUI_GROUND_TRUTH)) {
-      const groundTruth = JSON.parse(readFileSync(WEBUI_GROUND_TRUTH, 'utf-8'));
-      assert.ok(groundTruth.samples, 'Ground truth should have samples');
-      assert.ok(Array.isArray(groundTruth.samples), 'Samples should be an array');
-    } else {
+  it('should have ground truth file if parsed', function() {
+    if (!existsSync(WEBUI_GROUND_TRUTH)) {
       // Skip if not parsed yet
       console.log('   ℹ️  WebUI ground truth not parsed yet. Run: node evaluation/utils/parse-all-datasets.mjs');
+      this.skip();
     }
+    
+    const groundTruth = JSON.parse(readFileSync(WEBUI_GROUND_TRUTH, 'utf-8'));
+    assert.ok(groundTruth.samples, 'Ground truth should have samples');
+    assert.ok(Array.isArray(groundTruth.samples), 'Samples should be an array');
   });
   
-  it('should validate samples from dataset (if API key available)', async () => {
+  it('should validate samples from dataset (if API key available)', async function() {
     if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY && !process.env.ANTHROPIC_API_KEY) {
       console.log('   ℹ️  Skipping - no API key available');
-      return;
+      this.skip();
     }
     
     const dataset = await loadWebUIDataset({ limit: 1, cache: true });
     
     if (!dataset || !dataset.samples || dataset.samples.length === 0) {
       console.log('   ℹ️  No samples available in dataset');
-      return;
+      this.skip();
     }
     
     const sample = dataset.samples[0];
@@ -69,7 +70,7 @@ describe('WebUI Dataset Tests', () => {
     
     if (!screenshotPath || !existsSync(screenshotPath)) {
       console.log('   ℹ️  Sample screenshot not found');
-      return;
+      this.skip();
     }
     
     // Test validation on a real sample
@@ -84,12 +85,12 @@ describe('WebUI Dataset Tests', () => {
     assert.ok(Array.isArray(result.issues), 'Issues should be an array');
   });
   
-  it('should filter dataset samples by criteria', async () => {
+  it('should filter dataset samples by criteria', async function() {
     const dataset = await loadWebUIDataset({ limit: 50, cache: true });
     
     if (!dataset || !dataset.samples || dataset.samples.length === 0) {
       console.log('   ℹ️  No samples available');
-      return;
+      this.skip();
     }
     
     // Filter by viewport
