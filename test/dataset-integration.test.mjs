@@ -17,7 +17,7 @@ const WCAG_GROUND_TRUTH = join(process.cwd(), 'evaluation', 'datasets', 'wcag-gr
 describe('Dataset Integration Tests', () => {
   
   describe('WebUI Dataset Integration', () => {
-    it('should load and validate WebUI samples', async () => {
+    it('should load and validate WebUI samples', async function() {
       let dataset;
       try {
         dataset = await loadWebUIDataset({ limit: 5, cache: true });
@@ -41,7 +41,7 @@ describe('Dataset Integration Tests', () => {
       }
     });
     
-    it('should work with StateValidator', async () => {
+    it('should work with StateValidator', async function() {
       if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
         console.log('   ℹ️  Skipping - no API key available');
         this.skip();
@@ -73,7 +73,7 @@ describe('Dataset Integration Tests', () => {
       assert.ok('matches' in result, 'Result should have matches property');
     });
     
-    it('should work with AccessibilityValidator', async () => {
+    it('should work with AccessibilityValidator', async function() {
       if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
         console.log('   ℹ️  Skipping - no API key available');
         this.skip();
