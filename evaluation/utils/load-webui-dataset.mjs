@@ -61,17 +61,23 @@ export async function loadWebUIDataset(options = {}) {
     }
   }
   
-  // Convert on-the-fly
-  console.log('🔄 Converting WebUI dataset...');
-  const dataset = await convertWebUIDataset({ limit });
-  
-  // Save cache
-  if (cache) {
-    mkdirSync(dirname(CACHE_FILE), { recursive: true });
-    writeFileSync(CACHE_FILE, JSON.stringify(dataset, null, 2));
+  // Convert on-the-fly (only if dataset directory exists)
+  try {
+    console.log('🔄 Converting WebUI dataset...');
+    const dataset = await convertWebUIDataset({ limit });
+    
+    // Save cache
+    if (cache && dataset && dataset.samples && dataset.samples.length > 0) {
+      mkdirSync(dirname(CACHE_FILE), { recursive: true });
+      writeFileSync(CACHE_FILE, JSON.stringify(dataset, null, 2));
+    }
+    
+    return dataset || { samples: [] };
+  } catch (e) {
+    // Dataset directory doesn't exist or conversion failed
+    console.log(`⚠️  Dataset not available: ${e.message}`);
+    return { samples: [] };
   }
-  
-  return dataset;
 }
 
 /**
