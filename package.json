@@ -78,7 +78,8 @@
   "author": "arclabs561 <henry@henrywallace.io>",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "async-mutex": "0.5.0"
   },
   "peerDependencies": {
     "@arclabs561/llm-utils": "*",
@@ -94,7 +95,6 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
-    "async-mutex": "0.5.0",
     "fast-check": "4.3.0",
     "proper-lockfile": "4.1.2"
   },
