@@ -21,6 +21,12 @@ describe('WebUI Dataset Tests', () => {
     assert.ok(dataset, 'Dataset should be loaded');
     assert.ok(Array.isArray(dataset.samples), 'Dataset should have samples array');
     
+    // Gracefully handle missing dataset directory (removed from repo)
+    if (dataset.samples.length === 0) {
+      console.log('   ℹ️  No samples available (dataset directory not present)');
+      return; // Skip test if dataset not available
+    }
+    
     if (dataset.samples.length > 0) {
       const sample = dataset.samples[0];
       assert.ok(sample.id, 'Sample should have id');

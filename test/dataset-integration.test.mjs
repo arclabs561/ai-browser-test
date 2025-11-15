@@ -18,16 +18,12 @@ describe('Dataset Integration Tests', () => {
   
   describe('WebUI Dataset Integration', () => {
     it('should load and validate WebUI samples', async () => {
-      if (!existsSync(WEBUI_GROUND_TRUTH)) {
-        console.log('   ℹ️  WebUI ground truth not parsed. Run: npm run datasets:parse');
-        return;
-      }
-      
       const dataset = await loadWebUIDataset({ limit: 5, cache: true });
       
+      // Gracefully handle missing dataset directory (removed from repo)
       if (!dataset || !dataset.samples || dataset.samples.length === 0) {
-        console.log('   ℹ️  No samples available');
-        return;
+        console.log('   ℹ️  No samples available (dataset directory not present)');
+        return; // Skip test if dataset not available
       }
       
       assert.ok(dataset.samples.length > 0, 'Should have samples');

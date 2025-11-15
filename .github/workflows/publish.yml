@@ -45,6 +45,8 @@ jobs:
       
       - name: Run tests
         run: npm test
+        continue-on-error: false
+        # Note: Tests must pass for publishing. If tests fail, investigate locally first.
       
       - name: Run security audit
         run: npm audit --audit-level=high

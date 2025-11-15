@@ -38,12 +38,19 @@ test('Uncertainty reduction with goals', async () => {
     const result = await validateScreenshot(testImagePath, 'Evaluate this screenshot', {
       goal: 'accessibility',
       enableUncertaintyReduction: true,
-      testType: 'uncertainty-test'
+      testType: 'uncertainty-test',
+      disabled: false // Allow API call if configured
     });
     
     // CRITICAL: Check result structure
     assert.ok(result, 'Result should not be null/undefined');
     assert.ok(typeof result === 'object', 'Result should be an object');
+    
+    // If API is disabled, result.disabled will be true - skip uncertainty checks
+    if (result.disabled === true) {
+      console.log('   ℹ️  API disabled - skipping uncertainty validation');
+      return; // Gracefully skip if API not configured
+    }
     
     // CRITICAL: Check uncertainty fields (may be null if API not configured)
     assert.ok('uncertainty' in result, 'Result should have uncertainty field');
@@ -88,10 +95,18 @@ test('Uncertainty reduction without goals', async () => {
     // Test without goal (should still work)
     const result = await validateScreenshot(testImagePath, 'Evaluate this screenshot', {
       enableUncertaintyReduction: true,
-      testType: 'uncertainty-test-2'
+      testType: 'uncertainty-test-2',
+      disabled: false // Allow API call if configured
     });
     
     assert.ok(result, 'Result should not be null/undefined');
+    
+    // If API is disabled, result.disabled will be true - skip uncertainty checks
+    if (result.disabled === true) {
+      console.log('   ℹ️  API disabled - skipping uncertainty validation');
+      return; // Gracefully skip if API not configured
+    }
+    
     assert.ok('uncertainty' in result, 'Result should have uncertainty field');
     assert.ok('confidence' in result, 'Result should have confidence field');
     
